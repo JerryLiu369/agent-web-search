@@ -11,9 +11,10 @@ Agent Web Search gives Hermes, Codex CLI, Claude Code, OpenCode, and ordinary sc
 Optional providers are also implemented:
 
 - **Gemini** — Google Search grounding via Gemini Interactions API
-- **Grok** — xAI Responses API via `web_search`; set `AGENT_WEB_SEARCH_GROK_TOOL=x_search` for X search
+- **Grok** — xAI Responses API with native web search and X Search
+- **Tavily** — Tavily Search API with native result-count and time-range filters
 
-The architecture is provider-based, so Gemini, Grok, DeepSeek, Brave, Tavily, and other search-capable providers can be added without changing the MCP or Hermes interfaces.
+The architecture is provider-based, so DeepSeek, Brave, and other search-capable providers can be added without changing the MCP or Hermes interfaces.
 
 ## Quick start
 
@@ -119,6 +120,7 @@ Agent Web Search does not require participation in any rewards program. Users wh
 - `AGENT_WEB_SEARCH_GEMINI_MODEL`: optional Gemini model ID.
 - `XAI_API_KEY`: optional Grok provider key.
 - `AGENT_WEB_SEARCH_GROK_MODEL`: optional Grok model ID.
+- `TAVILY_API_KEY`: optional Tavily provider key.
 
 The provider set is resolved when the Hermes plugin or MCP server starts. The
 public `web_search` schema is generated from that set. A request can narrow the

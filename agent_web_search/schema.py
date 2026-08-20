@@ -8,6 +8,7 @@ PROVIDER_DESCRIPTIONS = {
     "exa": "Exa web search",
     "gemini": "Gemini Google Search grounding",
     "grok": "Grok web search and X Search",
+    "tavily": "Tavily web search",
 }
 
 

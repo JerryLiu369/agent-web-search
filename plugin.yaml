@@ -10,6 +10,7 @@ requires_env:
 optional_env:
   - GEMINI_API_KEY
   - XAI_API_KEY
+  - TAVILY_API_KEY
 python_dependencies:
   - ddgs>=9.0
 provides_tools:

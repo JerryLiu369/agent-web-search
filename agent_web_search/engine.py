@@ -10,6 +10,7 @@ from .providers import (
     ExaProvider,
     GeminiProvider,
     GrokProvider,
+    TavilyProvider,
 )
 
 
@@ -22,6 +23,7 @@ class SearchEngine:
             "exa": ExaProvider(timeout=timeout),
             "gemini": GeminiProvider(timeout=timeout),
             "grok": GrokProvider(timeout=timeout),
+            "tavily": TavilyProvider(timeout=timeout),
         }
         configured = [
             item.strip()
