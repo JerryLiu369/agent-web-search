@@ -7,6 +7,9 @@ homepage: https://github.com/JerryLiu369/agent-web-search
 kind: standalone
 requires_env:
   - ARK_API_KEY
+optional_env:
+  - GEMINI_API_KEY
+  - XAI_API_KEY
 python_dependencies:
   - ddgs>=9.0
 provides_tools:

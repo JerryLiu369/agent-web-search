@@ -8,6 +8,11 @@ Agent Web Search gives Hermes, Codex CLI, Claude Code, OpenCode, and ordinary sc
 - **DDGS** — DuckDuckGo search
 - **Exa** — Exa MCP search (best effort; availability depends on the endpoint)
 
+Optional providers are also implemented:
+
+- **Gemini** — Google Search grounding via Gemini Interactions API
+- **Grok** — xAI Responses API via `web_search`; set `AGENT_WEB_SEARCH_GROK_TOOL=x_search` for X search
+
 The architecture is provider-based, so Gemini, Grok, DeepSeek, Brave, Tavily, and other search-capable providers can be added without changing the MCP or Hermes interfaces.
 
 ## Quick start
@@ -110,6 +115,11 @@ Agent Web Search does not require participation in any rewards program. Users wh
 - `AGENT_WEB_SEARCH_TIMEOUT`: per-provider timeout in seconds (default `60`).
 - `AGENT_WEB_SEARCH_ARK_MODELS`: comma-separated ARK model IDs.
 - `EXA_MCP_URL`: optional Exa MCP endpoint override.
+- `GEMINI_API_KEY`: optional Gemini provider key.
+- `AGENT_WEB_SEARCH_GEMINI_MODEL`: optional Gemini model ID.
+- `XAI_API_KEY`: optional Grok provider key.
+- `AGENT_WEB_SEARCH_GROK_MODEL`: optional Grok model ID.
+- `AGENT_WEB_SEARCH_GROK_TOOL`: `web_search` by default, or `x_search`.
 
 ## Design principles
 

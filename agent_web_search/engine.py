@@ -4,7 +4,13 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .models import ProviderResponse, SearchRequest, SearchResponse
-from .providers import ArkProvider, DDGSProvider, ExaProvider
+from .providers import (
+    ArkProvider,
+    DDGSProvider,
+    ExaProvider,
+    GeminiProvider,
+    GrokProvider,
+)
 
 
 class SearchEngine:
@@ -14,12 +20,15 @@ class SearchEngine:
             "ark": ArkProvider(timeout=timeout),
             "ddgs": DDGSProvider(timeout=timeout),
             "exa": ExaProvider(timeout=timeout),
+            "gemini": GeminiProvider(timeout=timeout),
+            "grok": GrokProvider(timeout=timeout),
         }
         configured = [
             item.strip()
             for item in os.getenv("AGENT_WEB_SEARCH_PROVIDERS", "ark,ddgs,exa").split(",")
             if item.strip()
         ]
+        self._all_providers = all_providers
         self.providers = (
             all_providers
             if providers is not None
@@ -31,11 +40,11 @@ class SearchEngine:
         if not query:
             raise ValueError("query must not be empty")
         selected = request.providers or list(self.providers)
-        selected = [x for x in selected if x in self.providers]
+        selected = [x for x in selected if x in self._all_providers]
         output = {}
         with ThreadPoolExecutor(max_workers=max(1, len(selected))) as pool:
             futures = {
-                pool.submit(self.providers[name].search, request): name
+                pool.submit(self._all_providers[name].search, request): name
                 for name in selected
             }
             for future in as_completed(futures):

@@ -26,7 +26,7 @@ def register(ctx):
                 "time_range": {"type": "string", "enum": ["d", "w", "m", "y"]},
                 "providers": {
                     "type": "array",
-                    "items": {"type": "string", "enum": ["ark", "ddgs", "exa"]},
+                    "items": {"type": "string", "enum": ["ark", "ddgs", "exa", "gemini", "grok"]},
                 },
             },
             "required": ["query"],

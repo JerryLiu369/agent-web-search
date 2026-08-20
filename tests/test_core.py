@@ -33,3 +33,19 @@ def test_empty_query_rejected():
         assert "empty" in str(exc)
     else:
         assert False
+
+
+def test_optional_provider_selection_is_not_enabled_by_default(monkeypatch):
+    monkeypatch.delenv("AGENT_WEB_SEARCH_PROVIDERS", raising=False)
+    engine = SearchEngine(
+        providers={"ark": Fake("ark"), "gemini": Fake("gemini")}
+    )
+    assert list(engine.providers) == ["ark", "gemini"]
+
+
+def test_optional_provider_can_be_selected_explicitly(monkeypatch):
+    monkeypatch.delenv("AGENT_WEB_SEARCH_PROVIDERS", raising=False)
+    engine = SearchEngine()
+    result = engine.search(SearchRequest("hello", providers=["gemini"]))
+    assert list(result.providers) == ["gemini"]
+    assert result.providers["gemini"].error == "GEMINI_API_KEY is not set"
