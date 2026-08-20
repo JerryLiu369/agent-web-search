@@ -36,5 +36,5 @@ def register(ctx):
         handler=handler,
         emoji="🔎",
         override=True,
-        requires_env=["ARK_API_KEY"],
+
     )

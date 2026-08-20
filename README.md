@@ -19,6 +19,7 @@ The architecture is provider-based, so DeepSeek, Brave, and other search-capable
 ## Quick start
 
 ```bash
+# Omit this line when the ARK provider is not enabled.
 export ARK_API_KEY="your_ark_api_key"
 pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 agent-web-search-mcp
@@ -111,7 +112,7 @@ Agent Web Search does not require participation in any rewards program. Users wh
 
 ## Configuration
 
-- `ARK_API_KEY`: required only for the ARK provider; comma/newline-separated keys are accepted.
+- `ARK_API_KEY`: optional; required only when the ARK provider is enabled. Comma/newline-separated keys are accepted.
 - `AGENT_WEB_SEARCH_PROVIDERS`: startup-enabled provider set; default is `ark,ddgs,exa`.
 - `AGENT_WEB_SEARCH_TIMEOUT`: per-provider timeout in seconds (default `60`).
 - `AGENT_WEB_SEARCH_ARK_MODELS`: comma-separated ARK model IDs.
