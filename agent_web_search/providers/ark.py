@@ -1,0 +1,177 @@
+from __future__ import annotations
+
+import json
+import os
+import random
+import urllib.error
+import urllib.request
+
+from ..models import ProviderResponse, SearchRequest, SearchResult
+from .base import Provider
+
+DEFAULT_MODELS = [
+    "glm-5-2-260617",
+    "doubao-seed-2-1-turbo-260628",
+    "deepseek-v4-flash-ga-260731",
+]
+ENDPOINT = "https://ark.cn-beijing.volces.com/api/v3/responses"
+CONTINUE_PROMPT = "请基于刚才的搜索结果，给出完整综合回答。"
+
+
+class ArkProvider(Provider):
+    name = "ark"
+
+    def __init__(
+        self,
+        api_key: str | None = None,
+        models: list[str] | None = None,
+        timeout: float = 60,
+    ):
+        self.api_key = api_key or os.getenv("ARK_API_KEY", "")
+        self.models = models or [
+            x.strip()
+            for x in os.getenv("AGENT_WEB_SEARCH_ARK_MODELS", ",".join(DEFAULT_MODELS)).split(
+                ","
+            )
+            if x.strip()
+        ]
+        self.timeout = timeout
+
+    def _key(self) -> str:
+        keys = [
+            x.strip() for x in self.api_key.replace("\n", ",").split(",") if x.strip()
+        ]
+        return random.choice(keys) if keys else ""
+
+    @staticmethod
+    def parse(data: dict) -> ProviderResponse:
+        output = data.get("output") or []
+        messages = [x for x in output if x.get("type") == "message"]
+        answer = ""
+        citations: list[SearchResult] = []
+        for message in messages:
+            for content in message.get("content") or []:
+                if (
+                    content.get("type") == "output_text"
+                    and (content.get("text") or "").strip()
+                ):
+                    answer = content["text"]
+                for annotation in content.get("annotations") or []:
+                    if annotation.get("type") == "url_citation" and annotation.get(
+                        "url"
+                    ):
+                        citations.append(
+                            SearchResult(
+                                title=annotation.get("title", ""),
+                                url=annotation["url"],
+                                provider="ark",
+                                description="",
+                            )
+                        )
+        unique = {}
+        for item in citations:
+            unique.setdefault(item.url, item)
+        searched = any(
+            x.get("type") == "web_search_call"
+            and x.get("status") == "completed"
+            for x in output
+        )
+        return ProviderResponse(
+            provider="ark",
+            answer=answer,
+            citations=list(unique.values()),
+            model=data.get("model", ""),
+            searched=searched,
+        )
+
+    def search(self, request: SearchRequest) -> ProviderResponse:
+        key = self._key()
+        if not key:
+            return ProviderResponse(provider=self.name, error="ARK_API_KEY is not set")
+        labels = {
+            "d": "过去24小时内",
+            "w": "过去一周内",
+            "m": "过去一月内",
+            "y": "过去一年内",
+        }
+        prompt = f"{labels.get(request.time_range, '')}搜索：{request.query}"
+        payload = {
+            "model": random.choice(self.models),
+            "input": [
+                {"role": "user", "content": [{"type": "input_text", "text": prompt}]}
+            ],
+            "tools": [
+                {
+                    "type": "web_search",
+                    "max_keyword": max(1, min(10, request.max_keyword)),
+                    "limit": max(1, min(20, request.max_results)),
+                }
+            ],
+            "max_tool_calls": 2,
+            "stream": False,
+            "thinking": {"type": "enabled"},
+            "reasoning": {"effort": "low"},
+            "max_output_tokens": 4096,
+        }
+        req = urllib.request.Request(
+            ENDPOINT,
+            data=json.dumps(payload).encode(),
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                data = json.loads(response.read().decode())
+                parsed = self.parse(data)
+                if (
+                    parsed.searched
+                    and len(parsed.answer.strip()) < 100
+                    and data.get("id")
+                ):
+                    continued = self._continue(key, data["id"])
+                    if continued.answer.strip():
+                        parsed.answer = continued.answer
+                    if continued.citations:
+                        parsed.citations = continued.citations
+                return parsed
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode(errors="replace")[:500]
+            return ProviderResponse(
+                provider=self.name,
+                model=payload["model"],
+                error=f"ARK HTTP {exc.code}: {body}",
+            )
+        except Exception as exc:  # noqa: BLE001 - provider/network errors vary
+            return ProviderResponse(
+                provider=self.name,
+                model=payload["model"],
+                error=f"ARK {type(exc).__name__}: {exc}",
+            )
+
+    def _continue(self, key: str, response_id: str) -> ProviderResponse:
+        payload = {
+            "previous_response_id": response_id,
+            "input": CONTINUE_PROMPT,
+            "stream": False,
+            "max_output_tokens": 4096,
+        }
+        req = urllib.request.Request(
+            ENDPOINT,
+            data=json.dumps(payload).encode(),
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                return self.parse(json.loads(response.read().decode()))
+        except Exception as exc:  # noqa: BLE001 - fallback must never fail the search
+            return ProviderResponse(
+                provider=self.name,
+                error=f"ARK continuation {type(exc).__name__}: {exc}",
+            )

@@ -1,0 +1,13 @@
+name: agent-web-search
+version: 0.1.0
+description: Multi-provider web search for Hermes — ARK grounding, DuckDuckGo, and Exa.
+author: Jerry Liu
+license: MIT
+homepage: https://github.com/JerryLiu369/agent-web-search
+kind: standalone
+requires_env:
+  - ARK_API_KEY
+python_dependencies:
+  - ddgs>=9.0
+provides_tools:
+  - web_search

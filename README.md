@@ -1,0 +1,133 @@
+# Agent Web Search
+
+**Multi-provider web search for AI agents.**
+
+Agent Web Search gives Hermes, Codex CLI, Claude Code, OpenCode, and ordinary scripts one consistent web-search tool. It runs independent providers concurrently and returns normalized results. The default provider set is:
+
+- **ARK grounding** — 火山方舟 Responses API + `web_search`
+- **DDGS** — DuckDuckGo search
+- **Exa** — Exa MCP search (best effort; availability depends on the endpoint)
+
+The architecture is provider-based, so Gemini, Grok, DeepSeek, Brave, Tavily, and other search-capable providers can be added without changing the MCP or Hermes interfaces.
+
+## Quick start
+
+```bash
+export ARK_API_KEY="your_ark_api_key"
+pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
+agent-web-search-mcp
+```
+
+Do not put API keys in shell history, source code, Git commits, or screenshots. Use a local `.env`/secret manager and export the variable in the process environment.
+
+## Use from Codex CLI
+
+```bash
+export ARK_API_KEY="your_ark_api_key"
+codex mcp add agent-web-search -- \
+  agent-web-search-mcp
+codex mcp list
+```
+
+## Use from Claude Code
+
+```bash
+export ARK_API_KEY="your_ark_api_key"
+claude mcp add agent-web-search -- \
+  agent-web-search-mcp
+```
+
+Or add a project `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "agent-web-search": {
+      "command": "agent-web-search-mcp",
+      "args": [],
+      "env": {"ARK_API_KEY": "${ARK_API_KEY}"}
+    }
+  }
+}
+```
+
+## Use from OpenCode
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "agent-web-search": {
+      "type": "local",
+      "command": ["agent-web-search-mcp"],
+      "environment": {"ARK_API_KEY": "${ARK_API_KEY}"},
+      "enabled": true
+    }
+  }
+}
+```
+
+## Use from Hermes
+
+Install the native plugin directly from GitHub:
+
+```bash
+pip install 'ddgs>=9.0'
+hermes plugins install JerryLiu369/agent-web-search --no-enable
+hermes plugins enable agent-web-search --allow-tool-override
+```
+
+The plugin registers the standard `web_search` tool and calls the same
+Agent Web Search core used by MCP and CLI. If you prefer the generic MCP path,
+Hermes can also connect with `hermes mcp add`.
+
+The GitHub installer installs the package and its optional dependencies:
+
+```bash
+pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
+```
+
+Hermes requires the explicit `--allow-tool-override` grant because this plugin
+intentionally replaces its built-in `web_search` tool. Start a new Hermes
+session after enabling it; restart the gateway if you use a messaging channel.
+
+## CLI
+
+```bash
+agent-web-search "What changed in the latest OpenAI Codex CLI?"
+agent-web-search "GPU kernel generation papers from the past month" --time-range m --max-results 5
+agent-web-search "latest news" --provider ark --provider ddgs
+```
+
+## Volcengine collaboration rewards
+
+Agent Web Search does not require participation in any rewards program. Users who choose to use ARK can create their own API key and optionally review the official **[Volcengine Collaboration Rewards Program](https://www.volcengine.com/docs/82379/1391869?lang=zh)**. The program may provide reward resources according to its current rules, but quota, supported models, validity period, and data authorization terms can change. Check the official page before opting in. Participation means accepting the provider's data-authorization terms; it is not required to use Agent Web Search.
+
+## Configuration
+
+- `ARK_API_KEY`: required only for the ARK provider; comma/newline-separated keys are accepted.
+- `AGENT_WEB_SEARCH_PROVIDERS`: comma-separated providers enabled by default.
+- `AGENT_WEB_SEARCH_TIMEOUT`: per-provider timeout in seconds (default `60`).
+- `AGENT_WEB_SEARCH_ARK_MODELS`: comma-separated ARK model IDs.
+- `EXA_MCP_URL`: optional Exa MCP endpoint override.
+
+## Design principles
+
+- One core, multiple adapters.
+- A failed provider does not discard successful providers.
+- Provider responses are marked with `searched`, `error`, and `model` instead of pretending every HTTP 200 was a successful search.
+- No telemetry and no shared API key service.
+
+## Development
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+pip install -e '.[dev,ddgs,mcp]'
+pytest -q
+ruff check .
+```
+
+## License
+
+MIT.

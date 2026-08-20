@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-web-search-mcp"
+version = "0.1.0"
+description = "A multi-provider web search layer for AI agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Jerry Liu"}]
+dependencies = ["ddgs>=9.0", "mcp>=2.0,<3"]
+
+[project.urls]
+Homepage = "https://github.com/JerryLiu369/agent-web-search"
+Repository = "https://github.com/JerryLiu369/agent-web-search"
+Issues = "https://github.com/JerryLiu369/agent-web-search/issues"
+
+[project.optional-dependencies]
+ddgs = ["ddgs>=9.0"]
+mcp = ["mcp>=2.0,<3"]
+dev = ["build>=1.2", "pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+agent-web-search = "agent_web_search.cli:main"
+agent-web-search-mcp = "agent_web_search.mcp:main"
+
+[tool.setuptools.packages.find]
+include = ["agent_web_search*"]
+
+[tool.ruff]
+exclude = [".git", ".venv", "build", "dist", "*.egg-info"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["N999"]
