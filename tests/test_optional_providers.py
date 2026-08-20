@@ -4,8 +4,12 @@ from agent_web_search.schema import build_tool_schema
 
 
 def test_schema_only_exposes_grok_option_when_enabled():
-    assert "grok_search_mode" not in build_tool_schema(["ark", "ddgs", "exa"])["parameters"]["properties"]
-    assert "grok_search_mode" in build_tool_schema(["ark", "grok"])["parameters"]["properties"]
+    default_schema = build_tool_schema(["ark", "ddgs", "exa"])
+    grok_schema = build_tool_schema(["ark", "grok"])
+    assert "grok_search_mode" not in default_schema["parameters"]["properties"]
+    assert "grok_search_mode" in grok_schema["parameters"]["properties"]
+    assert "Volcengine ARK web search (Doubao)" in default_schema["description"]
+    assert "ark" not in default_schema["description"]
 
 
 def test_gemini_parse_citations():

@@ -2,6 +2,14 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
+PROVIDER_DESCRIPTIONS = {
+    "ark": "Volcengine ARK web search (Doubao)",
+    "ddgs": "DuckDuckGo web search",
+    "exa": "Exa web search",
+    "gemini": "Gemini Google Search grounding",
+    "grok": "Grok web search and X Search",
+}
+
 
 def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
     """Build the public web_search schema from startup-enabled providers."""
@@ -9,7 +17,7 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
     properties = {
         "query": {
             "type": "string",
-            "description": "Complete natural-language search question.",
+            "description": "A complete natural-language search question.",
         },
         "max_results": {
             "type": "integer",
@@ -26,12 +34,12 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
         "time_range": {
             "type": "string",
             "enum": ["d", "w", "m", "y"],
-            "description": "Past day, week, month, or year.",
+            "description": "Optional time filter: past day, week, month, or year.",
         },
         "providers": {
             "type": "array",
             "items": {"type": "string", "enum": providers},
-            "description": "Optional subset of the startup-enabled providers.",
+            "description": "Optional subset of the providers enabled at startup.",
         },
     }
     if "grok" in providers:
@@ -40,16 +48,16 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
             "enum": ["web_search", "x_search", "both"],
             "default": "web_search",
             "description": (
-                "Grok-only mode: search the web, search X, or expose both "
-                "tools to Grok in the same request."
+                "Grok-only mode: use web search, X search, or expose both "
+                "server-side tools in one request."
             ),
         }
     return {
         "name": "web_search",
         "description": (
-            "Multi-provider web search. Enabled providers: "
-            + ", ".join(providers)
-            + ". Pass a complete natural-language question."
+            "Search the web through multiple providers. Enabled providers: "
+            + "; ".join(PROVIDER_DESCRIPTIONS.get(name, name) for name in providers)
+            + ". Use a complete natural-language question."
         ),
         "parameters": {
             "type": "object",
