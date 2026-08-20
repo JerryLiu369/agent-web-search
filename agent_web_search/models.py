@@ -11,6 +11,7 @@ class SearchRequest:
     max_keyword: int = 3
     time_range: str | None = None
     providers: list[str] | None = None
+    grok_search_mode: str = "web_search"
 
 
 @dataclass

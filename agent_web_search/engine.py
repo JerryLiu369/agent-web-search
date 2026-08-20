@@ -35,12 +35,18 @@ class SearchEngine:
             else {name: all_providers[name] for name in configured if name in all_providers}
         )
 
+    @property
+    def enabled_provider_names(self) -> list[str]:
+        return list(self.providers)
+
     def search(self, request: SearchRequest) -> SearchResponse:
         query = request.query.strip()
         if not query:
             raise ValueError("query must not be empty")
         selected = request.providers or list(self.providers)
-        selected = [x for x in selected if x in self._all_providers]
+        # A request may narrow the startup-enabled set, but cannot enable a
+        # provider after registration/schema construction.
+        selected = [x for x in selected if x in self.providers]
         output = {}
         with ThreadPoolExecutor(max_workers=max(1, len(selected))) as pool:
             futures = {

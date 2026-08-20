@@ -1,5 +1,11 @@
 from agent_web_search.providers.gemini import GeminiProvider
 from agent_web_search.providers.grok import GrokProvider
+from agent_web_search.schema import build_tool_schema
+
+
+def test_schema_only_exposes_grok_option_when_enabled():
+    assert "grok_search_mode" not in build_tool_schema(["ark", "ddgs", "exa"])["parameters"]["properties"]
+    assert "grok_search_mode" in build_tool_schema(["ark", "grok"])["parameters"]["properties"]
 
 
 def test_gemini_parse_citations():

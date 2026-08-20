@@ -111,7 +111,7 @@ Agent Web Search does not require participation in any rewards program. Users wh
 ## Configuration
 
 - `ARK_API_KEY`: required only for the ARK provider; comma/newline-separated keys are accepted.
-- `AGENT_WEB_SEARCH_PROVIDERS`: comma-separated providers enabled by default.
+- `AGENT_WEB_SEARCH_PROVIDERS`: startup-enabled provider set; default is `ark,ddgs,exa`.
 - `AGENT_WEB_SEARCH_TIMEOUT`: per-provider timeout in seconds (default `60`).
 - `AGENT_WEB_SEARCH_ARK_MODELS`: comma-separated ARK model IDs.
 - `EXA_MCP_URL`: optional Exa MCP endpoint override.
@@ -119,7 +119,14 @@ Agent Web Search does not require participation in any rewards program. Users wh
 - `AGENT_WEB_SEARCH_GEMINI_MODEL`: optional Gemini model ID.
 - `XAI_API_KEY`: optional Grok provider key.
 - `AGENT_WEB_SEARCH_GROK_MODEL`: optional Grok model ID.
-- `AGENT_WEB_SEARCH_GROK_TOOL`: `web_search` by default, or `x_search`.
+
+The provider set is resolved when the Hermes plugin or MCP server starts. The
+public `web_search` schema is generated from that set. A request can narrow the
+set with `providers`, but cannot activate a provider that was disabled at
+startup. If `grok` is startup-enabled, the schema additionally exposes
+`grok_search_mode` with `web_search`, `x_search`, and `both` values. `both`
+passes both xAI server-side tools in one request and lets Grok decide which to
+call; it does not send two independent requests.
 
 ## Design principles
 

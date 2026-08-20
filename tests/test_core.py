@@ -43,9 +43,8 @@ def test_optional_provider_selection_is_not_enabled_by_default(monkeypatch):
     assert list(engine.providers) == ["ark", "gemini"]
 
 
-def test_optional_provider_can_be_selected_explicitly(monkeypatch):
-    monkeypatch.delenv("AGENT_WEB_SEARCH_PROVIDERS", raising=False)
+def test_disabled_provider_cannot_be_selected_at_request_time(monkeypatch):
+    monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ark,ddgs,exa")
     engine = SearchEngine()
     result = engine.search(SearchRequest("hello", providers=["gemini"]))
-    assert list(result.providers) == ["gemini"]
-    assert result.providers["gemini"].error == "GEMINI_API_KEY is not set"
+    assert list(result.providers) == []

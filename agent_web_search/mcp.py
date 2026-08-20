@@ -1,44 +1,62 @@
 from __future__ import annotations
 
+import asyncio
 import json
 
 from .engine import SearchEngine
 from .models import SearchRequest
+from .schema import build_tool_schema
 
 
 def main():
-    from mcp.server import MCPServer
+    import mcp_types as types
+    from mcp.server.lowlevel import Server
+    from mcp.server.stdio import stdio_server
 
-    mcp = MCPServer(
+    engine = SearchEngine()
+    schema = build_tool_schema(engine.enabled_provider_names)
+
+    async def list_tools(_ctx, _params):
+        return types.ListToolsResult(
+            tools=[
+                types.Tool(
+                    name="web_search",
+                    description=schema["description"],
+                    inputSchema=schema["parameters"],
+                )
+            ]
+        )
+
+    async def call_tool(_ctx, params):
+        if params.name != "web_search":
+            return types.CallToolResult(
+                content=[types.TextContent(text=f"Unknown tool: {params.name}")],
+                isError=True,
+            )
+        args = params.arguments or {}
+        result = engine.search(
+            SearchRequest(
+                query=args.get("query", ""),
+                max_results=args.get("max_results", 10),
+                max_keyword=args.get("max_keyword", 3),
+                time_range=args.get("time_range"),
+                providers=args.get("providers"),
+                grok_search_mode=args.get("grok_search_mode", "web_search"),
+            )
+        )
+        return types.CallToolResult(
+            content=[types.TextContent(text=json.dumps(result.to_dict(), ensure_ascii=False))]
+        )
+
+    server = Server(
         "agent_web_search",
         description="Multi-provider web search for AI agents",
+        on_list_tools=list_tools,
+        on_call_tool=call_tool,
     )
-    engine = SearchEngine()
 
-    @mcp.tool(
-        description=(
-            "Search the web through multiple providers: "
-            "ARK grounding, DuckDuckGo, and Exa."
-        )
-    )
-    def web_search(
-        query: str,
-        max_results: int = 10,
-        max_keyword: int = 3,
-        time_range: str | None = None,
-        providers: list[str] | None = None,
-    ) -> str:
-        return json.dumps(
-            engine.search(
-                SearchRequest(
-                    query=query,
-                    max_results=max_results,
-                    max_keyword=max_keyword,
-                    time_range=time_range,
-                    providers=providers,
-                )
-            ).to_dict(),
-            ensure_ascii=False,
-        )
+    async def run():
+        async with stdio_server() as (read_stream, write_stream):
+            await server.run(read_stream, write_stream, server.create_initialization_options())
 
-    mcp.run()
+    asyncio.run(run())

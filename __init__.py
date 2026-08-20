@@ -5,34 +5,16 @@ import json
 try:
     from .agent_web_search.engine import SearchEngine
     from .agent_web_search.models import SearchRequest
+    from .agent_web_search.schema import build_tool_schema
 except ImportError:  # Direct validation/test import outside Hermes' plugin namespace.
     from agent_web_search.engine import SearchEngine
     from agent_web_search.models import SearchRequest
+    from agent_web_search.schema import build_tool_schema
 
 
 def register(ctx):
-    schema = {
-        "name": "web_search",
-        "description": (
-            "Multi-provider web search using ARK grounding, DuckDuckGo, and Exa. "
-            "Pass a complete natural-language question."
-        ),
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {"type": "string", "description": "Complete search question."},
-                "max_results": {"type": "integer", "minimum": 1, "maximum": 20, "default": 10},
-                "max_keyword": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
-                "time_range": {"type": "string", "enum": ["d", "w", "m", "y"]},
-                "providers": {
-                    "type": "array",
-                    "items": {"type": "string", "enum": ["ark", "ddgs", "exa", "gemini", "grok"]},
-                },
-            },
-            "required": ["query"],
-        },
-    }
     engine = SearchEngine()
+    schema = build_tool_schema(engine.enabled_provider_names)
 
     def handler(args, **kwargs):
         response = engine.search(
@@ -42,6 +24,7 @@ def register(ctx):
                 max_keyword=args.get("max_keyword", 3),
                 time_range=args.get("time_range"),
                 providers=args.get("providers"),
+                grok_search_mode=args.get("grok_search_mode", "web_search"),
             )
         )
         return json.dumps(response.to_dict(), ensure_ascii=False)

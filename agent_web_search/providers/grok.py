@@ -53,11 +53,18 @@ class GrokProvider(Provider):
     def search(self, request: SearchRequest) -> ProviderResponse:
         if not self.api_key:
             return ProviderResponse(provider=self.name, model=self.model, error="XAI_API_KEY is not set")
-        tool_name = "x_search" if os.getenv("AGENT_WEB_SEARCH_GROK_TOOL", "web_search") == "x_search" else "web_search"
+        mode = request.grok_search_mode
+        if mode not in {"web_search", "x_search", "both"}:
+            return ProviderResponse(
+                provider=self.name,
+                model=self.model,
+                error=f"Unsupported grok_search_mode: {mode}",
+            )
+        tool_names = ["web_search", "x_search"] if mode == "both" else [mode]
         payload = {
             "model": self.model,
             "input": [{"role": "user", "content": request.query}],
-            "tools": [{"type": tool_name}],
+            "tools": [{"type": name} for name in tool_names],
         }
         req = urllib.request.Request(
             ENDPOINT,
@@ -67,7 +74,7 @@ class GrokProvider(Provider):
         )
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
-                parsed = self.parse(json.loads(response.read().decode()), tool_name)
+                parsed = self.parse(json.loads(response.read().decode()), ",".join(tool_names))
                 parsed.model = self.model
                 return parsed
         except urllib.error.HTTPError as exc:
