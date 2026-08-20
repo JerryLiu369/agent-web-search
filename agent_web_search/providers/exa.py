@@ -34,7 +34,13 @@ class ExaProvider(Provider):
                 if ":" in stripped:
                     key, value = stripped.split(":", 1)
                     normalized = key.lower()
-                    if normalized in {"title", "url", "published", "author", "highlights"}:
+                    if normalized in {
+                        "title",
+                        "url",
+                        "published",
+                        "author",
+                        "highlights",
+                    }:
                         fields[normalized] = value.strip()
                         in_highlights = normalized == "highlights"
                         if in_highlights and value.strip():

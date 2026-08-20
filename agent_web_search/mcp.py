@@ -34,18 +34,11 @@ def main():
                 isError=True,
             )
         args = params.arguments or {}
-        result = engine.search(
-            SearchRequest(
-                query=args.get("query", ""),
-                max_results=args.get("max_results", 10),
-                max_keyword=args.get("max_keyword", 3),
-                time_range=args.get("time_range"),
-                providers=args.get("providers"),
-                grok_search_mode=args.get("grok_search_mode", "web_search"),
-            )
-        )
+        result = engine.search(SearchRequest.from_mapping(args))
         return types.CallToolResult(
-            content=[types.TextContent(text=json.dumps(result.to_dict(), ensure_ascii=False))]
+            content=[
+                types.TextContent(text=json.dumps(result.to_dict(), ensure_ascii=False))
+            ]
         )
 
     server = Server(
@@ -57,6 +50,8 @@ def main():
 
     async def run():
         async with stdio_server() as (read_stream, write_stream):
-            await server.run(read_stream, write_stream, server.create_initialization_options())
+            await server.run(
+                read_stream, write_stream, server.create_initialization_options()
+            )
 
     asyncio.run(run())

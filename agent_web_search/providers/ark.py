@@ -31,9 +31,9 @@ class ArkProvider(Provider):
         self.api_key = api_key or os.getenv("ARK_API_KEY", "")
         self.models = models or [
             x.strip()
-            for x in os.getenv("AGENT_WEB_SEARCH_ARK_MODELS", ",".join(DEFAULT_MODELS)).split(
-                ","
-            )
+            for x in os.getenv(
+                "AGENT_WEB_SEARCH_ARK_MODELS", ",".join(DEFAULT_MODELS)
+            ).split(",")
             if x.strip()
         ]
         self.timeout = timeout
@@ -73,8 +73,7 @@ class ArkProvider(Provider):
         for item in citations:
             unique.setdefault(item.url, item)
         searched = any(
-            x.get("type") == "web_search_call"
-            and x.get("status") == "completed"
+            x.get("type") == "web_search_call" and x.get("status") == "completed"
             for x in output
         )
         return ProviderResponse(
@@ -135,7 +134,10 @@ class ArkProvider(Provider):
                     if continued.answer.strip():
                         parsed.answer = continued.answer
                     if continued.citations:
-                        parsed.citations = continued.citations
+                        unique = {item.url: item for item in parsed.citations}
+                        unique.update({item.url: item for item in continued.citations})
+                        parsed.citations = list(unique.values())
+                    parsed.searched = parsed.searched or continued.searched
                 return parsed
         except urllib.error.HTTPError as exc:
             body = exc.read().decode(errors="replace")[:500]

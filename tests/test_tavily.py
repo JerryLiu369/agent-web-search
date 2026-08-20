@@ -55,6 +55,16 @@ def test_tavily_adapts_common_controls(monkeypatch):
     assert response.results[0].url == "https://example.com"
 
 
+def test_tavily_success_is_searched_even_without_results(monkeypatch):
+    monkeypatch.setattr(
+        "urllib.request.urlopen",
+        lambda *_args, **_kwargs: _Response({"results": []}),
+    )
+    response = TavilyProvider(api_key="test-key").search(SearchRequest("empty"))
+    assert response.searched is True
+    assert response.results == []
+
+
 def test_tavily_only_appears_when_startup_enabled():
     default_schema = build_tool_schema(["ark", "ddgs", "exa"])
     tavily_schema = build_tool_schema(["ark", "tavily"])

@@ -4,37 +4,35 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .models import ProviderResponse, SearchRequest, SearchResponse
-from .providers import (
-    ArkProvider,
-    DDGSProvider,
-    ExaProvider,
-    GeminiProvider,
-    GrokProvider,
-    TavilyProvider,
-)
+from .registry import DEFAULT_PROVIDER_NAMES, create_provider_pool
 
 
 class SearchEngine:
     def __init__(self, providers=None, timeout: float | None = None):
-        timeout = timeout or float(os.getenv("AGENT_WEB_SEARCH_TIMEOUT", "60"))
-        all_providers = providers or {
-            "ark": ArkProvider(timeout=timeout),
-            "ddgs": DDGSProvider(timeout=timeout),
-            "exa": ExaProvider(timeout=timeout),
-            "gemini": GeminiProvider(timeout=timeout),
-            "grok": GrokProvider(timeout=timeout),
-            "tavily": TavilyProvider(timeout=timeout),
-        }
+        timeout = (
+            float(os.getenv("AGENT_WEB_SEARCH_TIMEOUT", "60"))
+            if timeout is None
+            else timeout
+        )
+        all_providers = (
+            create_provider_pool(timeout) if providers is None else providers
+        )
         configured = [
             item.strip()
-            for item in os.getenv("AGENT_WEB_SEARCH_PROVIDERS", "ark,ddgs,exa").split(",")
+            for item in os.getenv(
+                "AGENT_WEB_SEARCH_PROVIDERS", ",".join(DEFAULT_PROVIDER_NAMES)
+            ).split(",")
             if item.strip()
         ]
         self._all_providers = all_providers
         self.providers = (
             all_providers
             if providers is not None
-            else {name: all_providers[name] for name in configured if name in all_providers}
+            else {
+                name: all_providers[name]
+                for name in configured
+                if name in all_providers
+            }
         )
 
     @property
@@ -42,7 +40,8 @@ class SearchEngine:
         return list(self.providers)
 
     def search(self, request: SearchRequest) -> SearchResponse:
-        query = request.query.strip()
+        request = request.normalized()
+        query = request.query
         if not query:
             raise ValueError("query must not be empty")
         selected = request.providers or list(self.providers)

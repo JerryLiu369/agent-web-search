@@ -6,7 +6,7 @@ import urllib.error
 import urllib.request
 
 from ..models import ProviderResponse, SearchRequest, SearchResult
-from ..prompting import search_prompt
+from ..prompting import search_prompt, x_search_date_filters
 from .base import Provider
 
 ENDPOINT = "https://api.x.ai/v1/responses"
@@ -17,7 +17,9 @@ class GrokProvider(Provider):
 
     name = "grok"
 
-    def __init__(self, api_key: str | None = None, model: str | None = None, timeout: float = 60):
+    def __init__(
+        self, api_key: str | None = None, model: str | None = None, timeout: float = 60
+    ):
         self.api_key = api_key or os.getenv("XAI_API_KEY", "")
         self.model = model or os.getenv("AGENT_WEB_SEARCH_GROK_MODEL", "grok-4.6")
         self.timeout = timeout
@@ -29,17 +31,27 @@ class GrokProvider(Provider):
         searched = False
         for item in data.get("output") or []:
             item_type = item.get("type", "")
-            searched |= item_type in {"web_search_call", "x_search_call"} or tool_name in item_type
+            searched |= (
+                item_type in {"web_search_call", "x_search_call"}
+                or tool_name in item_type
+            )
             for content in item.get("content") or []:
-                if content.get("type") in {"output_text", "text"} and content.get("text", "").strip():
+                if (
+                    content.get("type") in {"output_text", "text"}
+                    and content.get("text", "").strip()
+                ):
                     answer = content["text"]
                 for annotation in content.get("annotations") or []:
-                    if annotation.get("type") == "url_citation" and annotation.get("url"):
-                        citations.append(SearchResult(
-                            title=annotation.get("title", ""),
-                            url=annotation["url"],
-                            provider="grok",
-                        ))
+                    if annotation.get("type") == "url_citation" and annotation.get(
+                        "url"
+                    ):
+                        citations.append(
+                            SearchResult(
+                                title=annotation.get("title", ""),
+                                url=annotation["url"],
+                                provider="grok",
+                            )
+                        )
         if not answer and data.get("output_text"):
             answer = data["output_text"]
         unique = {item.url: item for item in citations}
@@ -53,7 +65,9 @@ class GrokProvider(Provider):
 
     def search(self, request: SearchRequest) -> ProviderResponse:
         if not self.api_key:
-            return ProviderResponse(provider=self.name, model=self.model, error="XAI_API_KEY is not set")
+            return ProviderResponse(
+                provider=self.name, model=self.model, error="XAI_API_KEY is not set"
+            )
         mode = request.grok_search_mode
         if mode not in {"web_search", "x_search", "both"}:
             return ProviderResponse(
@@ -62,28 +76,46 @@ class GrokProvider(Provider):
                 error=f"Unsupported grok_search_mode: {mode}",
             )
         tool_names = ["web_search", "x_search"] if mode == "both" else [mode]
+        tools = []
+        for name in tool_names:
+            tool = {"type": name}
+            if name == "x_search":
+                tool.update(x_search_date_filters(request.time_range))
+            tools.append(tool)
         payload = {
             "model": self.model,
-            "input": [{
-                "role": "user",
-                "content": search_prompt(
-                    request.query,
-                    time_range=request.time_range,
-                    max_results=request.max_results,
-                    max_keyword=request.max_keyword,
-                ),
-            }],
-            "tools": [{"type": name} for name in tool_names],
+            "input": [
+                {
+                    "role": "user",
+                    "content": search_prompt(
+                        request.query,
+                        time_range=request.time_range,
+                        max_results=request.max_results,
+                        max_keyword=request.max_keyword,
+                        search_scope={
+                            "web_search": "web",
+                            "x_search": "x",
+                            "both": "both",
+                        }[mode],
+                    ),
+                }
+            ],
+            "tools": tools,
         }
         req = urllib.request.Request(
             ENDPOINT,
             data=json.dumps(payload).encode(),
-            headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            },
             method="POST",
         )
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
-                parsed = self.parse(json.loads(response.read().decode()), ",".join(tool_names))
+                parsed = self.parse(
+                    json.loads(response.read().decode()), ",".join(tool_names)
+                )
                 parsed.model = self.model
                 return parsed
         except urllib.error.HTTPError as exc:
@@ -93,4 +125,8 @@ class GrokProvider(Provider):
                 error=f"Grok HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}",
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
-            return ProviderResponse(provider=self.name, model=self.model, error=f"Grok {type(exc).__name__}: {exc}")
+            return ProviderResponse(
+                provider=self.name,
+                model=self.model,
+                error=f"Grok {type(exc).__name__}: {exc}",
+            )

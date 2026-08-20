@@ -4,7 +4,7 @@
 
 Agent Web Search gives Hermes, Codex CLI, Claude Code, OpenCode, and ordinary scripts one consistent web-search tool. It runs independent providers concurrently and returns normalized results. The default provider set is:
 
-- **ARK grounding** — 火山方舟 Responses API + `web_search`
+- **ARK grounding** — Volcengine ARK Responses API + `web_search` (Doubao)
 - **DDGS** — DuckDuckGo search
 - **Exa** — Exa MCP search (best effort; availability depends on the endpoint)
 
@@ -130,6 +130,21 @@ startup. If `grok` is startup-enabled, the schema additionally exposes
 `grok_search_mode` with `web_search`, `x_search`, and `both` values. `both`
 passes both xAI server-side tools in one request and lets Grok decide which to
 call; it does not send two independent requests.
+
+### Common search controls
+
+The public interface keeps one provider-neutral set of controls. Each backend
+maps them to its native API when possible and silently ignores unsupported
+controls:
+
+| Control | ARK | DDGS | Exa | Gemini / Grok | Tavily |
+| --- | --- | --- | --- | --- | --- |
+| `max_results` | native `limit` | native `max_results` | native `num_results` | English prompt constraint | native `max_results` |
+| `max_keyword` | native `max_keyword` | ignored | ignored | English prompt constraint | ignored |
+| `time_range` | English prompt constraint | native `timelimit` | native publish-date filter | Gemini: prompt; Grok web: prompt; Grok X: native dates + prompt | native `time_range` |
+
+Prompt constraints are best-effort for model-backed providers; they are not
+presented as strict guarantees.
 
 ## Design principles
 

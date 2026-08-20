@@ -2,14 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-PROVIDER_DESCRIPTIONS = {
-    "ark": "Volcengine ARK web search (Doubao)",
-    "ddgs": "DuckDuckGo web search",
-    "exa": "Exa web search",
-    "gemini": "Gemini Google Search grounding",
-    "grok": "Grok web search and X Search",
-    "tavily": "Tavily web search",
-}
+from .registry import PROVIDER_SPECS
 
 
 def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
@@ -18,6 +11,7 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
     properties = {
         "query": {
             "type": "string",
+            "minLength": 1,
             "description": "A complete natural-language search question.",
         },
         "max_results": {
@@ -25,12 +19,20 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
             "minimum": 1,
             "maximum": 20,
             "default": 10,
+            "description": (
+                "Desired maximum number of results or cited sources. Providers "
+                "enforce this natively or as a best-effort prompt constraint."
+            ),
         },
         "max_keyword": {
             "type": "integer",
             "minimum": 1,
             "maximum": 10,
             "default": 3,
+            "description": (
+                "Desired maximum number of distinct search queries or keywords. "
+                "Providers without an equivalent control ignore it."
+            ),
         },
         "time_range": {
             "type": "string",
@@ -40,6 +42,8 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
         "providers": {
             "type": "array",
             "items": {"type": "string", "enum": providers},
+            "minItems": 1,
+            "uniqueItems": True,
             "description": "Optional subset of the providers enabled at startup.",
         },
     }
@@ -57,12 +61,16 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
         "name": "web_search",
         "description": (
             "Search the web through multiple providers. Enabled providers: "
-            + "; ".join(PROVIDER_DESCRIPTIONS.get(name, name) for name in providers)
+            + "; ".join(
+                PROVIDER_SPECS[name].description if name in PROVIDER_SPECS else name
+                for name in providers
+            )
             + ". Use a complete natural-language question."
         ),
         "parameters": {
             "type": "object",
             "properties": properties,
             "required": ["query"],
+            "additionalProperties": False,
         },
     }

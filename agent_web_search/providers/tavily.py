@@ -29,6 +29,7 @@ class TavilyProvider(Provider):
                 url=(item.get("url") or "").strip(),
                 description=(item.get("content") or "").strip(),
                 provider="tavily",
+                published_at=item.get("published_date") or None,
             )
             for item in data.get("results") or []
             if isinstance(item, dict) and item.get("url")
@@ -68,7 +69,9 @@ class TavilyProvider(Provider):
         )
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
-                return self.parse(json.loads(response.read().decode()))
+                parsed = self.parse(json.loads(response.read().decode()))
+                parsed.searched = True
+                return parsed
         except urllib.error.HTTPError as exc:
             return ProviderResponse(
                 provider=self.name,

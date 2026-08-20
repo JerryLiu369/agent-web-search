@@ -17,9 +17,13 @@ class GeminiProvider(Provider):
 
     name = "gemini"
 
-    def __init__(self, api_key: str | None = None, model: str | None = None, timeout: float = 60):
+    def __init__(
+        self, api_key: str | None = None, model: str | None = None, timeout: float = 60
+    ):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY", "")
-        self.model = model or os.getenv("AGENT_WEB_SEARCH_GEMINI_MODEL", "gemini-3.7-flash")
+        self.model = model or os.getenv(
+            "AGENT_WEB_SEARCH_GEMINI_MODEL", "gemini-3.7-flash"
+        )
         self.timeout = timeout
 
     @staticmethod
@@ -34,15 +38,22 @@ class GeminiProvider(Provider):
             if isinstance(contents, dict):
                 contents = [contents]
             for content in contents:
-                if content.get("type") in {"text", "output_text"} and content.get("text", "").strip():
+                if (
+                    content.get("type") in {"text", "output_text"}
+                    and content.get("text", "").strip()
+                ):
                     answer = content["text"]
                 for annotation in content.get("annotations") or []:
-                    if annotation.get("type") == "url_citation" and annotation.get("url"):
-                        citations.append(SearchResult(
-                            title=annotation.get("title", ""),
-                            url=annotation["url"],
-                            provider="gemini",
-                        ))
+                    if annotation.get("type") == "url_citation" and annotation.get(
+                        "url"
+                    ):
+                        citations.append(
+                            SearchResult(
+                                title=annotation.get("title", ""),
+                                url=annotation["url"],
+                                provider="gemini",
+                            )
+                        )
             if step_type in {"model_output", "google_search_result"}:
                 searched = True
         unique = {item.url: item for item in citations}
@@ -56,7 +67,9 @@ class GeminiProvider(Provider):
 
     def search(self, request: SearchRequest) -> ProviderResponse:
         if not self.api_key:
-            return ProviderResponse(provider=self.name, model=self.model, error="GEMINI_API_KEY is not set")
+            return ProviderResponse(
+                provider=self.name, model=self.model, error="GEMINI_API_KEY is not set"
+            )
         prompt = search_prompt(
             request.query,
             time_range=request.time_range,
@@ -71,7 +84,10 @@ class GeminiProvider(Provider):
         req = urllib.request.Request(
             ENDPOINT,
             data=json.dumps(payload).encode(),
-            headers={"x-goog-api-key": self.api_key, "Content-Type": "application/json"},
+            headers={
+                "x-goog-api-key": self.api_key,
+                "Content-Type": "application/json",
+            },
             method="POST",
         )
         try:
@@ -86,4 +102,8 @@ class GeminiProvider(Provider):
                 error=f"Gemini HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}",
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
-            return ProviderResponse(provider=self.name, model=self.model, error=f"Gemini {type(exc).__name__}: {exc}")
+            return ProviderResponse(
+                provider=self.name,
+                model=self.model,
+                error=f"Gemini {type(exc).__name__}: {exc}",
+            )
