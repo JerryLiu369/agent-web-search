@@ -6,6 +6,7 @@ import urllib.error
 import urllib.request
 
 from ..models import ProviderResponse, SearchRequest, SearchResult
+from ..prompting import search_prompt
 from .base import Provider
 
 ENDPOINT = "https://api.x.ai/v1/responses"
@@ -63,7 +64,15 @@ class GrokProvider(Provider):
         tool_names = ["web_search", "x_search"] if mode == "both" else [mode]
         payload = {
             "model": self.model,
-            "input": [{"role": "user", "content": request.query}],
+            "input": [{
+                "role": "user",
+                "content": search_prompt(
+                    request.query,
+                    time_range=request.time_range,
+                    max_results=request.max_results,
+                    max_keyword=request.max_keyword,
+                ),
+            }],
             "tools": [{"type": name} for name in tool_names],
         }
         req = urllib.request.Request(

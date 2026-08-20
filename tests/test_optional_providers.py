@@ -1,3 +1,4 @@
+from agent_web_search.prompting import search_prompt
 from agent_web_search.providers.gemini import GeminiProvider
 from agent_web_search.providers.grok import GrokProvider
 from agent_web_search.schema import build_tool_schema
@@ -10,6 +11,13 @@ def test_schema_only_exposes_grok_option_when_enabled():
     assert "grok_search_mode" in grok_schema["parameters"]["properties"]
     assert "Volcengine ARK web search (Doubao)" in default_schema["description"]
     assert "ark" not in default_schema["description"]
+
+
+def test_model_provider_prompt_adapts_common_search_controls():
+    prompt = search_prompt("latest AI news", time_range="w", max_results=5, max_keyword=2)
+    assert "the past week" in prompt
+    assert "no more than 5 sources" in prompt
+    assert "up to 2 distinct search queries" in prompt
 
 
 def test_gemini_parse_citations():

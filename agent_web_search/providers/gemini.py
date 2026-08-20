@@ -6,6 +6,7 @@ import urllib.error
 import urllib.request
 
 from ..models import ProviderResponse, SearchRequest, SearchResult
+from ..prompting import search_prompt
 from .base import Provider
 
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions"
@@ -56,9 +57,12 @@ class GeminiProvider(Provider):
     def search(self, request: SearchRequest) -> ProviderResponse:
         if not self.api_key:
             return ProviderResponse(provider=self.name, model=self.model, error="GEMINI_API_KEY is not set")
-        prompt = request.query
-        if request.time_range:
-            prompt = f"请重点关注时间范围 {request.time_range} 的信息。{prompt}"
+        prompt = search_prompt(
+            request.query,
+            time_range=request.time_range,
+            max_results=request.max_results,
+            max_keyword=request.max_keyword,
+        )
         payload = {
             "model": self.model,
             "input": prompt,

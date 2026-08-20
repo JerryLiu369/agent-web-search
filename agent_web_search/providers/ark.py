@@ -7,6 +7,7 @@ import urllib.error
 import urllib.request
 
 from ..models import ProviderResponse, SearchRequest, SearchResult
+from ..prompting import search_prompt
 from .base import Provider
 
 DEFAULT_MODELS = [
@@ -88,13 +89,12 @@ class ArkProvider(Provider):
         key = self._key()
         if not key:
             return ProviderResponse(provider=self.name, error="ARK_API_KEY is not set")
-        labels = {
-            "d": "过去24小时内",
-            "w": "过去一周内",
-            "m": "过去一月内",
-            "y": "过去一年内",
-        }
-        prompt = f"{labels.get(request.time_range, '')}搜索：{request.query}"
+        prompt = search_prompt(
+            request.query,
+            time_range=request.time_range,
+            max_results=request.max_results,
+            max_keyword=request.max_keyword,
+        )
         payload = {
             "model": random.choice(self.models),
             "input": [
