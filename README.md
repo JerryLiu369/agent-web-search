@@ -6,7 +6,7 @@ Agent Web Search gives Hermes, Codex CLI, Claude Code, OpenCode, and ordinary sc
 
 - **ARK grounding** — Volcengine ARK Responses API + `web_search` (Doubao)
 - **DDGS** — DuckDuckGo search
-- **Exa** — Exa MCP search (best effort; availability depends on the endpoint)
+- **Exa** — paid Search API with `EXA_API_KEY`, otherwise the free MCP endpoint (best effort)
 
 Optional providers are also implemented:
 
@@ -116,7 +116,8 @@ Agent Web Search does not require participation in any rewards program. Users wh
 - `AGENT_WEB_SEARCH_PROVIDERS`: startup-enabled provider set; default is `ark,ddgs,exa`.
 - `AGENT_WEB_SEARCH_TIMEOUT`: per-provider timeout in seconds (default `60`).
 - `AGENT_WEB_SEARCH_ARK_MODELS`: comma-separated ARK model IDs.
-- `EXA_MCP_URL`: optional Exa MCP endpoint override.
+- `EXA_API_KEY`: optional; when set, Exa uses the paid Search API (`api.exa.ai/search`) with higher quota and reliability. Without it, Exa falls back to the free MCP endpoint (best effort).
+- `EXA_MCP_URL`: optional Exa MCP endpoint override (only used when `EXA_API_KEY` is not set).
 - `GEMINI_API_KEY`: optional Gemini provider key.
 - `AGENT_WEB_SEARCH_GEMINI_MODEL`: optional Gemini model ID.
 - `XAI_API_KEY`: optional Grok provider key.

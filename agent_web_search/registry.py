@@ -27,7 +27,7 @@ PROVIDER_SPECS = {
         "ARK_API_KEY",
     ),
     "ddgs": ProviderSpec(DDGSProvider, "DuckDuckGo web search"),
-    "exa": ProviderSpec(ExaProvider, "Exa web search"),
+    "exa": ProviderSpec(ExaProvider, "Exa web search", "EXA_API_KEY"),
     "gemini": ProviderSpec(
         GeminiProvider,
         "Gemini Google Search grounding",
