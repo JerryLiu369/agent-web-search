@@ -10,6 +10,7 @@ Agent Web Search gives Hermes, Codex CLI, Claude Code, OpenCode, and ordinary sc
 
 Optional providers are also implemented:
 
+- **Brave** — Brave Search API with an independent web index and native date filtering
 - **Gemini** — Google Search grounding via Gemini Interactions API
 - **Grok** — xAI Responses API with native web search and X Search
 - **Tavily** — Tavily Search API with native result-count and time-range filters
@@ -116,6 +117,7 @@ Agent Web Search does not require participation in any rewards program. Users wh
 - `AGENT_WEB_SEARCH_PROVIDERS`: startup-enabled provider set; default is `ark,ddgs,exa`.
 - `AGENT_WEB_SEARCH_TIMEOUT`: per-provider timeout in seconds (default `60`).
 - `AGENT_WEB_SEARCH_ARK_MODELS`: comma-separated ARK model IDs.
+- `BRAVE_SEARCH_API_KEY`: optional Brave Web Search API key. Add `brave` to `AGENT_WEB_SEARCH_PROVIDERS` to enable it.
 - `EXA_API_KEY`: optional; when set, Exa uses the paid Search API (`api.exa.ai/search`) with higher quota and reliability. Without it, Exa falls back to the free MCP endpoint (best effort).
 - `EXA_MCP_URL`: optional Exa MCP endpoint override (only used when `EXA_API_KEY` is not set).
 - `GEMINI_API_KEY`: optional Gemini provider key.
@@ -138,11 +140,11 @@ The public interface keeps one provider-neutral set of controls. Each backend
 maps them to its native API when possible and silently ignores unsupported
 controls:
 
-| Control | ARK | DDGS | Exa | Gemini / Grok | Tavily |
-| --- | --- | --- | --- | --- | --- |
-| `max_results` | native `limit` | native `max_results` | native `num_results` | English prompt constraint | native `max_results` |
-| `max_keyword` | native `max_keyword` | ignored | ignored | English prompt constraint | ignored |
-| `time_range` | English prompt constraint | native `timelimit` | native publish-date filter | Gemini: prompt; Grok web: prompt; Grok X: native dates + prompt | native `time_range` |
+| Control | ARK | Brave | DDGS | Exa | Gemini / Grok | Tavily |
+| --- | --- | --- | --- | --- | --- | --- |
+| `max_results` | native `limit` | native `count` | native `max_results` | native `numResults` / `num_results` | English prompt constraint | native `max_results` |
+| `max_keyword` | native `max_keyword` | ignored | ignored | ignored | English prompt constraint | ignored |
+| `time_range` | English prompt constraint | native `freshness` | native `timelimit` | native publish-date filter | Gemini: prompt; Grok web: prompt; Grok X: native dates + prompt | native `time_range` |
 
 Prompt constraints are best-effort for model-backed providers; they are not
 presented as strict guarantees.

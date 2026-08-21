@@ -31,13 +31,16 @@ def _load_hermes_adapter():
 
 
 def test_hermes_adapter_uses_dynamic_core_schema(monkeypatch):
-    monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ark,ddgs,exa")
+    monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ark,brave,ddgs,exa")
     module = _load_hermes_adapter()
     context = _HermesContext()
     module.register(context)
     assert context.tool["name"] == "web_search"
     assert context.tool["override"] is True
-    assert context.tool["schema"] == build_tool_schema(["ark", "ddgs", "exa"])
+    assert context.tool["schema"] == build_tool_schema(["ark", "brave", "ddgs", "exa"])
+    assert context.tool["schema"]["parameters"]["properties"]["providers"]["items"]["enum"] == [
+        "ark", "brave", "ddgs", "exa"
+    ]
     assert "grok_search_mode" not in context.tool["schema"]["parameters"]["properties"]
 
 
