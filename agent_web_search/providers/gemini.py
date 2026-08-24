@@ -5,6 +5,7 @@ import os
 import urllib.error
 import urllib.request
 
+from ..model_pool import RoundRobinModels, configured_models
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from ..prompting import search_prompt
 from .base import Provider
@@ -18,12 +19,18 @@ class GeminiProvider(Provider):
     name = "gemini"
 
     def __init__(
-        self, api_key: str | None = None, model: str | None = None, timeout: float = 60
+        self,
+        api_key: str | None = None,
+        models: list[str] | None = None,
+        timeout: float = 60,
     ):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY", "")
-        self.model = model or os.getenv(
-            "AGENT_WEB_SEARCH_GEMINI_MODEL", "gemini-3.7-flash"
+        self.models = configured_models(
+            models=models,
+            env_name="AGENT_WEB_SEARCH_GEMINI_MODELS",
+            defaults=["gemini-3.7-flash"],
         )
+        self._model_pool = RoundRobinModels(self.models)
         self.timeout = timeout
 
     @staticmethod
@@ -68,8 +75,11 @@ class GeminiProvider(Provider):
     def search(self, request: SearchRequest) -> ProviderResponse:
         if not self.api_key:
             return ProviderResponse(
-                provider=self.name, model=self.model, error="GEMINI_API_KEY is not set"
+                provider=self.name,
+                model=self.models[0],
+                error="GEMINI_API_KEY is not set",
             )
+        model = self._model_pool.next()
         prompt = search_prompt(
             request.query,
             time_range=request.time_range,
@@ -77,7 +87,7 @@ class GeminiProvider(Provider):
             max_keyword=request.max_keyword,
         )
         payload = {
-            "model": self.model,
+            "model": model,
             "input": prompt,
             "tools": [{"type": "google_search"}],
         }
@@ -93,17 +103,17 @@ class GeminiProvider(Provider):
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
                 parsed = self.parse(json.loads(response.read().decode()))
-                parsed.model = self.model
+                parsed.model = model
                 return parsed
         except urllib.error.HTTPError as exc:
             return ProviderResponse(
                 provider=self.name,
-                model=self.model,
+                model=model,
                 error=f"Gemini HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}",
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
             return ProviderResponse(
                 provider=self.name,
-                model=self.model,
+                model=model,
                 error=f"Gemini {type(exc).__name__}: {exc}",
             )

@@ -5,6 +5,7 @@ import os
 import urllib.error
 import urllib.request
 
+from ..model_pool import RoundRobinModels, configured_models
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from ..prompting import search_prompt, x_search_date_filters
 from .base import Provider
@@ -18,10 +19,18 @@ class GrokProvider(Provider):
     name = "grok"
 
     def __init__(
-        self, api_key: str | None = None, model: str | None = None, timeout: float = 60
+        self,
+        api_key: str | None = None,
+        models: list[str] | None = None,
+        timeout: float = 60,
     ):
         self.api_key = api_key or os.getenv("XAI_API_KEY", "")
-        self.model = model or os.getenv("AGENT_WEB_SEARCH_GROK_MODEL", "grok-4.6")
+        self.models = configured_models(
+            models=models,
+            env_name="AGENT_WEB_SEARCH_GROK_MODELS",
+            defaults=["grok-4.6"],
+        )
+        self._model_pool = RoundRobinModels(self.models)
         self.timeout = timeout
 
     @staticmethod
@@ -66,13 +75,16 @@ class GrokProvider(Provider):
     def search(self, request: SearchRequest) -> ProviderResponse:
         if not self.api_key:
             return ProviderResponse(
-                provider=self.name, model=self.model, error="XAI_API_KEY is not set"
+                provider=self.name,
+                model=self.models[0],
+                error="XAI_API_KEY is not set",
             )
+        model = self._model_pool.next()
         mode = request.grok_search_mode
         if mode not in {"web_search", "x_search", "both"}:
             return ProviderResponse(
                 provider=self.name,
-                model=self.model,
+                model=model,
                 error=f"Unsupported grok_search_mode: {mode}",
             )
         tool_names = ["web_search", "x_search"] if mode == "both" else [mode]
@@ -83,7 +95,7 @@ class GrokProvider(Provider):
                 tool.update(x_search_date_filters(request.time_range))
             tools.append(tool)
         payload = {
-            "model": self.model,
+            "model": model,
             "input": [
                 {
                     "role": "user",
@@ -116,17 +128,17 @@ class GrokProvider(Provider):
                 parsed = self.parse(
                     json.loads(response.read().decode()), ",".join(tool_names)
                 )
-                parsed.model = self.model
+                parsed.model = model
                 return parsed
         except urllib.error.HTTPError as exc:
             return ProviderResponse(
                 provider=self.name,
-                model=self.model,
+                model=model,
                 error=f"Grok HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}",
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
             return ProviderResponse(
                 provider=self.name,
-                model=self.model,
+                model=model,
                 error=f"Grok {type(exc).__name__}: {exc}",
             )

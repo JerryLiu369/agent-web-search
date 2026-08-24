@@ -6,6 +6,7 @@ import random
 import urllib.error
 import urllib.request
 
+from ..model_pool import RoundRobinModels, configured_models
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from ..prompting import search_prompt
 from .base import Provider
@@ -29,13 +30,12 @@ class ArkProvider(Provider):
         timeout: float = 60,
     ):
         self.api_key = api_key or os.getenv("ARK_API_KEY", "")
-        self.models = models or [
-            x.strip()
-            for x in os.getenv(
-                "AGENT_WEB_SEARCH_ARK_MODELS", ",".join(DEFAULT_MODELS)
-            ).split(",")
-            if x.strip()
-        ]
+        self.models = configured_models(
+            models=models,
+            env_name="AGENT_WEB_SEARCH_ARK_MODELS",
+            defaults=DEFAULT_MODELS,
+        )
+        self._model_pool = RoundRobinModels(self.models)
         self.timeout = timeout
 
     def _key(self) -> str:
@@ -94,8 +94,9 @@ class ArkProvider(Provider):
             max_results=request.max_results,
             max_keyword=request.max_keyword,
         )
+        model = self._model_pool.next()
         payload = {
-            "model": random.choice(self.models),
+            "model": model,
             "input": [
                 {"role": "user", "content": [{"type": "input_text", "text": prompt}]}
             ],

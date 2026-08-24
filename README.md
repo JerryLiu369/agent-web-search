@@ -148,9 +148,10 @@ Volcengine ARK uses model-backed search grounding through the Responses API.
 | Variable | Required | Purpose |
 | --- | :---: | --- |
 | `ARK_API_KEY` | Yes | One key, or multiple comma/newline-separated keys |
-| `AGENT_WEB_SEARCH_ARK_MODELS` | No | Comma-separated ARK model IDs |
+| `AGENT_WEB_SEARCH_ARK_MODELS` | No | Comma/newline-separated ARK model IDs |
 
-When multiple keys or models are configured, one is selected for each request.
+One model stays fixed; multiple models are selected round-robin for successive
+requests. When multiple ARK keys are configured, a key is selected per request.
 
 <details>
 <summary><strong>Optional Volcengine collaboration rewards information</strong></summary>
@@ -194,17 +195,21 @@ Add `brave` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 | Variable | Required | Purpose |
 | --- | :---: | --- |
 | `GEMINI_API_KEY` | Yes | Google AI API credential |
-| `AGENT_WEB_SEARCH_GEMINI_MODEL` | No | Gemini model ID |
+| `AGENT_WEB_SEARCH_GEMINI_MODELS` | No | Comma/newline-separated Gemini model IDs |
 
 Gemini maps common result and time controls into best-effort prompt
-constraints.
+constraints. One configured model stays fixed; multiple models are selected
+round-robin for successive requests.
 
 #### 6. Grok
 
 | Variable | Required | Purpose |
 | --- | :---: | --- |
 | `XAI_API_KEY` | Yes | xAI API credential |
-| `AGENT_WEB_SEARCH_GROK_MODEL` | No | Grok model ID |
+| `AGENT_WEB_SEARCH_GROK_MODELS` | No | Comma/newline-separated Grok model IDs |
+
+One configured model stays fixed; multiple models are selected round-robin for
+successive requests.
 
 When Grok is enabled, the public tool schema adds `grok_search_mode`:
 
