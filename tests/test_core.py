@@ -70,14 +70,14 @@ def test_empty_query_rejected():
         assert False
 
 
-def test_optional_provider_selection_is_not_enabled_by_default(monkeypatch):
+def test_default_provider_set_requires_no_api_keys(monkeypatch):
     monkeypatch.delenv("AGENT_WEB_SEARCH_PROVIDERS", raising=False)
-    engine = SearchEngine(providers={"ark": Fake("ark"), "gemini": Fake("gemini")})
-    assert list(engine.providers) == ["ark", "gemini"]
+    engine = SearchEngine()
+    assert engine.enabled_provider_names == ["ddgs", "exa"]
 
 
 def test_disabled_provider_cannot_be_selected_at_request_time(monkeypatch):
-    monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ark,ddgs,exa")
+    monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ddgs,exa")
     engine = SearchEngine()
     result = engine.search(SearchRequest("hello", providers=["gemini"]))
     assert list(result.providers) == []

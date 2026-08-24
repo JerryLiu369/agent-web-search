@@ -44,7 +44,7 @@ Agent / MCP client
 
 | Provider | Search backend | API key | Enabled by default |
 | --- | --- | --- | :---: |
-| **ARK** | Volcengine ARK Responses API + `web_search` | `ARK_API_KEY` | Yes |
+| **ARK** | Volcengine ARK Responses API + `web_search` | `ARK_API_KEY` | No |
 | **DDGS** | DuckDuckGo search | None | Yes |
 | **Exa** | Paid Search API or free MCP fallback | Optional `EXA_API_KEY` | Yes |
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
@@ -124,7 +124,7 @@ Hermes plugin starts. Restart the process after changing provider settings.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `AGENT_WEB_SEARCH_PROVIDERS` | `ark,ddgs,exa` | Comma-separated startup-enabled provider set |
+| `AGENT_WEB_SEARCH_PROVIDERS` | `ddgs,exa` | Comma-separated startup-enabled provider set |
 | `AGENT_WEB_SEARCH_TIMEOUT` | `60` | Per-provider timeout in seconds |
 
 Example:
@@ -144,6 +144,7 @@ $env:AGENT_WEB_SEARCH_TIMEOUT = "30"
 #### 1. ARK
 
 Volcengine ARK uses model-backed search grounding through the Responses API.
+Add `ark` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
 | Variable | Required | Purpose |
 | --- | :---: | --- |
