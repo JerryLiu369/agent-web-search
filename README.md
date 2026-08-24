@@ -1,48 +1,252 @@
+<div align="center">
+
 # Agent Web Search
 
-**Multi-provider web search for AI agents.**
+**One web-search tool for AI agents, backed by multiple independent providers.**
 
-Agent Web Search gives Hermes, Codex CLI, Claude Code, OpenCode, and ordinary scripts one consistent web-search tool. It runs independent providers concurrently and returns normalized results. The default provider set is:
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![MCP 2.x](https://img.shields.io/badge/MCP-2.x-6C47FF)](https://modelcontextprotocol.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-- **ARK grounding** — Volcengine ARK Responses API + `web_search` (Doubao)
-- **DDGS** — DuckDuckGo search
-- **Exa** — paid Search API with `EXA_API_KEY`, otherwise the free MCP endpoint (best effort)
+Works with **Codex CLI**, **Claude Code**, **OpenCode**, **Hermes**, ordinary
+shell scripts, and Python applications.
 
-Optional providers are also implemented:
+[Providers](#providers) · [Quick start](#quick-start) ·
+[Tool interface](#tool-interface) · [Configuration](#configuration) ·
+[Integrations](#integrations) · [Development](#development)
 
-- **Brave** — Brave Search API with an independent web index and native date filtering
-- **Gemini** — Google Search grounding via Gemini Interactions API
-- **Grok** — xAI Responses API with native web search and X Search
-- **Tavily** — Tavily Search API with native result-count and time-range filters
+</div>
 
-The architecture is provider-based, so DeepSeek, Brave, and other search-capable providers can be added without changing the MCP or Hermes interfaces.
+---
+
+Agent Web Search exposes one provider-neutral `web_search` tool. It dispatches
+independent providers concurrently, normalizes their responses, keeps partial
+failures isolated, and lets the calling agent choose which enabled providers to
+use for each request.
+
+```text
+Agent / MCP client
+        │
+        ▼
+    web_search
+        │
+        ▼
+  SearchEngine ──┬── ARK
+                 ├── DDGS
+                 ├── Exa
+                 ├── Brave
+                 ├── Gemini
+                 ├── Grok
+                 └── Tavily
+```
+
+## Providers
+
+| Provider | Search backend | API key | Enabled by default |
+| --- | --- | --- | :---: |
+| **ARK** | Volcengine ARK Responses API + `web_search` | `ARK_API_KEY` | Yes |
+| **DDGS** | DuckDuckGo search | None | Yes |
+| **Exa** | Paid Search API or free MCP fallback | Optional `EXA_API_KEY` | Yes |
+| **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
+| **Gemini** | Google Search grounding | `GEMINI_API_KEY` | No |
+| **Grok** | xAI web search and X Search | `XAI_API_KEY` | No |
+| **Tavily** | Tavily Search API | `TAVILY_API_KEY` | No |
+
+The provider architecture is intentionally open: another search-capable
+backend can be added without changing the MCP, Hermes, CLI, or Python-facing
+interfaces.
 
 ## Quick start
 
+Install directly from GitHub:
+
 ```bash
-# Omit this line when the ARK provider is not enabled.
-export ARK_API_KEY="your_ark_api_key"
 pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
+```
+
+Run a search without configuring a paid API key:
+
+```bash
+agent-web-search "What changed in the latest OpenAI Codex CLI?" --provider ddgs --provider exa
+```
+
+Or start the stdio MCP server for an MCP client:
+
+```bash
 agent-web-search-mcp
 ```
 
-Do not put API keys in shell history, source code, Git commits, or screenshots. Use a local `.env`/secret manager and export the variable in the process environment.
+> [!IMPORTANT]
+> Do not place API keys in shell history, source code, Git commits, screenshots,
+> or checked-in MCP configuration. Export them from a secret manager or a local
+> environment file that is not committed.
 
-## Use from Codex CLI
+## Tool interface
+
+The MCP server and Hermes plugin register one tool named `web_search`.
+
+| Argument | Type | Required | Default | Description |
+| --- | --- | :---: | --- | --- |
+| `query` | string | Yes | — | Complete natural-language search question |
+| `max_results` | integer, 1–20 | No | `10` | Desired result or citation count |
+| `max_keyword` | integer, 1–10 | No | `3` | Desired maximum number of search queries or keywords |
+| `time_range` | `d`, `w`, `m`, `y` | No | — | Past day, week, month, or year |
+| `providers` | string array | No | All enabled | Narrow the request to enabled providers |
+| `grok_search_mode` | `web_search`, `x_search`, `both` | No | `web_search` | Available only when Grok is enabled |
+
+Example call:
+
+```json
+{
+  "query": "GPU kernel generation papers from the past month",
+  "max_results": 5,
+  "time_range": "m",
+  "providers": ["ddgs", "exa"]
+}
+```
+
+Provider selection has two levels:
+
+1. `AGENT_WEB_SEARCH_PROVIDERS` defines the provider set when the process starts.
+2. The request-level `providers` argument may narrow that set, but cannot enable
+   a provider that was disabled at startup.
+
+Failed providers are omitted from successful responses. If every selected
+provider fails, MCP returns a tool error with the stable code
+`all_providers_failed` and includes per-provider diagnostics.
+
+## Configuration
+
+Configuration is read from environment variables when the CLI, MCP server, or
+Hermes plugin starts. Restart the process after changing provider settings.
+
+### General settings
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `AGENT_WEB_SEARCH_PROVIDERS` | `ark,ddgs,exa` | Comma-separated startup-enabled provider set |
+| `AGENT_WEB_SEARCH_TIMEOUT` | `60` | Per-provider timeout in seconds |
+
+Example:
 
 ```bash
-export ARK_API_KEY="your_ark_api_key"
-codex mcp add agent-web-search -- \
-  agent-web-search-mcp
+export AGENT_WEB_SEARCH_PROVIDERS="ddgs,exa,brave"
+export AGENT_WEB_SEARCH_TIMEOUT="30"
+```
+
+```powershell
+$env:AGENT_WEB_SEARCH_PROVIDERS = "ddgs,exa,brave"
+$env:AGENT_WEB_SEARCH_TIMEOUT = "30"
+```
+
+### Provider settings
+
+#### 1. ARK
+
+Volcengine ARK uses model-backed search grounding through the Responses API.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `ARK_API_KEY` | Yes | One key, or multiple comma/newline-separated keys |
+| `AGENT_WEB_SEARCH_ARK_MODELS` | No | Comma-separated ARK model IDs |
+
+When multiple keys or models are configured, one is selected for each request.
+
+<details>
+<summary><strong>Optional Volcengine collaboration rewards information</strong></summary>
+
+Agent Web Search does not require participation in a rewards program. ARK users
+may optionally review the official
+[Volcengine Collaboration Rewards Program](https://www.volcengine.com/docs/82379/1391869?lang=zh).
+Quota, supported models, validity periods, and data-authorization terms can
+change. Check the official terms before opting in. Participation is not
+required to use Agent Web Search.
+
+</details>
+
+#### 2. DDGS
+
+DDGS uses DuckDuckGo and requires no API key or provider-specific environment
+variables. The `ddgs` Python dependency is installed with the package.
+
+#### 3. Exa
+
+Exa supports both paid and keyless modes.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `EXA_API_KEY` | No | Uses the paid Search API when present |
+| `EXA_MCP_URL` | No | Overrides the free MCP endpoint when no API key is set |
+
+Without `EXA_API_KEY`, Exa falls back to its free MCP endpoint on a best-effort
+basis. The paid API generally provides higher quota and reliability.
+
+#### 4. Brave
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `BRAVE_SEARCH_API_KEY` | Yes | Brave Web Search API credential |
+
+Add `brave` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+
+#### 5. Gemini
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `GEMINI_API_KEY` | Yes | Google AI API credential |
+| `AGENT_WEB_SEARCH_GEMINI_MODEL` | No | Gemini model ID |
+
+Gemini maps common result and time controls into best-effort prompt
+constraints.
+
+#### 6. Grok
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `XAI_API_KEY` | Yes | xAI API credential |
+| `AGENT_WEB_SEARCH_GROK_MODEL` | No | Grok model ID |
+
+When Grok is enabled, the public tool schema adds `grok_search_mode`:
+
+- `web_search` searches the web.
+- `x_search` searches X with native date filters when available.
+- `both` exposes both server-side tools in one request and lets Grok choose; it
+  does not issue two independent model requests.
+
+#### 7. Tavily
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `TAVILY_API_KEY` | Yes | Tavily Search API credential |
+
+Add `tavily` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+
+### Common search controls
+
+Each provider maps the shared controls to its native API when possible and
+ignores unsupported controls.
+
+| Control | ARK | Brave | DDGS | Exa | Gemini / Grok | Tavily |
+| --- | --- | --- | --- | --- | --- | --- |
+| `max_results` | Native `limit` | Native `count` | Native `max_results` | Native result count | Prompt constraint | Native `max_results` |
+| `max_keyword` | Native | Ignored | Ignored | Ignored | Prompt constraint | Ignored |
+| `time_range` | Prompt constraint | Native `freshness` | Native `timelimit` | Native publish date | Prompt; Grok X also uses native dates | Native `time_range` |
+
+Prompt-based controls are best-effort and are not strict guarantees.
+
+## Integrations
+
+### Codex CLI
+
+```bash
+codex mcp add agent-web-search -- agent-web-search-mcp
 codex mcp list
 ```
 
-## Use from Claude Code
+### Claude Code
 
 ```bash
-export ARK_API_KEY="your_ark_api_key"
-claude mcp add agent-web-search -- \
-  agent-web-search-mcp
+claude mcp add agent-web-search -- agent-web-search-mcp
 ```
 
 Or add a project `.mcp.json`:
@@ -53,13 +257,15 @@ Or add a project `.mcp.json`:
     "agent-web-search": {
       "command": "agent-web-search-mcp",
       "args": [],
-      "env": {"ARK_API_KEY": "${ARK_API_KEY}"}
+      "env": {
+        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa"
+      }
     }
   }
 }
 ```
 
-## Use from OpenCode
+### OpenCode
 
 ```json
 {
@@ -68,14 +274,16 @@ Or add a project `.mcp.json`:
     "agent-web-search": {
       "type": "local",
       "command": ["agent-web-search-mcp"],
-      "environment": {"ARK_API_KEY": "${ARK_API_KEY}"},
+      "environment": {
+        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa"
+      },
       "enabled": true
     }
   }
 }
 ```
 
-## Use from Hermes
+### Hermes
 
 Install the native plugin directly from GitHub:
 
@@ -85,87 +293,64 @@ hermes plugins install JerryLiu369/agent-web-search --no-enable
 hermes plugins enable agent-web-search --allow-tool-override
 ```
 
-The plugin registers the standard `web_search` tool and calls the same
-Agent Web Search core used by MCP and CLI. If you prefer the generic MCP path,
-Hermes can also connect with `hermes mcp add`.
+The plugin intentionally replaces Hermes' built-in `web_search` tool, so the
+explicit `--allow-tool-override` grant is required. Start a new Hermes session
+after enabling it; restart the gateway when using a messaging channel.
 
-The GitHub installer installs the package and its optional dependencies:
+Hermes can also connect through its generic MCP integration instead of the
+native plugin.
 
-```bash
-pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
-```
-
-Hermes requires the explicit `--allow-tool-override` grant because this plugin
-intentionally replaces its built-in `web_search` tool. Start a new Hermes
-session after enabling it; restart the gateway if you use a messaging channel.
-
-## CLI
+## CLI examples
 
 ```bash
+# Use every startup-enabled provider.
 agent-web-search "What changed in the latest OpenAI Codex CLI?"
-agent-web-search "GPU kernel generation papers from the past month" --time-range m --max-results 5
-agent-web-search "latest news" --provider ark --provider ddgs
+
+# Limit results and publication time.
+agent-web-search "GPU kernel generation papers" --time-range m --max-results 5
+
+# Select a provider subset for this request.
+agent-web-search "latest AI news" --provider ark --provider ddgs
 ```
-
-## Volcengine collaboration rewards
-
-Agent Web Search does not require participation in any rewards program. Users who choose to use ARK can create their own API key and optionally review the official **[Volcengine Collaboration Rewards Program](https://www.volcengine.com/docs/82379/1391869?lang=zh)**. The program may provide reward resources according to its current rules, but quota, supported models, validity period, and data authorization terms can change. Check the official page before opting in. Participation means accepting the provider's data-authorization terms; it is not required to use Agent Web Search.
-
-## Configuration
-
-- `ARK_API_KEY`: optional; required only when the ARK provider is enabled. Comma/newline-separated keys are accepted.
-- `AGENT_WEB_SEARCH_PROVIDERS`: startup-enabled provider set; default is `ark,ddgs,exa`.
-- `AGENT_WEB_SEARCH_TIMEOUT`: per-provider timeout in seconds (default `60`).
-- `AGENT_WEB_SEARCH_ARK_MODELS`: comma-separated ARK model IDs.
-- `BRAVE_SEARCH_API_KEY`: optional Brave Web Search API key. Add `brave` to `AGENT_WEB_SEARCH_PROVIDERS` to enable it.
-- `EXA_API_KEY`: optional; when set, Exa uses the paid Search API (`api.exa.ai/search`) with higher quota and reliability. Without it, Exa falls back to the free MCP endpoint (best effort).
-- `EXA_MCP_URL`: optional Exa MCP endpoint override (only used when `EXA_API_KEY` is not set).
-- `GEMINI_API_KEY`: optional Gemini provider key.
-- `AGENT_WEB_SEARCH_GEMINI_MODEL`: optional Gemini model ID.
-- `XAI_API_KEY`: optional Grok provider key.
-- `AGENT_WEB_SEARCH_GROK_MODEL`: optional Grok model ID.
-- `TAVILY_API_KEY`: optional Tavily provider key.
-
-The provider set is resolved when the Hermes plugin or MCP server starts. The
-public `web_search` schema is generated from that set. A request can narrow the
-set with `providers`, but cannot activate a provider that was disabled at
-startup. If `grok` is startup-enabled, the schema additionally exposes
-`grok_search_mode` with `web_search`, `x_search`, and `both` values. `both`
-passes both xAI server-side tools in one request and lets Grok decide which to
-call; it does not send two independent requests.
-
-### Common search controls
-
-The public interface keeps one provider-neutral set of controls. Each backend
-maps them to its native API when possible and silently ignores unsupported
-controls:
-
-| Control | ARK | Brave | DDGS | Exa | Gemini / Grok | Tavily |
-| --- | --- | --- | --- | --- | --- | --- |
-| `max_results` | native `limit` | native `count` | native `max_results` | native `numResults` / `num_results` | English prompt constraint | native `max_results` |
-| `max_keyword` | native `max_keyword` | ignored | ignored | ignored | English prompt constraint | ignored |
-| `time_range` | English prompt constraint | native `freshness` | native `timelimit` | native publish-date filter | Gemini: prompt; Grok web: prompt; Grok X: native dates + prompt | native `time_range` |
-
-Prompt constraints are best-effort for model-backed providers; they are not
-presented as strict guarantees.
 
 ## Design principles
 
-- One core, multiple adapters.
-- A failed provider does not discard successful providers.
-- Provider responses are marked with `searched`, `error`, and `model` instead of pretending every HTTP 200 was a successful search.
-- No telemetry and no shared API key service.
+- **One core, multiple adapters.** MCP, Hermes, CLI, and Python use the same
+  search engine and response models.
+- **Independent providers.** A failed provider does not discard successful
+  providers; all-provider failure is surfaced explicitly.
+- **Transparent execution.** Responses expose `searched` and `model` instead of
+  treating every HTTP 200 as a completed search.
+- **No shared secrets.** There is no telemetry or shared API-key service.
 
 ## Development
 
+Using [`uv`](https://docs.astral.sh/uv/) keeps the development environment
+isolated and reproducible:
+
+```bash
+git clone https://github.com/JerryLiu369/agent-web-search.git
+cd agent-web-search
+uv venv
+uv pip install -e '.[dev]'
+uv run pytest -q
+uv run ruff check .
+```
+
+<details>
+<summary><strong>Standard venv + pip alternative</strong></summary>
+
 ```bash
 python -m venv .venv
-. .venv/bin/activate
-pip install -e '.[dev,ddgs,mcp]'
+# Linux/macOS: source .venv/bin/activate
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -e '.[dev]'
 pytest -q
 ruff check .
 ```
 
+</details>
+
 ## License
 
-MIT.
+[MIT](LICENSE)
