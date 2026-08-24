@@ -18,12 +18,47 @@ class Fake:
         )
 
 
+class Failing:
+    def __init__(self, name, error="provider failed"):
+        self.name = name
+        self.error = error
+
+    def search(self, request):
+        return ProviderResponse(provider=self.name, error=self.error)
+
+
 def test_engine_runs_selected_providers():
     out = SearchEngine(providers={"a": Fake("a"), "b": Fake("b")}).search(
         SearchRequest("hello", providers=["a"])
     )
     assert list(out.providers) == ["a"]
     assert out.providers["a"].results[0].url == "https://a.test"
+
+
+def test_engine_omits_failed_providers_from_successful_results():
+    out = SearchEngine(
+        providers={"ok": Fake("ok"), "failed": Failing("failed", "boom")}
+    ).search(SearchRequest("hello"))
+
+    assert list(out.providers) == ["ok"]
+    assert out.failed_provider_errors == {"failed": "boom"}
+    assert out.all_providers_failed is False
+
+
+def test_engine_tracks_failures_when_every_provider_fails():
+    out = SearchEngine(
+        providers={
+            "first": Failing("first", "first error"),
+            "second": Failing("second", "second error"),
+        }
+    ).search(SearchRequest("hello"))
+
+    assert out.providers == {}
+    assert out.failed_provider_errors == {
+        "first": "first error",
+        "second": "second error",
+    }
+    assert out.all_providers_failed is True
 
 
 def test_empty_query_rejected():

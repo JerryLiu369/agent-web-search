@@ -65,7 +65,10 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
                 PROVIDER_SPECS[name].description if name in PROVIDER_SPECS else name
                 for name in providers
             )
-            + ". Use a complete natural-language question."
+            + ". Use a complete natural-language question. Failed providers are "
+            "omitted from successful responses. If every enabled provider fails, "
+            "the call returns a tool error with code all_providers_failed and "
+            "per-provider diagnostics."
         ),
         "parameters": {
             "type": "object",

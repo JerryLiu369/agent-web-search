@@ -11,6 +11,8 @@ def test_schema_only_exposes_grok_option_when_enabled():
     assert "grok_search_mode" in grok_schema["parameters"]["properties"]
     assert "Volcengine ARK web search (Doubao)" in default_schema["description"]
     assert "ark" not in default_schema["description"]
+    assert "Failed providers are omitted" in default_schema["description"]
+    assert "tool error" in default_schema["description"]
 
 
 def test_model_provider_prompt_adapts_common_search_controls():

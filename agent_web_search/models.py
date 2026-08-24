@@ -75,6 +75,11 @@ class ProviderResponse:
 class SearchResponse:
     query: str
     providers: dict[str, ProviderResponse]
+    failed_provider_errors: dict[str, str] = field(default_factory=dict)
+
+    @property
+    def all_providers_failed(self) -> bool:
+        return not self.providers and bool(self.failed_provider_errors)
 
     def to_dict(self) -> dict[str, Any]:
         def result(x: SearchResult) -> dict[str, Any]:

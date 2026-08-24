@@ -62,13 +62,23 @@ class SearchEngine:
                     output[name] = ProviderResponse(
                         provider=name, error=f"{type(exc).__name__}: {exc}"
                     )
+        ordered = {
+            name: output.get(
+                name,
+                ProviderResponse(provider=name, error="provider did not return"),
+            )
+            for name in selected
+        }
         return SearchResponse(
             query=query,
             providers={
-                name: output.get(
-                    name,
-                    ProviderResponse(provider=name, error="provider did not return"),
-                )
-                for name in selected
+                name: response
+                for name, response in ordered.items()
+                if response.error is None
+            },
+            failed_provider_errors={
+                name: response.error
+                for name, response in ordered.items()
+                if response.error is not None
             },
         )

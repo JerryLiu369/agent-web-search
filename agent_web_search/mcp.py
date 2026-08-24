@@ -4,8 +4,28 @@ import asyncio
 import json
 
 from .engine import SearchEngine
-from .models import SearchRequest
+from .models import SearchRequest, SearchResponse
 from .schema import build_tool_schema
+
+ALL_PROVIDERS_FAILED_CODE = "all_providers_failed"
+ALL_PROVIDERS_FAILED_MESSAGE = (
+    "All enabled search providers failed. Check provider configuration, "
+    "credentials, quotas, and network access."
+)
+
+
+def format_mcp_result(result: SearchResponse) -> tuple[str, bool]:
+    if result.all_providers_failed:
+        payload = {
+            "error": {
+                "code": ALL_PROVIDERS_FAILED_CODE,
+                "message": ALL_PROVIDERS_FAILED_MESSAGE,
+                "provider_errors": result.failed_provider_errors,
+            },
+            "query": result.query,
+        }
+        return json.dumps(payload, ensure_ascii=False), True
+    return json.dumps(result.to_dict(), ensure_ascii=False), False
 
 
 def main():
@@ -35,10 +55,10 @@ def main():
             )
         args = params.arguments or {}
         result = engine.search(SearchRequest.from_mapping(args))
+        text, is_error = format_mcp_result(result)
         return types.CallToolResult(
-            content=[
-                types.TextContent(text=json.dumps(result.to_dict(), ensure_ascii=False))
-            ]
+            content=[types.TextContent(text=text)],
+            isError=is_error,
         )
 
     server = Server(
