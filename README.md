@@ -49,11 +49,15 @@ Agent / MCP client
 
 ## Providers
 
+> **Free, keyless defaults:** DDGS, Exa, and Parallel all work without an API
+> key. Exa and Parallel automatically use their free MCP transports until a
+> paid API key is provided.
+
 | Provider | Search backend | API key | Enabled by default |
 | --- | --- | --- | :---: |
-| **DDGS** | DuckDuckGo search | None | Yes |
-| **Exa** | Paid Search API or free MCP fallback | Optional `EXA_API_KEY` | Yes |
-| **Parallel** | Free MCP or paid LLM-optimized search | Optional `PARALLEL_API_KEY` | Yes |
+| **DDGS** | DuckDuckGo search | **Free · no key required** | Yes |
+| **Exa** | Paid Search API or free MCP fallback | **Free without key** · optional `EXA_API_KEY` | Yes |
+| **Parallel** | Free MCP or paid LLM-optimized search | **Free without key** · optional `PARALLEL_API_KEY` | Yes |
 | **ARK** | Volcengine ARK Responses API + `web_search` | `ARK_API_KEY` | No |
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
 | **Gemini** | Google Search grounding | `GEMINI_API_KEY` | No |

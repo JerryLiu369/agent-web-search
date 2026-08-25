@@ -45,11 +45,15 @@ Agent / MCP 客户端
 
 ## 搜索服务
 
+> **默认免费、无需 Key：** DDGS、Exa 和 Parallel 都可以不配置 API Key
+> 直接使用。Exa 和 Parallel 只有在提供付费 API Key 后才会切换到付费接口，
+> 否则自动使用免费 MCP。
+
 | Provider | 搜索后端 | API Key | 默认启用 |
 | --- | --- | --- | :---: |
-| **DDGS** | DuckDuckGo 搜索 | 无 | 是 |
-| **Exa** | 付费 Search API 或免费 MCP 后备 | 可选 `EXA_API_KEY` | 是 |
-| **Parallel** | 免费 MCP 或面向 LLM 优化的付费搜索 | 可选 `PARALLEL_API_KEY` | 是 |
+| **DDGS** | DuckDuckGo 搜索 | **免费 · 无需 Key** | 是 |
+| **Exa** | 付费 Search API 或免费 MCP 后备 | **无 Key 免费** · 可选 `EXA_API_KEY` | 是 |
+| **Parallel** | 免费 MCP 或面向 LLM 优化的付费搜索 | **无 Key 免费** · 可选 `PARALLEL_API_KEY` | 是 |
 | **ARK** | 火山引擎 ARK Responses API + `web_search` | `ARK_API_KEY` | 否 |
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | 否 |
 | **Gemini** | Google Search grounding | `GEMINI_API_KEY` | 否 |
