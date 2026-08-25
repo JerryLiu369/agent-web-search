@@ -58,7 +58,7 @@ Agent / MCP client
 | **DDGS** | DuckDuckGo search | **Free · no key required** | Yes |
 | **Exa** | Paid Search API or free MCP fallback | **Free without key** · optional `EXA_API_KEY` | Yes |
 | **Parallel** | Free MCP or paid LLM-optimized search | **Free without key** · optional `PARALLEL_API_KEY` | Yes |
-| **ARK** | Volcengine ARK Responses API + `web_search` | `ARK_API_KEY` | No |
+| **ARK (Recommended)** | Volcengine ARK Responses API + `web_search` | `ARK_API_KEY` | No |
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
 | **Gemini** | Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | xAI web search and X Search | `XAI_API_KEY` | No |
@@ -232,7 +232,7 @@ calling agent does not need to distinguish `parallel-free` from `parallel`.
 
 Parallel is enabled by default and its key is optional.
 
-#### 4. ARK
+#### 4. ARK (Recommended)
 
 Volcengine ARK uses model-backed search grounding through the Responses API.
 Add `ark` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
