@@ -32,13 +32,13 @@ Agent / MCP client
     web_search
         │
         ▼
-  SearchEngine ──┬── ARK
-                 ├── DDGS
+  SearchEngine ──┬── DDGS
                  ├── Exa
+                 ├── Parallel
+                 ├── ARK
                  ├── Brave
                  ├── Gemini
                  ├── Grok
-                 ├── Parallel
                  ├── Perplexity
                  ├── Tavily
                  └── You.com
@@ -48,13 +48,13 @@ Agent / MCP client
 
 | Provider | Search backend | API key | Enabled by default |
 | --- | --- | --- | :---: |
-| **ARK** | Volcengine ARK Responses API + `web_search` | `ARK_API_KEY` | No |
 | **DDGS** | DuckDuckGo search | None | Yes |
 | **Exa** | Paid Search API or free MCP fallback | Optional `EXA_API_KEY` | Yes |
+| **Parallel** | Free MCP or paid LLM-optimized search | Optional `PARALLEL_API_KEY` | Yes |
+| **ARK** | Volcengine ARK Responses API + `web_search` | `ARK_API_KEY` | No |
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
 | **Gemini** | Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | xAI web search and X Search | `XAI_API_KEY` | No |
-| **Parallel** | Free MCP or paid LLM-optimized search | Optional `PARALLEL_API_KEY` | Yes |
 | **Perplexity** | Native structured Search API | `PERPLEXITY_API_KEY` | No |
 | **Tavily** | Tavily Search API | `TAVILY_API_KEY` | No |
 | **You.com** | Unified web and news search | `YDC_API_KEY` | No |
@@ -188,7 +188,44 @@ $env:AGENT_WEB_SEARCH_TIMEOUT = "30"
 
 ### Provider settings
 
-#### 1. ARK
+Default providers are listed first; optional providers then follow alphabetical
+order.
+
+#### 1. DDGS
+
+DDGS uses DuckDuckGo and requires no API key or provider-specific environment
+variables. The `ddgs` Python dependency is installed with the package.
+
+#### 2. Exa
+
+Exa supports both paid and keyless modes.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `EXA_API_KEY` | No | Uses the paid Search API when present |
+| `EXA_MCP_URL` | No | Overrides the free MCP endpoint when no API key is set |
+
+Without `EXA_API_KEY`, Exa falls back to its free MCP endpoint on a best-effort
+basis. The paid API generally provides higher quota and reliability.
+
+#### 3. Parallel
+
+Parallel returns information-dense excerpts ranked for LLM context. One
+`parallel` provider automatically selects its transport:
+
+- Without a key, it uses Parallel's free Search MCP.
+- With `PARALLEL_API_KEY`, it uses the paid Search REST API.
+
+Both transports map `excerpts` into the common result description, so the
+calling agent does not need to distinguish `parallel-free` from `parallel`.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `PARALLEL_API_KEY` | No | Enables the paid API; omit it to use the free MCP |
+
+Parallel is enabled by default and its key is optional.
+
+#### 4. ARK
 
 Volcengine ARK uses model-backed search grounding through the Responses API.
 Add `ark` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
@@ -213,24 +250,7 @@ required to use Agent Web Search.
 
 </details>
 
-#### 2. DDGS
-
-DDGS uses DuckDuckGo and requires no API key or provider-specific environment
-variables. The `ddgs` Python dependency is installed with the package.
-
-#### 3. Exa
-
-Exa supports both paid and keyless modes.
-
-| Variable | Required | Purpose |
-| --- | :---: | --- |
-| `EXA_API_KEY` | No | Uses the paid Search API when present |
-| `EXA_MCP_URL` | No | Overrides the free MCP endpoint when no API key is set |
-
-Without `EXA_API_KEY`, Exa falls back to its free MCP endpoint on a best-effort
-basis. The paid API generally provides higher quota and reliability.
-
-#### 4. Brave
+#### 5. Brave
 
 | Variable | Required | Purpose |
 | --- | :---: | --- |
@@ -238,7 +258,7 @@ basis. The paid API generally provides higher quota and reliability.
 
 Add `brave` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
-#### 5. Gemini
+#### 6. Gemini
 
 | Variable | Required | Purpose |
 | --- | :---: | --- |
@@ -249,7 +269,7 @@ Gemini maps common result and time controls into best-effort prompt
 constraints. One configured model stays fixed; multiple models are selected
 round-robin for successive requests.
 
-#### 6. Grok
+#### 7. Grok
 
 | Variable | Required | Purpose |
 | --- | :---: | --- |
@@ -266,32 +286,7 @@ When Grok is enabled, the public tool schema adds `grok_search_mode`:
 - `both` exposes both server-side tools in one request and lets Grok choose; it
   does not issue two independent model requests.
 
-#### 7. Tavily
-
-| Variable | Required | Purpose |
-| --- | :---: | --- |
-| `TAVILY_API_KEY` | Yes | Tavily Search API credential |
-
-Add `tavily` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
-
-#### 8. Parallel
-
-Parallel returns information-dense excerpts ranked for LLM context. One
-`parallel` provider automatically selects its transport:
-
-- Without a key, it uses Parallel's free Search MCP.
-- With `PARALLEL_API_KEY`, it uses the paid Search REST API.
-
-Both transports map `excerpts` into the common result description, so the
-calling agent does not need to distinguish `parallel-free` from `parallel`.
-
-| Variable | Required | Purpose |
-| --- | :---: | --- |
-| `PARALLEL_API_KEY` | No | Enables the paid API; omit it to use the free MCP |
-
-Parallel is enabled by default and its key is optional.
-
-#### 9. Perplexity
+#### 8. Perplexity
 
 This provider uses Perplexity's native structured Search API. It returns result
 rows rather than a Sonar-generated prose answer; OpenRouter compatibility is
@@ -302,6 +297,14 @@ intentionally outside this provider's scope.
 | `PERPLEXITY_API_KEY` | Yes | Perplexity Search API credential |
 
 Add `perplexity` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+
+#### 9. Tavily
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `TAVILY_API_KEY` | Yes | Tavily Search API credential |
+
+Add `tavily` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
 #### 10. You.com
 
@@ -321,13 +324,13 @@ ignores unsupported controls.
 
 | Provider | `max_results` | `max_keyword` | `time_range` |
 | --- | --- | --- | --- |
-| ARK | Native `limit` | Native | Prompt constraint |
-| Brave | Native `count` | Ignored | Native `freshness` |
 | DDGS | Native `max_results` | Ignored | Native `timelimit` |
 | Exa | Native result count | Ignored | Native publish date |
+| Parallel | Native `max_results` | Ignored | Ignored |
+| ARK | Native `limit` | Native | Prompt constraint |
+| Brave | Native `count` | Ignored | Native `freshness` |
 | Gemini | Prompt constraint | Prompt constraint | Prompt constraint |
 | Grok | Prompt constraint | Prompt constraint | Prompt; X Search also uses native dates |
-| Parallel | Native `max_results` | Ignored | Ignored |
 | Perplexity | Native `max_results` | Ignored | Native recency filter |
 | Tavily | Native `max_results` | Ignored | Native `time_range` |
 | You.com | Native `count`, combined cap | Ignored | Native `freshness` |
