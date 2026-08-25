@@ -178,8 +178,6 @@ Remote MCP client example:
 
 Every public deployment must set `AGENT_WEB_SEARCH_AUTH_TOKEN` to at least 32
 characters. Provider keys remain optional server-side environment variables.
-The Zeabur deployment button includes the maintainer's referral code,
-`JerryLiu369`.
 
 Generic Docker deployment:
 
