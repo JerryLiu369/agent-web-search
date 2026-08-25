@@ -1,0 +1,4 @@
+include .env.example
+include README.zh-CN.md
+include __init__.py
+include plugin.yaml

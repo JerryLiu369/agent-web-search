@@ -33,8 +33,6 @@ Repository = "https://github.com/JerryLiu369/agent-web-search"
 Issues = "https://github.com/JerryLiu369/agent-web-search/issues"
 
 [project.optional-dependencies]
-ddgs = ["ddgs>=9.0"]
-mcp = ["mcp>=2.0,<3"]
 dev = ["build>=1.2", "pytest>=8", "ruff>=0.6", "twine>=5"]
 
 [project.scripts]
