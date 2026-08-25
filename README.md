@@ -53,7 +53,7 @@ Agent / MCP client
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
 | **Gemini** | Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | xAI web search and X Search | `XAI_API_KEY` | No |
-| **Parallel** | LLM-optimized dense excerpts | `PARALLEL_API_KEY` | No |
+| **Parallel** | Free MCP or paid LLM-optimized search | Optional `PARALLEL_API_KEY` | No |
 | **Perplexity** | Native structured Search API | `PERPLEXITY_API_KEY` | No |
 | **Tavily** | Tavily Search API | `TAVILY_API_KEY` | No |
 | **You.com** | Unified web and news search | `YDC_API_KEY` | No |
@@ -235,15 +235,20 @@ Add `tavily` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
 #### 8. Parallel
 
-Parallel returns information-dense excerpts ranked for LLM context. This
-integration uses the paid Search API and maps its `excerpts` into the common
-result description.
+Parallel returns information-dense excerpts ranked for LLM context. One
+`parallel` provider automatically selects its transport:
+
+- Without a key, it uses Parallel's free Search MCP.
+- With `PARALLEL_API_KEY`, it uses the paid Search REST API.
+
+Both transports map `excerpts` into the common result description, so the
+calling agent does not need to distinguish `parallel-free` from `parallel`.
 
 | Variable | Required | Purpose |
 | --- | :---: | --- |
-| `PARALLEL_API_KEY` | Yes | Parallel Search API credential |
+| `PARALLEL_API_KEY` | No | Enables the paid API; omit it to use the free MCP |
 
-Add `parallel` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+Add `parallel` to `AGENT_WEB_SEARCH_PROVIDERS`; a key is optional.
 
 #### 9. Perplexity
 
