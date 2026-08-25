@@ -454,16 +454,7 @@ ruff check .
 ### Releasing to PyPI
 
 Releases use PyPI Trusted Publishing, so no long-lived PyPI token is stored in
-GitHub. Before the first release, create a pending Trusted Publisher on PyPI
-with these values:
-
-| Field | Value |
-| --- | --- |
-| PyPI project name | `agent-web-search-mcp` |
-| GitHub owner | `JerryLiu369` |
-| GitHub repository | `agent-web-search` |
-| Workflow | `publish.yml` |
-| Environment | `pypi` |
+GitHub.
 
 To publish a release:
 
