@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,7 +9,22 @@ description = "A multi-provider web search layer for AI agents"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
+license-files = ["LICENSE"]
 authors = [{name = "Jerry Liu"}]
+keywords = ["ai-agents", "llm", "mcp", "web-search"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = ["ddgs>=9.0", "mcp>=2.0,<3"]
 
 [project.urls]
@@ -20,7 +35,7 @@ Issues = "https://github.com/JerryLiu369/agent-web-search/issues"
 [project.optional-dependencies]
 ddgs = ["ddgs>=9.0"]
 mcp = ["mcp>=2.0,<3"]
-dev = ["build>=1.2", "pytest>=8", "ruff>=0.6"]
+dev = ["build>=1.2", "pytest>=8", "ruff>=0.6", "twine>=5"]
 
 [project.scripts]
 agent-web-search = "agent_web_search.cli:main"

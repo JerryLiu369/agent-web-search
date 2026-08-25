@@ -5,6 +5,7 @@
 **One web-search tool for AI agents, backed by multiple independent providers.**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![PyPI](https://img.shields.io/pypi/v/agent-web-search-mcp.svg)](https://pypi.org/project/agent-web-search-mcp/)
 [![MCP 2.x](https://img.shields.io/badge/MCP-2.x-6C47FF)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -64,16 +65,33 @@ interfaces.
 
 ## Quick start
 
-Install directly from GitHub:
+Install from PyPI using whichever Python package runner you already have:
 
 ```bash
-pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
+# Standard Python installation
+python -m pip install agent-web-search-mcp
+
+# Isolated persistent installation
+pipx install agent-web-search-mcp
+
+# Run without a persistent installation
+uvx agent-web-search-mcp
 ```
 
-Run a search without configuring a paid API key:
+`pip` and `pipx` install both commands below. `uvx` runs the command named in
+its invocation directly.
+
+Run a search without configuring a paid API key after a persistent install:
 
 ```bash
 agent-web-search "What changed in the latest OpenAI Codex CLI?"
+```
+
+Or run the CLI through `uvx` without installing it:
+
+```bash
+uvx --from agent-web-search-mcp agent-web-search \
+  "What changed in the latest OpenAI Codex CLI?"
 ```
 
 Or start the stdio MCP server for an MCP client:
@@ -81,6 +99,29 @@ Or start the stdio MCP server for an MCP client:
 ```bash
 agent-web-search-mcp
 ```
+
+To use `uvx` directly from an MCP client without installing the package first,
+configure the client to run `uvx agent-web-search-mcp`. For example:
+
+```json
+{
+  "mcpServers": {
+    "agent-web-search": {
+      "command": "uvx",
+      "args": ["agent-web-search-mcp"]
+    }
+  }
+}
+```
+
+<details>
+<summary><strong>Install the latest development version from GitHub</strong></summary>
+
+```bash
+pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
+```
+
+</details>
 
 > [!IMPORTANT]
 > Do not place API keys in shell history, source code, Git commits, screenshots,
@@ -409,6 +450,28 @@ ruff check .
 ```
 
 </details>
+
+### Releasing to PyPI
+
+Releases use PyPI Trusted Publishing, so no long-lived PyPI token is stored in
+GitHub. Before the first release, create a pending Trusted Publisher on PyPI
+with these values:
+
+| Field | Value |
+| --- | --- |
+| PyPI project name | `agent-web-search-mcp` |
+| GitHub owner | `JerryLiu369` |
+| GitHub repository | `agent-web-search` |
+| Workflow | `publish.yml` |
+| Environment | `pypi` |
+
+To publish a release:
+
+1. Update `version` in `pyproject.toml` and merge the change into `main`.
+2. Create a GitHub Release whose tag exactly matches that version with a `v`
+   prefix, for example `v0.1.0`.
+3. The release workflow builds and checks both distributions, then publishes
+   them to PyPI using GitHub's short-lived identity token.
 
 ## License
 
