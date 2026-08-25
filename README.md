@@ -174,9 +174,12 @@ Remote MCP client example:
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&env=AGENT_WEB_SEARCH_AUTH_TOKEN)
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&envs=AGENT_WEB_SEARCH_AUTH_TOKEN)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/JerryLiu369/agent-web-search)
+[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/8MQZG0?referralCode=JerryLiu369)
 
 Every public deployment must set `AGENT_WEB_SEARCH_AUTH_TOKEN` to at least 32
 characters. Provider keys remain optional server-side environment variables.
+The Zeabur deployment button includes the maintainer's referral code,
+`JerryLiu369`.
 
 Generic Docker deployment:
 

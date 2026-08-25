@@ -1,0 +1,128 @@
+# yaml-language-server: $schema=https://schema.zeabur.app/template.json
+apiVersion: zeabur.com/v1
+kind: Template
+metadata:
+  name: Agent Web Search
+spec:
+  description: Multi-provider web search MCP server for AI agents, with free keyless providers enabled by default.
+  icon: https://cdn.simpleicons.org/modelcontextprotocol/24A148
+  variables:
+    - key: PUBLIC_DOMAIN
+      type: DOMAIN
+      name: Public domain
+      description: Public domain for the stateless Streamable HTTP MCP endpoint.
+    - key: AGENT_WEB_SEARCH_AUTH_TOKEN
+      type: PASSWORD
+      name: MCP bearer token
+      description: Secret bearer token used to protect /mcp. It must be at least 32 characters long.
+  tags:
+    - AI
+    - Tool
+    - API
+  readme: |-
+    # Agent Web Search
+
+    A stateless Streamable HTTP MCP server that combines multiple independent
+    web-search providers behind one `web_search` tool.
+
+    DDGS, Exa, and Parallel are enabled by default and can be used without API
+    keys. Provider failures are isolated; successful results are still returned
+    when another provider fails.
+
+    ## Connect
+
+    - MCP endpoint: `https://${PUBLIC_DOMAIN}/mcp`
+    - Authorization: `Bearer ${AGENT_WEB_SEARCH_AUTH_TOKEN}`
+    - Health check: `https://${PUBLIC_DOMAIN}/healthz`
+
+    The MCP endpoint accepts `POST` requests only. It uses JSON responses and is
+    stateless, so clients do not need to retain an `MCP-Session-Id`.
+
+    ## Optional provider keys
+
+    The default deployment works without provider keys. To use paid provider
+    APIs or enable additional providers, add the relevant environment variables
+    in the Zeabur service settings. See the project README for the full provider
+    list and configuration options.
+
+    Source: https://github.com/JerryLiu369/agent-web-search
+  services:
+    - name: agent-web-search
+      icon: https://cdn.simpleicons.org/modelcontextprotocol/24A148
+      template: GIT
+      domainKey: PUBLIC_DOMAIN
+      spec:
+        source:
+          source: GITHUB
+          repo: 1340504349
+          branch: main
+        ports:
+          - id: web
+            port: 8000
+            type: HTTP
+        healthCheck:
+          type: HTTP
+          port: web
+          http:
+            path: /healthz
+        instructions:
+          - type: DOMAIN
+            title: MCP endpoint
+            content: https://${PUBLIC_DOMAIN}/mcp
+          - type: PASSWORD
+            title: MCP bearer token
+            content: ${AGENT_WEB_SEARCH_AUTH_TOKEN}
+          - type: TEXT
+            title: Health check
+            content: https://${PUBLIC_DOMAIN}/healthz
+        env:
+          AGENT_WEB_SEARCH_PROVIDERS:
+            default: ddgs,exa,parallel
+          AGENT_WEB_SEARCH_TIMEOUT:
+            default: "60"
+          AGENT_WEB_SEARCH_MCP_TRANSPORT:
+            default: http
+          AGENT_WEB_SEARCH_HTTP_HOST:
+            default: 0.0.0.0
+          AGENT_WEB_SEARCH_HTTP_PORT:
+            default: "8000"
+          AGENT_WEB_SEARCH_ALLOW_ANONYMOUS:
+            default: "false"
+
+localization:
+  zh-CN:
+    description: 面向 AI Agent 的多服务商网页搜索 MCP Server，默认启用无需密钥的免费搜索服务。
+    variables:
+      - key: PUBLIC_DOMAIN
+        type: DOMAIN
+        name: 公网域名
+        description: 无状态 Streamable HTTP MCP 端点使用的公网域名。
+      - key: AGENT_WEB_SEARCH_AUTH_TOKEN
+        type: PASSWORD
+        name: MCP Bearer Token
+        description: 用于保护 /mcp 的私密令牌，长度必须至少为 32 个字符。
+    readme: |-
+      # Agent Web Search
+
+      一个无状态的 Streamable HTTP MCP Server，通过统一的 `web_search`
+      工具聚合多个相互独立的网页搜索服务商。
+
+      默认启用 DDGS、Exa 和 Parallel，无需 API Key 即可开始使用。单个
+      Provider 失败不会拖垮整次搜索；只要仍有成功结果，就会正常返回。
+
+      ## 连接方式
+
+      - MCP 端点：`https://${PUBLIC_DOMAIN}/mcp`
+      - 鉴权：`Bearer ${AGENT_WEB_SEARCH_AUTH_TOKEN}`
+      - 健康检查：`https://${PUBLIC_DOMAIN}/healthz`
+
+      MCP 端点只接受 `POST` 请求，使用 JSON 响应并保持无状态，客户端
+      不需要保存 `MCP-Session-Id`。
+
+      ## 可选 Provider 密钥
+
+      默认部署不需要任何 Provider Key。如需调用付费 API 或启用更多
+      Provider，可在 Zeabur 服务设置中添加相应环境变量。完整列表和配置
+      方法请查看项目 README。
+
+      源码：https://github.com/JerryLiu369/agent-web-search
