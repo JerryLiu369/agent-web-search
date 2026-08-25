@@ -4,7 +4,7 @@ import json
 import os
 import urllib.error
 import urllib.request
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from .base import Provider
@@ -89,7 +89,7 @@ class ExaProvider(Provider):
         if request.time_range in {"d", "w", "m", "y"}:
             days = {"d": 1, "w": 7, "m": 30, "y": 365}[request.time_range]
             args["start_published_date"] = (
-                datetime.now(UTC) - timedelta(days=days)
+                datetime.now(timezone.utc) - timedelta(days=days)
             ).strftime("%Y-%m-%d")
         payload = {
             "jsonrpc": "2.0",
@@ -148,7 +148,7 @@ class ExaProvider(Provider):
         if request.time_range in {"d", "w", "m", "y"}:
             days = {"d": 1, "w": 7, "m": 30, "y": 365}[request.time_range]
             payload["startPublishedDate"] = (
-                datetime.now(UTC) - timedelta(days=days)
+                datetime.now(timezone.utc) - timedelta(days=days)
             ).strftime("%Y-%m-%d")
         req = urllib.request.Request(
             API_ENDPOINT,
