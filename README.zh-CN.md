@@ -23,16 +23,16 @@
 
 支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、普通命令行脚本、Python 应用和远程 Streamable HTTP MCP 客户端。
 
-[搜索服务](#搜索服务) · [快速开始](#快速开始) ·
-[远程 MCP](#通过-https-使用远程-mcp) ·
-[工具接口](#工具接口) · [配置](#配置) ·
-[集成](#集成) · [架构](ARCHITECTURE.md) · [开发](#开发)
+[搜索服务](#搜索服务) · [快速开始](#快速开始) · [命令行](#命令行) ·
+[远程 MCP](#通过-https-使用远程-mcp) · [工具接口](#工具接口) ·
+[Python API](#python-api) · [配置](#配置) · [集成](#集成) ·
+[故障排查](#故障排查) · [架构](ARCHITECTURE.md) · [开发](#开发)
 
 </div>
 
 ---
 
-Agent Web Search 对外提供一个与 Provider 无关的 `web_search` 工具。它会并发调用彼此独立的 Provider，统一不同返回格式，隔离单个 Provider 的故障，并允许调用 Agent 在每次请求中选择要使用的已启用 Provider。
+Agent Web Search 对外提供一个与 Provider 无关的 `web_search` 工具。它会并发调用已启用的 Provider，统一不同返回格式，隔离单个 Provider 的故障，并允许调用 Agent 在每次请求中选择要使用的已启用 Provider。
 
 ```text
 Agent / MCP 客户端
@@ -52,6 +52,14 @@ Agent / MCP 客户端
                  ├── Tavily
                  └── You.com
 ```
+
+## 为什么选择 Agent Web Search
+
+- **并发且相互独立。** 所有选中的 Provider 同时发起请求，单个 Provider 失败不会丢弃其他 Provider 的成功结果。
+- **零 Key 即可上手。** 默认 Provider（DDGS、Exa、Parallel）无需任何 API Key。
+- **四处同一接口。** MCP（stdio 和 HTTP）、CLI、Python API 与 Hermes 插件共享同一个搜索引擎、工具 Schema 和响应模型。
+- **执行过程透明。** 每个 Provider 的响应都暴露 `searched` 和 `model`，调用方可以区分“真正完成的搜索”和“空响应的 HTTP 200”。
+- **无遥测、不共享密钥。** Provider Key 只存在于服务端环境变量中，项目不提供任何共享 API Key 服务。
 
 ## 搜索服务
 
@@ -76,7 +84,9 @@ Provider 架构是开放的：添加新的搜索后端时，不需要修改 MCP�
 
 ## 快速开始
 
-选择你已经使用的 Python 包管理方式，从 PyPI 安装：
+**环境要求：** Python 3.10+。无需任何 API Key，默认 Provider 全部免费且无需配置。
+
+用你已经使用的包管理方式从 PyPI 安装：
 
 ```bash
 # 标准 Python 安装
@@ -89,9 +99,9 @@ pipx install agent-web-search-mcp
 uvx agent-web-search-mcp
 ```
 
-`pip` 和 `pipx` 会安装下面两个命令；`uvx` 则会直接运行调用中指定的命令。
+PyPI 包 `agent-web-search-mcp` 会安装两个命令——`agent-web-search`（CLI）和 `agent-web-search-mcp`（MCP 服务器），并以 `agent_web_search` 作为 Python 模块导入。`uvx` 可以在不持久安装的情况下直接运行其中任意一个命令。
 
-持久安装后，无需配置付费 API Key 即可搜索：
+安装后即可搜索：
 
 ```bash
 agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
@@ -104,7 +114,7 @@ uvx --from agent-web-search-mcp agent-web-search \
   "OpenAI Codex CLI 最新版本有哪些变化？"
 ```
 
-或者启动供 MCP 客户端连接的 stdio 服务器：
+启动供 MCP 客户端连接的 stdio 服务器：
 
 ```bash
 agent-web-search-mcp
@@ -134,6 +144,29 @@ pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 
 > [!IMPORTANT]
 > 不要把 API Key 写入 Shell 历史、源代码、Git 提交、截图或纳入版本控制的 MCP 配置。请通过密钥管理工具或未提交到仓库的本地环境变量文件提供密钥。
+
+## 命令行
+
+`agent-web-search QUERY` 执行一次搜索，并把单个 JSON 文档打印到 stdout。
+
+| 选项 | 取值 | 默认值 | 用途 |
+| --- | --- | --- | --- |
+| `--provider` | Provider 名，可重复 | 所有已启用 | 将本次请求限定在指定的已启用 Provider |
+| `--max-results` | 1–20 | `10` | 期望的结果或引用数量 |
+| `--max-keyword` | 1–10 | `3` | 期望的最大搜索查询词或关键词数量 |
+| `--time-range` | `d`、`w`、`m`、`y` | — | 过去一天、一周、一月或一年 |
+| `--grok-search-mode` | `web_search`、`x_search`、`both` | `web_search` | 仅在启用 Grok 时有意义 |
+
+```bash
+# 使用所有启动时启用的 Provider
+agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
+
+# 限制结果数量和发布时间
+agent-web-search "GPU kernel generation 论文" --time-range m --max-results 5
+
+# 只选择部分 Provider
+agent-web-search "最新 AI 新闻" --provider ark --provider ddgs
+```
 
 ## 通过 HTTPS 使用远程 MCP
 
@@ -204,11 +237,80 @@ Provider 选择分为两层：
 1. `AGENT_WEB_SEARCH_PROVIDERS` 决定进程启动时启用哪些 Provider。
 2. 请求级 `providers` 参数可以进一步缩小范围，但不能启用启动时未启用的 Provider。
 
-单个 Provider 失败时，它会从成功结果中剔除。如果选中的 Provider 全部失败，MCP 会返回工具错误，稳定错误码为 `all_providers_failed`，并附带各 Provider 的诊断信息。
+### 响应格式
+
+每个成功返回的 Provider 会出现在 `providers` 字段中；失败的 Provider 会被剔除：
+
+```json
+{
+  "query": "GPU kernel generation papers from the past month",
+  "providers": {
+    "ddgs": {
+      "provider": "ddgs",
+      "answer": "",
+      "results": [
+        {
+          "title": "Example result",
+          "url": "https://example.com/paper",
+          "description": "Excerpt of the matching page",
+          "provider": "ddgs",
+          "published_at": "2026-08-02"
+        }
+      ],
+      "citations": [],
+      "model": "",
+      "searched": true
+    }
+  }
+}
+```
+
+| 字段 | 含义 |
+| --- | --- |
+| `answer` | 后端生成时返回的文本回答 |
+| `results` | 结果行：`title`、`url`、`description`、`provider`，以及可选的 `published_at` 和 `author` |
+| `citations` | 与 `results` 同构的引用列表 |
+| `model` | 模型型 Provider（ARK、Gemini、Grok）使用的模型 ID，其余为空 |
+| `searched` | 该 Provider 是否真正完成了搜索 |
+
+如果选中的 Provider 全部失败，MCP 工具会改为返回错误，稳定错误码为 `all_providers_failed`，并附带各 Provider 的诊断信息：
+
+```json
+{
+  "error": {
+    "code": "all_providers_failed",
+    "message": "All enabled search providers failed. Check provider configuration, credentials, quotas, and network access.",
+    "provider_errors": {
+      "ddgs": "RuntimeError: rate limited"
+    }
+  },
+  "query": "GPU kernel generation papers from the past month"
+}
+```
+
+## Python API
+
+CLI、MCP 服务器和 Hermes 插件都是 `agent_web_search.SearchEngine` 的薄封装，后者即公开的 Python API。`SearchRequest` 接受与 MCP 工具参数相同的字段：
+
+```python
+from agent_web_search import SearchEngine, SearchRequest
+
+engine = SearchEngine()  # 构造时读取 AGENT_WEB_SEARCH_* 环境变量
+
+response = engine.search(
+    SearchRequest(query="MCP 规范最近的变化", max_results=5, time_range="m")
+)
+
+for name, provider in response.providers.items():
+    print(f"{name}: searched={provider.searched}, results={len(provider.results)}")
+
+if response.all_providers_failed:
+    print(response.failed_provider_errors)
+```
 
 ## 配置
 
-CLI、MCP 服务器或 Hermes 插件启动时会读取环境变量。修改 Provider 设置后需要重启对应进程。
+CLI、MCP 服务器或 Hermes 插件启动时会读取环境变量。修改 Provider 设置后需要重启对应进程。仓库内的 [`.env.example`](.env.example) 以注释模板的形式列出了全部变量。
 
 ### 通用设置
 
@@ -438,25 +540,12 @@ hermes plugins enable agent-web-search --allow-tool-override
 
 Hermes 也可以不安装原生插件，而是通过通用 MCP 集成连接本项目。
 
-## CLI 示例
+## 故障排查
 
-```bash
-# 使用所有启动时启用的 Provider
-agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
-
-# 限制结果数量和发布时间
-agent-web-search "GPU kernel generation 论文" --time-range m --max-results 5
-
-# 只选择部分 Provider
-agent-web-search "最新 AI 新闻" --provider ark --provider ddgs
-```
-
-## 设计原则
-
-- **一个核心，多种适配。** MCP、Hermes、CLI 和 Python 使用同一个搜索引擎和响应模型。
-- **Provider 相互独立。** 单个 Provider 失败不会丢弃其他 Provider 的成功结果；全部失败时会明确返回错误。
-- **执行过程透明。** 响应会暴露 `searched` 和 `model`，不会把每一个 HTTP 200 都视为已完成搜索。
-- **不共享密钥。** 项目不包含遥测，也不提供共享 API Key 服务。
+- **`all_providers_failed`** —— 所有选中的 Provider 都失败了。错误信息包含各 Provider 的诊断；请检查 Key、配额和网络。免费后端可能被限流，重试或调大 `AGENT_WEB_SEARCH_TIMEOUT` 可能有帮助。
+- **HTTP 401 `invalid_token`** —— `Authorization: Bearer …` 请求头必须与 `AGENT_WEB_SEARCH_AUTH_TOKEN` 一致，且该 Token 至少 32 个字符。
+- **响应里少了某个 Provider** —— 失败的 Provider 会从成功响应中剔除。Python API 可以通过 `response.failed_provider_errors` 查看原因。
+- **修改 Provider 配置不生效** —— Provider 设置只在进程启动时读取一次；修改后请重启 CLI、MCP 服务器或 Hermes 插件。
 
 ## 开发
 
@@ -484,6 +573,8 @@ ruff check .
 ```
 
 </details>
+
+[ARCHITECTURE.md](ARCHITECTURE.md) 是设计事实来源，[AGENTS.md](AGENTS.md) 列出了不可妥协的约束。在修改 Transport、配置、鉴权、部署、Provider 或工具 Schema 之前，请先阅读这两份文档，保持 stdio 与 HTTP 行为一致，并在同一改动中保持 `pytest` 和 `ruff` 通过。
 
 ## 许可证
 

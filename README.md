@@ -24,20 +24,20 @@
 Works with **Codex CLI**, **Claude Code**, **OpenCode**, **Hermes**, ordinary
 shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 
-[Providers](#providers) · [Quick start](#quick-start) ·
-[Remote MCP](#remote-mcp-over-https) ·
-[Tool interface](#tool-interface) · [Configuration](#configuration) ·
-[Integrations](#integrations) · [Architecture](ARCHITECTURE.md) ·
-[Development](#development)
+[Providers](#providers) · [Quick start](#quick-start) · [CLI](#cli) ·
+[Remote MCP](#remote-mcp-over-https) · [Tool interface](#tool-interface) ·
+[Python API](#python-api) · [Configuration](#configuration) ·
+[Integrations](#integrations) · [Troubleshooting](#troubleshooting) ·
+[Architecture](ARCHITECTURE.md) · [Development](#development)
 
 </div>
 
 ---
 
 Agent Web Search exposes one provider-neutral `web_search` tool. It dispatches
-independent providers concurrently, normalizes their responses, keeps partial
-failures isolated, and lets the calling agent choose which enabled providers to
-use for each request.
+the enabled providers concurrently, normalizes their responses into one schema,
+keeps partial failures isolated, and lets the calling agent choose which
+enabled providers to use for each request.
 
 ```text
 Agent / MCP client
@@ -57,6 +57,20 @@ Agent / MCP client
                  ├── Tavily
                  └── You.com
 ```
+
+## Why Agent Web Search
+
+- **Concurrent, independent providers.** All selected providers run at the same
+  time, and one provider's failure never discards another provider's results.
+- **Zero-key start.** The default providers — DDGS, Exa, and Parallel — work
+  without any API key.
+- **One interface everywhere.** MCP (stdio and HTTP), the CLI, the Python API,
+  and the Hermes plugin share the same search engine, tool schema, and response
+  model.
+- **Transparent execution.** Every provider response exposes `searched` and
+  `model`, so callers can tell a completed search from an empty HTTP 200.
+- **No telemetry, no shared secrets.** Provider keys stay in server-side
+  environment variables; there is no shared API-key service.
 
 ## Providers
 
@@ -83,7 +97,10 @@ interfaces.
 
 ## Quick start
 
-Install from PyPI using whichever Python package runner you already have:
+**Requirements:** Python 3.10+. No API key is needed; the default providers
+are free and keyless.
+
+Install from PyPI with whichever package runner you already use:
 
 ```bash
 # Standard Python installation
@@ -96,10 +113,12 @@ pipx install agent-web-search-mcp
 uvx agent-web-search-mcp
 ```
 
-`pip` and `pipx` install both commands below. `uvx` runs the command named in
-its invocation directly.
+The PyPI package `agent-web-search-mcp` installs two commands —
+`agent-web-search` (CLI) and `agent-web-search-mcp` (MCP server) — and imports
+as the Python module `agent_web_search`. `uvx` runs either command without a
+persistent installation.
 
-Run a search without configuring a paid API key after a persistent install:
+Search right away:
 
 ```bash
 agent-web-search "What changed in the latest OpenAI Codex CLI?"
@@ -112,7 +131,7 @@ uvx --from agent-web-search-mcp agent-web-search \
   "What changed in the latest OpenAI Codex CLI?"
 ```
 
-Or start the stdio MCP server for an MCP client:
+Start the stdio MCP server for an MCP client:
 
 ```bash
 agent-web-search-mcp
@@ -145,6 +164,30 @@ pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 > Do not place API keys in shell history, source code, Git commits, screenshots,
 > or checked-in MCP configuration. Export them from a secret manager or a local
 > environment file that is not committed.
+
+## CLI
+
+`agent-web-search QUERY` runs one search and prints a single JSON document to
+stdout.
+
+| Option | Values | Default | Purpose |
+| --- | --- | --- | --- |
+| `--provider` | provider name, repeatable | all enabled | Restrict this request to specific enabled providers |
+| `--max-results` | 1–20 | `10` | Desired result or citation count |
+| `--max-keyword` | 1–10 | `3` | Desired maximum number of search queries or keywords |
+| `--time-range` | `d`, `w`, `m`, `y` | — | Past day, week, month, or year |
+| `--grok-search-mode` | `web_search`, `x_search`, `both` | `web_search` | Only meaningful when Grok is enabled |
+
+```bash
+# Use every startup-enabled provider.
+agent-web-search "What changed in the latest OpenAI Codex CLI?"
+
+# Limit results and publication time.
+agent-web-search "GPU kernel generation papers" --time-range m --max-results 5
+
+# Select a provider subset for this request.
+agent-web-search "latest AI news" --provider ark --provider ddgs
+```
 
 ## Remote MCP over HTTPS
 
@@ -220,14 +263,86 @@ Provider selection has two levels:
 2. The request-level `providers` argument may narrow that set, but cannot enable
    a provider that was disabled at startup.
 
-Failed providers are omitted from successful responses. If every selected
-provider fails, MCP returns a tool error with the stable code
-`all_providers_failed` and includes per-provider diagnostics.
+### Response format
+
+Each selected provider that succeeds appears under `providers`; failed
+providers are omitted:
+
+```json
+{
+  "query": "GPU kernel generation papers from the past month",
+  "providers": {
+    "ddgs": {
+      "provider": "ddgs",
+      "answer": "",
+      "results": [
+        {
+          "title": "Example result",
+          "url": "https://example.com/paper",
+          "description": "Excerpt of the matching page",
+          "provider": "ddgs",
+          "published_at": "2026-08-02"
+        }
+      ],
+      "citations": [],
+      "model": "",
+      "searched": true
+    }
+  }
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `answer` | Provider-generated prose answer, when the backend produces one |
+| `results` | Result rows: `title`, `url`, `description`, `provider`, plus optional `published_at` and `author` |
+| `citations` | Citations in the same shape as `results` |
+| `model` | Model ID reported by model-backed providers (ARK, Gemini, Grok); empty otherwise |
+| `searched` | Whether the provider actually completed a search |
+
+If every selected provider fails, the MCP tool returns an error with the stable
+code `all_providers_failed` and per-provider diagnostics:
+
+```json
+{
+  "error": {
+    "code": "all_providers_failed",
+    "message": "All enabled search providers failed. Check provider configuration, credentials, quotas, and network access.",
+    "provider_errors": {
+      "ddgs": "RuntimeError: rate limited"
+    }
+  },
+  "query": "GPU kernel generation papers from the past month"
+}
+```
+
+## Python API
+
+The CLI, MCP servers, and Hermes plugin are thin wrappers around
+`agent_web_search.SearchEngine`, which is the public Python API.
+`SearchRequest` accepts the same fields as the MCP tool arguments:
+
+```python
+from agent_web_search import SearchEngine, SearchRequest
+
+engine = SearchEngine()  # reads AGENT_WEB_SEARCH_* variables at construction
+
+response = engine.search(
+    SearchRequest(query="latest MCP spec changes", max_results=5, time_range="m")
+)
+
+for name, provider in response.providers.items():
+    print(f"{name}: searched={provider.searched}, results={len(provider.results)}")
+
+if response.all_providers_failed:
+    print(response.failed_provider_errors)
+```
 
 ## Configuration
 
 Configuration is read from environment variables when the CLI, MCP server, or
 Hermes plugin starts. Restart the process after changing provider settings.
+See [.env.example](.env.example) for a commented template of every variable.
 
 ### General settings
 
@@ -481,28 +596,19 @@ after enabling it; restart the gateway when using a messaging channel.
 Hermes can also connect through its generic MCP integration instead of the
 native plugin.
 
-## CLI examples
+## Troubleshooting
 
-```bash
-# Use every startup-enabled provider.
-agent-web-search "What changed in the latest OpenAI Codex CLI?"
-
-# Limit results and publication time.
-agent-web-search "GPU kernel generation papers" --time-range m --max-results 5
-
-# Select a provider subset for this request.
-agent-web-search "latest AI news" --provider ark --provider ddgs
-```
-
-## Design principles
-
-- **One core, multiple adapters.** MCP, Hermes, CLI, and Python use the same
-  search engine and response models.
-- **Independent providers.** A failed provider does not discard successful
-  providers; all-provider failure is surfaced explicitly.
-- **Transparent execution.** Responses expose `searched` and `model` instead of
-  treating every HTTP 200 as a completed search.
-- **No shared secrets.** There is no telemetry or shared API-key service.
+- **`all_providers_failed`** — every selected provider errored. The error
+  carries per-provider diagnostics; check keys, quotas, and network access.
+  Free backends can be rate-limited, so retrying or raising
+  `AGENT_WEB_SEARCH_TIMEOUT` may help.
+- **HTTP 401 `invalid_token`** — the `Authorization: Bearer …` header must
+  match `AGENT_WEB_SEARCH_AUTH_TOKEN`, which must be at least 32 characters.
+- **A provider is missing from a response** — failed providers are omitted
+  from successful responses. The Python API exposes the reasons in
+  `response.failed_provider_errors`.
+- **Provider changes have no effect** — provider settings are read once at
+  startup; restart the CLI, MCP server, or Hermes plugin after changing them.
 
 ## Development
 
@@ -531,6 +637,12 @@ ruff check .
 ```
 
 </details>
+
+[ARCHITECTURE.md](ARCHITECTURE.md) is the design source of truth, and
+[AGENTS.md](AGENTS.md) lists the non-negotiable invariants. Read both before
+changing transports, configuration, authentication, deployment, providers, or
+tool schemas, keep stdio and HTTP behavior identical, and keep `pytest` and
+`ruff` green in the same change.
 
 ## License
 
