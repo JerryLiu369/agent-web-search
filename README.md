@@ -451,19 +451,6 @@ ruff check .
 
 </details>
 
-### Releasing to PyPI
-
-Releases use PyPI Trusted Publishing, so no long-lived PyPI token is stored in
-GitHub.
-
-To publish a release:
-
-1. Update `version` in `pyproject.toml` and merge the change into `main`.
-2. Create a GitHub Release whose tag exactly matches that version with a `v`
-   prefix, for example `v0.1.0`.
-3. The release workflow builds and checks both distributions, then publishes
-   them to PyPI using GitHub's short-lived identity token.
-
 ## License
 
 [MIT](LICENSE)
