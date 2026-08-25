@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: agent-web-search
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    envVars:
+      - key: AGENT_WEB_SEARCH_AUTH_TOKEN
+        sync: false
+      - key: AGENT_WEB_SEARCH_PROVIDERS
+        value: ddgs,exa,parallel

@@ -1,4 +1,10 @@
 include .env.example
+include .dockerignore
+include AGENTS.md
+include ARCHITECTURE.md
+include Dockerfile
 include README.zh-CN.md
 include __init__.py
 include plugin.yaml
+include railway.toml
+include render.yaml

@@ -50,3 +50,14 @@ jobs:
 
       - name: Run Ruff
         run: ruff check .
+
+  container:
+    name: Docker build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Build image
+        run: docker build --tag agent-web-search:ci .

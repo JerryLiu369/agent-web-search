@@ -13,11 +13,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Works with **Codex CLI**, **Claude Code**, **OpenCode**, **Hermes**, ordinary
-shell scripts, and Python applications.
+shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 
 [Providers](#providers) · [Quick start](#quick-start) ·
+[Remote MCP](#remote-mcp-over-https) ·
 [Tool interface](#tool-interface) · [Configuration](#configuration) ·
-[Integrations](#integrations) · [Development](#development)
+[Integrations](#integrations) · [Architecture](ARCHITECTURE.md) ·
+[Development](#development)
 
 </div>
 
@@ -135,6 +137,61 @@ pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 > or checked-in MCP configuration. Export them from a secret manager or a local
 > environment file that is not committed.
 
+## Remote MCP over HTTPS
+
+The same `agent-web-search-mcp` command supports both MCP transports. It keeps
+stdio as the zero-argument default and enables stateless Streamable HTTP with a
+transport switch:
+
+```bash
+# Generate a deployment token once.
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+
+export AGENT_WEB_SEARCH_AUTH_TOKEN="replace-with-the-generated-token"
+agent-web-search-mcp --transport http
+```
+
+The HTTP server exposes `POST /mcp` and public `GET /healthz`. `/mcp` requires
+the deployment Bearer Token by default and never creates an `MCP-Session-Id`.
+
+Remote MCP client example:
+
+```json
+{
+  "mcpServers": {
+    "agent-web-search": {
+      "url": "https://your-deployment.example/mcp",
+      "headers": {
+        "Authorization": "Bearer your-deployment-token"
+      }
+    }
+  }
+}
+```
+
+### Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&env=AGENT_WEB_SEARCH_AUTH_TOKEN)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&envs=AGENT_WEB_SEARCH_AUTH_TOKEN)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/JerryLiu369/agent-web-search)
+
+Every public deployment must set `AGENT_WEB_SEARCH_AUTH_TOKEN` to at least 32
+characters. Provider keys remain optional server-side environment variables.
+
+Zeabur can deploy this repository directly from Git using the included
+`Dockerfile`. Zeabur requires a published platform Template before a reusable
+one-click button can be issued; the button will be added after that one-time
+account-side publication.
+
+Generic Docker deployment:
+
+```bash
+docker build -t agent-web-search .
+docker run --rm -p 8000:8000 \
+  -e AGENT_WEB_SEARCH_AUTH_TOKEN="replace-with-a-32-character-token" \
+  agent-web-search
+```
+
 ## Tool interface
 
 The MCP server and Hermes plugin register one tool named `web_search`.
@@ -192,6 +249,22 @@ export AGENT_WEB_SEARCH_TIMEOUT="30"
 $env:AGENT_WEB_SEARCH_PROVIDERS = "ddgs,exa,brave"
 $env:AGENT_WEB_SEARCH_TIMEOUT = "30"
 ```
+
+### HTTP transport settings
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `AGENT_WEB_SEARCH_MCP_TRANSPORT` | `stdio` | `stdio` or `http`; `--transport` may override it |
+| `AGENT_WEB_SEARCH_HTTP_HOST` | `0.0.0.0` | HTTP bind host for container deployments |
+| `AGENT_WEB_SEARCH_HTTP_PORT` | `PORT` or `8000` | HTTP bind port; explicit value overrides platform `PORT` |
+| `AGENT_WEB_SEARCH_AUTH_TOKEN` | — | Required HTTP Bearer Token, at least 32 characters |
+| `AGENT_WEB_SEARCH_ALLOW_ANONYMOUS` | `false` | Explicitly disables HTTP auth for trusted/demo environments |
+| `AGENT_WEB_SEARCH_HTTP_ALLOWED_HOSTS` | — | Optional comma-separated Host allowlist |
+| `AGENT_WEB_SEARCH_HTTP_ALLOWED_ORIGINS` | — | Optional comma-separated Origin allowlist; requires allowed hosts |
+| `AGENT_WEB_SEARCH_HTTP_LOG_LEVEL` | `info` | Uvicorn log level for the container server |
+
+HTTP settings remain environment-only; the deployment files do not introduce
+a second application configuration format.
 
 ### Provider settings
 

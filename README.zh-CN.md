@@ -12,11 +12,12 @@
 [![MCP 2.x](https://img.shields.io/badge/MCP-2.x-6C47FF)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、普通命令行脚本和 Python 应用。
+支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、普通命令行脚本、Python 应用和远程 Streamable HTTP MCP 客户端。
 
 [搜索服务](#搜索服务) · [快速开始](#快速开始) ·
+[远程 MCP](#通过-https-使用远程-mcp) ·
 [工具接口](#工具接口) · [配置](#配置) ·
-[集成](#集成) · [开发](#开发)
+[集成](#集成) · [架构](ARCHITECTURE.md) · [开发](#开发)
 
 </div>
 
@@ -125,6 +126,54 @@ pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 > [!IMPORTANT]
 > 不要把 API Key 写入 Shell 历史、源代码、Git 提交、截图或纳入版本控制的 MCP 配置。请通过密钥管理工具或未提交到仓库的本地环境变量文件提供密钥。
 
+## 通过 HTTPS 使用远程 MCP
+
+同一个 `agent-web-search-mcp` 命令同时支持两种 MCP Transport。无参数时保持 stdio，通过 Transport 参数启动无状态 Streamable HTTP：
+
+```bash
+# 只需生成一次部署 Token
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+
+export AGENT_WEB_SEARCH_AUTH_TOKEN="替换为刚生成的-token"
+agent-web-search-mcp --transport http
+```
+
+HTTP 服务提供 `POST /mcp` 和公开的 `GET /healthz`。`/mcp` 默认强制验证部署 Bearer Token，并且不会创建 `MCP-Session-Id`。
+
+远程 MCP 客户端配置示例：
+
+```json
+{
+  "mcpServers": {
+    "agent-web-search": {
+      "url": "https://你的部署域名.example/mcp",
+      "headers": {
+        "Authorization": "Bearer 你的部署-token"
+      }
+    }
+  }
+}
+```
+
+### 一键部署
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&env=AGENT_WEB_SEARCH_AUTH_TOKEN)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&envs=AGENT_WEB_SEARCH_AUTH_TOKEN)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/JerryLiu369/agent-web-search)
+
+所有公网部署都必须把 `AGENT_WEB_SEARCH_AUTH_TOKEN` 设置为至少 32 个字符。Provider Key 继续作为可选的服务端环境变量。
+
+Zeabur 可以使用仓库内的 `Dockerfile` 直接从 Git 部署。Zeabur 必须先在平台账号中发布 Template，才能生成可复用的一键部署按钮；完成这次账号侧发布后再补上按钮。
+
+通用 Docker 部署：
+
+```bash
+docker build -t agent-web-search .
+docker run --rm -p 8000:8000 \
+  -e AGENT_WEB_SEARCH_AUTH_TOKEN="替换为至少-32-字符的-token" \
+  agent-web-search
+```
+
 ## 工具接口
 
 MCP 服务器和 Hermes 插件都会注册一个名为 `web_search` 的工具。
@@ -178,6 +227,21 @@ export AGENT_WEB_SEARCH_TIMEOUT="30"
 $env:AGENT_WEB_SEARCH_PROVIDERS = "ddgs,exa,brave"
 $env:AGENT_WEB_SEARCH_TIMEOUT = "30"
 ```
+
+### HTTP Transport 设置
+
+| 变量 | 默认值 | 用途 |
+| --- | --- | --- |
+| `AGENT_WEB_SEARCH_MCP_TRANSPORT` | `stdio` | 可选 `stdio` 或 `http`；`--transport` 可以覆盖它 |
+| `AGENT_WEB_SEARCH_HTTP_HOST` | `0.0.0.0` | 容器部署时的 HTTP 监听地址 |
+| `AGENT_WEB_SEARCH_HTTP_PORT` | `PORT` 或 `8000` | HTTP 监听端口；显式值优先于平台 `PORT` |
+| `AGENT_WEB_SEARCH_AUTH_TOKEN` | — | HTTP 必需的 Bearer Token，至少 32 个字符 |
+| `AGENT_WEB_SEARCH_ALLOW_ANONYMOUS` | `false` | 为可信网络或临时 Demo 显式关闭 HTTP 鉴权 |
+| `AGENT_WEB_SEARCH_HTTP_ALLOWED_HOSTS` | — | 可选、逗号分隔的 Host 白名单 |
+| `AGENT_WEB_SEARCH_HTTP_ALLOWED_ORIGINS` | — | 可选、逗号分隔的 Origin 白名单；必须同时配置 Host |
+| `AGENT_WEB_SEARCH_HTTP_LOG_LEVEL` | `info` | 容器服务器的 Uvicorn 日志级别 |
+
+HTTP 设置仍然全部来自环境变量；部署文件不会引入第二套应用配置格式。
 
 ### Provider 设置
 
