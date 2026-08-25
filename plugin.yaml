@@ -1,6 +1,6 @@
 name: agent-web-search
 version: 0.1.0
-description: Multi-provider web search for Hermes — ARK (Doubao), DuckDuckGo, Exa, Gemini, Grok, and Tavily backends.
+description: Multi-provider web search for Hermes — ten independent search and grounding backends.
 author: Jerry Liu
 license: MIT
 homepage: https://github.com/JerryLiu369/agent-web-search
@@ -11,7 +11,10 @@ optional_env:
   - EXA_API_KEY
   - GEMINI_API_KEY
   - XAI_API_KEY
+  - PARALLEL_API_KEY
+  - PERPLEXITY_API_KEY
   - TAVILY_API_KEY
+  - YDC_API_KEY
 python_dependencies:
   - ddgs>=9.0
 provides_tools:

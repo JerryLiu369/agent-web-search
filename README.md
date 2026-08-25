@@ -37,7 +37,10 @@ Agent / MCP client
                  ├── Brave
                  ├── Gemini
                  ├── Grok
-                 └── Tavily
+                 ├── Parallel
+                 ├── Perplexity
+                 ├── Tavily
+                 └── You.com
 ```
 
 ## Providers
@@ -50,7 +53,10 @@ Agent / MCP client
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
 | **Gemini** | Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | xAI web search and X Search | `XAI_API_KEY` | No |
+| **Parallel** | LLM-optimized dense excerpts | `PARALLEL_API_KEY` | No |
+| **Perplexity** | Native structured Search API | `PERPLEXITY_API_KEY` | No |
 | **Tavily** | Tavily Search API | `TAVILY_API_KEY` | No |
+| **You.com** | Unified web and news search | `YDC_API_KEY` | No |
 
 The provider architecture is intentionally open: another search-capable
 backend can be added without changing the MCP, Hermes, CLI, or Python-facing
@@ -227,16 +233,58 @@ When Grok is enabled, the public tool schema adds `grok_search_mode`:
 
 Add `tavily` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
+#### 8. Parallel
+
+Parallel returns information-dense excerpts ranked for LLM context. This
+integration uses the paid Search API and maps its `excerpts` into the common
+result description.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `PARALLEL_API_KEY` | Yes | Parallel Search API credential |
+
+Add `parallel` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+
+#### 9. Perplexity
+
+This provider uses Perplexity's native structured Search API. It returns result
+rows rather than a Sonar-generated prose answer; OpenRouter compatibility is
+intentionally outside this provider's scope.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `PERPLEXITY_API_KEY` | Yes | Perplexity Search API credential |
+
+Add `perplexity` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+
+#### 10. You.com
+
+You.com returns unified web and news sections. Agent Web Search merges both,
+deduplicates URLs, and applies `max_results` to the combined result list.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `YDC_API_KEY` | Yes | You.com Search API credential |
+
+Add `you` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+
 ### Common search controls
 
 Each provider maps the shared controls to its native API when possible and
 ignores unsupported controls.
 
-| Control | ARK | Brave | DDGS | Exa | Gemini / Grok | Tavily |
-| --- | --- | --- | --- | --- | --- | --- |
-| `max_results` | Native `limit` | Native `count` | Native `max_results` | Native result count | Prompt constraint | Native `max_results` |
-| `max_keyword` | Native | Ignored | Ignored | Ignored | Prompt constraint | Ignored |
-| `time_range` | Prompt constraint | Native `freshness` | Native `timelimit` | Native publish date | Prompt; Grok X also uses native dates | Native `time_range` |
+| Provider | `max_results` | `max_keyword` | `time_range` |
+| --- | --- | --- | --- |
+| ARK | Native `limit` | Native | Prompt constraint |
+| Brave | Native `count` | Ignored | Native `freshness` |
+| DDGS | Native `max_results` | Ignored | Native `timelimit` |
+| Exa | Native result count | Ignored | Native publish date |
+| Gemini | Prompt constraint | Prompt constraint | Prompt constraint |
+| Grok | Prompt constraint | Prompt constraint | Prompt; X Search also uses native dates |
+| Parallel | Native `max_results` | Ignored | Ignored |
+| Perplexity | Native `max_results` | Ignored | Native recency filter |
+| Tavily | Native `max_results` | Ignored | Native `time_range` |
+| You.com | Native `count`, combined cap | Ignored | Native `freshness` |
 
 Prompt-based controls are best-effort and are not strict guarantees.
 

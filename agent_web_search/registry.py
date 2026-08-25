@@ -9,7 +9,10 @@ from .providers import (
     ExaProvider,
     GeminiProvider,
     GrokProvider,
+    ParallelProvider,
+    PerplexityProvider,
     TavilyProvider,
+    YouProvider,
 )
 from .providers.base import Provider
 
@@ -44,10 +47,25 @@ PROVIDER_SPECS = {
         "Grok web search and X Search",
         "XAI_API_KEY",
     ),
+    "parallel": ProviderSpec(
+        ParallelProvider,
+        "Parallel LLM-optimized web search",
+        "PARALLEL_API_KEY",
+    ),
+    "perplexity": ProviderSpec(
+        PerplexityProvider,
+        "Perplexity structured Search API",
+        "PERPLEXITY_API_KEY",
+    ),
     "tavily": ProviderSpec(
         TavilyProvider,
         "Tavily web search",
         "TAVILY_API_KEY",
+    ),
+    "you": ProviderSpec(
+        YouProvider,
+        "You.com Search API",
+        "YDC_API_KEY",
     ),
 }
 

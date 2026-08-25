@@ -15,6 +15,16 @@ def test_schema_only_exposes_grok_option_when_enabled():
     assert "tool error" in default_schema["description"]
 
 
+def test_new_search_providers_appear_in_dynamic_schema():
+    schema = build_tool_schema(["parallel", "perplexity", "you"])
+    providers = schema["parameters"]["properties"]["providers"]["items"]["enum"]
+
+    assert providers == ["parallel", "perplexity", "you"]
+    assert "Parallel LLM-optimized web search" in schema["description"]
+    assert "Perplexity structured Search API" in schema["description"]
+    assert "You.com Search API" in schema["description"]
+
+
 def test_model_provider_prompt_adapts_common_search_controls():
     prompt = search_prompt(
         "latest AI news", time_range="w", max_results=5, max_keyword=2
