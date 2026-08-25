@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 TIME_RANGE_LABELS = {
     "d": "the past 24 hours",
@@ -44,6 +44,6 @@ def x_search_date_filters(time_range: str | None) -> dict[str, str]:
     """Translate the common range to xAI X Search's native date filters."""
     if time_range not in TIME_RANGE_DAYS:
         return {}
-    today = datetime.now(UTC).date()
+    today = datetime.now(timezone.utc).date()
     start = today - timedelta(days=TIME_RANGE_DAYS[time_range])
     return {"from_date": start.isoformat(), "to_date": today.isoformat()}
