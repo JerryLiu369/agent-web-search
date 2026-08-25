@@ -49,7 +49,7 @@ class ArkProvider(Provider):
         output = data.get("output") or []
         messages = [x for x in output if x.get("type") == "message"]
         answer = ""
-        citations: list[SearchResult] = []
+        results: list[SearchResult] = []
         for message in messages:
             for content in message.get("content") or []:
                 if (
@@ -61,7 +61,7 @@ class ArkProvider(Provider):
                     if annotation.get("type") == "url_citation" and annotation.get(
                         "url"
                     ):
-                        citations.append(
+                        results.append(
                             SearchResult(
                                 title=annotation.get("title", ""),
                                 url=annotation["url"],
@@ -70,7 +70,7 @@ class ArkProvider(Provider):
                             )
                         )
         unique = {}
-        for item in citations:
+        for item in results:
             unique.setdefault(item.url, item)
         searched = any(
             x.get("type") == "web_search_call" and x.get("status") == "completed"
@@ -79,7 +79,7 @@ class ArkProvider(Provider):
         return ProviderResponse(
             provider="ark",
             answer=answer,
-            citations=list(unique.values()),
+            results=list(unique.values()),
             model=data.get("model", ""),
             searched=searched,
         )
@@ -134,10 +134,10 @@ class ArkProvider(Provider):
                     continued = self._continue(key, data["id"])
                     if continued.answer.strip():
                         parsed.answer = continued.answer
-                    if continued.citations:
-                        unique = {item.url: item for item in parsed.citations}
-                        unique.update({item.url: item for item in continued.citations})
-                        parsed.citations = list(unique.values())
+                    if continued.results:
+                        unique = {item.url: item for item in parsed.results}
+                        unique.update({item.url: item for item in continued.results})
+                        parsed.results = list(unique.values())
                     parsed.searched = parsed.searched or continued.searched
                 return parsed
         except urllib.error.HTTPError as exc:

@@ -36,7 +36,7 @@ class GrokProvider(Provider):
     @staticmethod
     def parse(data: dict, tool_name: str = "web_search") -> ProviderResponse:
         answer = ""
-        citations: list[SearchResult] = []
+        results: list[SearchResult] = []
         searched = False
         for item in data.get("output") or []:
             item_type = item.get("type", "")
@@ -54,7 +54,7 @@ class GrokProvider(Provider):
                     if annotation.get("type") == "url_citation" and annotation.get(
                         "url"
                     ):
-                        citations.append(
+                        results.append(
                             SearchResult(
                                 title=annotation.get("title", ""),
                                 url=annotation["url"],
@@ -63,11 +63,11 @@ class GrokProvider(Provider):
                         )
         if not answer and data.get("output_text"):
             answer = data["output_text"]
-        unique = {item.url: item for item in citations}
+        unique = {item.url: item for item in results}
         return ProviderResponse(
             provider="grok",
             answer=answer,
-            citations=list(unique.values()),
+            results=list(unique.values()),
             model=data.get("model", ""),
             searched=searched,
         )

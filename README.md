@@ -240,7 +240,7 @@ The MCP server and Hermes plugin register one tool named `web_search`.
 | Argument | Type | Required | Default | Description |
 | --- | --- | :---: | --- | --- |
 | `query` | string | Yes | — | Complete natural-language search question |
-| `max_results` | integer, 1–20 | No | `10` | Desired result or citation count |
+| `max_results` | integer, 1–20 | No | `10` | Desired maximum number of results |
 | `max_keyword` | integer, 1–10 | No | `3` | Desired maximum number of search queries or keywords |
 | `time_range` | `d`, `w`, `m`, `y` | No | — | Past day, week, month, or year |
 | `providers` | string array | No | All enabled | Narrow the request to enabled providers |

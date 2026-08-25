@@ -1,7 +1,7 @@
 from agent_web_search.providers.ark import ArkProvider
 
 
-def test_ark_uses_last_message_and_deduplicates_citations():
+def test_ark_uses_last_message_and_deduplicates_results():
     result = ArkProvider.parse(
         {
             "model": "m",
@@ -36,5 +36,5 @@ def test_ark_uses_last_message_and_deduplicates_citations():
         }
     )
     assert result.answer == "final"
-    assert [x.url for x in result.citations] == ["https://x", "https://y"]
+    assert [x.url for x in result.results] == ["https://x", "https://y"]
     assert result.searched

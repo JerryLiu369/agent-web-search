@@ -36,7 +36,7 @@ class GeminiProvider(Provider):
     @staticmethod
     def parse(data: dict) -> ProviderResponse:
         answer = ""
-        citations: list[SearchResult] = []
+        results: list[SearchResult] = []
         searched = False
         for step in data.get("output") or data.get("steps") or []:
             step_type = step.get("type", "")
@@ -54,7 +54,7 @@ class GeminiProvider(Provider):
                     if annotation.get("type") == "url_citation" and annotation.get(
                         "url"
                     ):
-                        citations.append(
+                        results.append(
                             SearchResult(
                                 title=annotation.get("title", ""),
                                 url=annotation["url"],
@@ -63,11 +63,11 @@ class GeminiProvider(Provider):
                         )
             if step_type in {"model_output", "google_search_result"}:
                 searched = True
-        unique = {item.url: item for item in citations}
+        unique = {item.url: item for item in results}
         return ProviderResponse(
             provider="gemini",
             answer=answer,
-            citations=list(unique.values()),
+            results=list(unique.values()),
             model=data.get("model", ""),
             searched=searched,
         )

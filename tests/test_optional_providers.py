@@ -48,7 +48,7 @@ def test_x_search_time_range_uses_native_date_filters():
     assert x_search_date_filters(None) == {}
 
 
-def test_gemini_parse_citations():
+def test_gemini_parse_results():
     result = GeminiProvider.parse(
         {
             "model": "gemini-test",
@@ -74,7 +74,7 @@ def test_gemini_parse_citations():
         }
     )
     assert result.searched and result.answer == "answer"
-    assert result.citations[0].url == "https://example.com"
+    assert result.results[0].url == "https://example.com"
 
 
 def test_grok_parse_web_and_x_search_calls():
@@ -104,4 +104,4 @@ def test_grok_parse_web_and_x_search_calls():
         "x_search",
     )
     assert result.searched and result.answer == "answer"
-    assert result.citations[0].url == "https://x.com/post"
+    assert result.results[0].url == "https://x.com/post"

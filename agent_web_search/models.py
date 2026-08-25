@@ -65,7 +65,6 @@ class ProviderResponse:
     provider: str
     answer: str = ""
     results: list[SearchResult] = field(default_factory=list)
-    citations: list[SearchResult] = field(default_factory=list)
     model: str = ""
     error: str | None = None
     searched: bool = False
@@ -102,7 +101,6 @@ class SearchResponse:
                     "provider": v.provider,
                     "answer": v.answer,
                     "results": [result(x) for x in v.results],
-                    "citations": [result(x) for x in v.citations],
                     "model": v.model,
                     "searched": v.searched,
                     **({"error": v.error} if v.error else {}),

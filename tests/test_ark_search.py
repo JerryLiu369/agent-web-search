@@ -35,7 +35,7 @@ class _Response:
         ).encode()
 
 
-def test_ark_continuation_merges_initial_and_followup_citations(monkeypatch):
+def test_ark_continuation_merges_initial_and_followup_results(monkeypatch):
     provider = ArkProvider(api_key="test-key", models=["m"])
     monkeypatch.setattr("urllib.request.urlopen", lambda *_args, **_kwargs: _Response())
     monkeypatch.setattr(
@@ -44,7 +44,7 @@ def test_ark_continuation_merges_initial_and_followup_citations(monkeypatch):
         lambda *_args: ProviderResponse(
             provider="ark",
             answer="A complete answer",
-            citations=[
+            results=[
                 SearchResult(title="follow-up", url="https://followup", provider="ark")
             ],
             searched=True,
@@ -55,7 +55,7 @@ def test_ark_continuation_merges_initial_and_followup_citations(monkeypatch):
 
     assert result.searched is True
     assert result.answer == "A complete answer"
-    assert [item.url for item in result.citations] == [
+    assert [item.url for item in result.results] == [
         "https://initial",
         "https://followup",
     ]

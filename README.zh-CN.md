@@ -215,7 +215,7 @@ MCP 服务器和 Hermes 插件都会注册一个名为 `web_search` 的工具。
 | 参数 | 类型 | 必填 | 默认值 | 说明 |
 | --- | --- | :---: | --- | --- |
 | `query` | string | 是 | — | 完整的自然语言搜索问题 |
-| `max_results` | integer，1–20 | 否 | `10` | 期望返回的结果或引用数量 |
+| `max_results` | integer，1–20 | 否 | `10` | 期望返回的最大结果数量 |
 | `max_keyword` | integer，1–10 | 否 | `3` | 期望使用的最大搜索查询词或关键词数量 |
 | `time_range` | `d`、`w`、`m`、`y` | 否 | — | 过去一天、一周、一月或一年 |
 | `providers` | string 数组 | 否 | 所有已启用 Provider | 将本次请求限制在指定的已启用 Provider 中 |
