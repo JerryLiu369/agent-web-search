@@ -67,8 +67,8 @@ Agent / MCP client
 - **One interface everywhere.** MCP (stdio and HTTP), the CLI, the Python API,
   and the Hermes plugin share the same search engine, tool schema, and response
   model.
-- **Transparent execution.** Every provider response exposes `searched` and
-  `model`, so callers can tell a completed search from an empty HTTP 200.
+- **Focused responses.** Every provider response contains only a generated
+  `answer` when available and normalized `results`.
 - **No telemetry, no shared secrets.** Provider keys stay in server-side
   environment variables; there is no shared API-key service.
 
@@ -173,7 +173,7 @@ stdout.
 | Option | Values | Default | Purpose |
 | --- | --- | --- | --- |
 | `--provider` | provider name, repeatable | all enabled | Restrict this request to specific enabled providers |
-| `--max-results` | 1–20 | `10` | Desired result or citation count |
+| `--max-results` | 1–20 | `10` | Desired maximum number of results |
 | `--max-keyword` | 1–10 | `3` | Desired maximum number of search queries or keywords |
 | `--time-range` | `d`, `w`, `m`, `y` | — | Past day, week, month, or year |
 | `--grok-search-mode` | `web_search`, `x_search`, `both` | `web_search` | Only meaningful when Grok is enabled |
@@ -273,7 +273,6 @@ providers are omitted:
   "query": "GPU kernel generation papers from the past month",
   "providers": {
     "ddgs": {
-      "provider": "ddgs",
       "answer": "",
       "results": [
         {
@@ -283,10 +282,7 @@ providers are omitted:
           "provider": "ddgs",
           "published_at": "2026-08-02"
         }
-      ],
-      "citations": [],
-      "model": "",
-      "searched": true
+      ]
     }
   }
 }
@@ -296,9 +292,6 @@ providers are omitted:
 | --- | --- |
 | `answer` | Provider-generated prose answer, when the backend produces one |
 | `results` | Result rows: `title`, `url`, `description`, `provider`, plus optional `published_at` and `author` |
-| `citations` | Citations in the same shape as `results` |
-| `model` | Model ID reported by model-backed providers (ARK, Gemini, Grok); empty otherwise |
-| `searched` | Whether the provider actually completed a search |
 
 If every selected provider fails, the MCP tool returns an error with the stable
 code `all_providers_failed` and per-provider diagnostics:

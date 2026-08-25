@@ -98,12 +98,8 @@ class SearchResponse:
             "query": self.query,
             "providers": {
                 k: {
-                    "provider": v.provider,
                     "answer": v.answer,
                     "results": [result(x) for x in v.results],
-                    "model": v.model,
-                    "searched": v.searched,
-                    **({"error": v.error} if v.error else {}),
                 }
                 for k, v in self.providers.items()
             },

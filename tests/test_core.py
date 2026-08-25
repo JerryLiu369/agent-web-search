@@ -1,5 +1,10 @@
 from agent_web_search.engine import SearchEngine
-from agent_web_search.models import ProviderResponse, SearchRequest, SearchResult
+from agent_web_search.models import (
+    ProviderResponse,
+    SearchRequest,
+    SearchResponse,
+    SearchResult,
+)
 
 
 class Fake:
@@ -74,6 +79,35 @@ def test_default_provider_set_requires_no_api_keys(monkeypatch):
     monkeypatch.delenv("AGENT_WEB_SEARCH_PROVIDERS", raising=False)
     engine = SearchEngine()
     assert engine.enabled_provider_names == ["ddgs", "exa", "parallel"]
+
+
+def test_public_provider_response_only_contains_answer_and_results():
+    response = SearchResponse(
+        query="hello",
+        providers={
+            "model": ProviderResponse(
+                provider="model",
+                answer="answer",
+                results=[SearchResult(url="https://example.com")],
+                model="model-id",
+                searched=True,
+            )
+        },
+    )
+
+    provider = response.to_dict()["providers"]["model"]
+
+    assert provider == {
+        "answer": "answer",
+        "results": [
+            {
+                "title": "",
+                "url": "https://example.com",
+                "description": "",
+                "provider": "",
+            }
+        ],
+    }
 
 
 def test_disabled_provider_cannot_be_selected_at_request_time(monkeypatch):

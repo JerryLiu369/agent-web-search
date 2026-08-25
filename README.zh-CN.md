@@ -58,7 +58,7 @@ Agent / MCP 客户端
 - **并发且相互独立。** 所有选中的 Provider 同时发起请求，单个 Provider 失败不会丢弃其他 Provider 的成功结果。
 - **零 Key 即可上手。** 默认 Provider（DDGS、Exa、Parallel）无需任何 API Key。
 - **四处同一接口。** MCP（stdio 和 HTTP）、CLI、Python API 与 Hermes 插件共享同一个搜索引擎、工具 Schema 和响应模型。
-- **执行过程透明。** 每个 Provider 的响应都暴露 `searched` 和 `model`，调用方可以区分“真正完成的搜索”和“空响应的 HTTP 200”。
+- **响应聚焦。** 每个 Provider 响应仅包含可用时的文本 `answer` 和统一的 `results`。
 - **无遥测、不共享密钥。** Provider Key 只存在于服务端环境变量中，项目不提供任何共享 API Key 服务。
 
 ## 搜索服务
@@ -152,7 +152,7 @@ pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 | 选项 | 取值 | 默认值 | 用途 |
 | --- | --- | --- | --- |
 | `--provider` | Provider 名，可重复 | 所有已启用 | 将本次请求限定在指定的已启用 Provider |
-| `--max-results` | 1–20 | `10` | 期望的结果或引用数量 |
+| `--max-results` | 1–20 | `10` | 期望的最大结果数量 |
 | `--max-keyword` | 1–10 | `3` | 期望的最大搜索查询词或关键词数量 |
 | `--time-range` | `d`、`w`、`m`、`y` | — | 过去一天、一周、一月或一年 |
 | `--grok-search-mode` | `web_search`、`x_search`、`both` | `web_search` | 仅在启用 Grok 时有意义 |
@@ -246,7 +246,6 @@ Provider 选择分为两层：
   "query": "GPU kernel generation papers from the past month",
   "providers": {
     "ddgs": {
-      "provider": "ddgs",
       "answer": "",
       "results": [
         {
@@ -256,10 +255,7 @@ Provider 选择分为两层：
           "provider": "ddgs",
           "published_at": "2026-08-02"
         }
-      ],
-      "citations": [],
-      "model": "",
-      "searched": true
+      ]
     }
   }
 }
@@ -269,9 +265,6 @@ Provider 选择分为两层：
 | --- | --- |
 | `answer` | 后端生成时返回的文本回答 |
 | `results` | 结果行：`title`、`url`、`description`、`provider`，以及可选的 `published_at` 和 `author` |
-| `citations` | 与 `results` 同构的引用列表 |
-| `model` | 模型型 Provider（ARK、Gemini、Grok）使用的模型 ID，其余为空 |
-| `searched` | 该 Provider 是否真正完成了搜索 |
 
 如果选中的 Provider 全部失败，MCP 工具会改为返回错误，稳定错误码为 `all_providers_failed`，并附带各 Provider 的诊断信息：
 

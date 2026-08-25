@@ -22,10 +22,11 @@ Agent Web Search is one provider-neutral search core with thin adapters:
 The adapters must not implement their own provider dispatch, response models,
 tool schema, or failure semantics.
 
-`results` is the sole normalized source list for every provider. Model-backed
-providers may also return `answer`; URLs supporting that answer are normalized
-into `results`. Rich, span-level citations are out of scope until explicitly
-designed.
+Each public provider response contains only `answer` and `results`. `results`
+is the sole normalized source list for every provider. Model-backed providers
+may also return `answer`; URLs supporting that answer are normalized into
+`results`. Rich, span-level citations and execution metadata are internal and
+out of scope for the public response until explicitly designed.
 
 ## Public interfaces
 
