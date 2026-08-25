@@ -8,3 +8,4 @@ include __init__.py
 include plugin.yaml
 include railway.toml
 include render.yaml
+include template.yaml

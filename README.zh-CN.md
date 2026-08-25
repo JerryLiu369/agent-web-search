@@ -12,6 +12,15 @@
 [![MCP 2.x](https://img.shields.io/badge/MCP-2.x-6C47FF)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+<p><strong>一键部署远程 MCP</strong></p>
+
+<p>
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&amp;env=AGENT_WEB_SEARCH_AUTH_TOKEN"><img alt="Deploy with Vercel" src="https://vercel.com/button" height="34"></a>
+  <a href="https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&amp;envs=AGENT_WEB_SEARCH_AUTH_TOKEN"><img alt="Deploy on Railway" src="https://railway.com/button.svg" height="34"></a>
+  <a href="https://render.com/deploy?repo=https://github.com/JerryLiu369/agent-web-search"><img alt="Deploy to Render" src="https://render.com/images/deploy-to-render-button.svg" height="34"></a>
+  <a href="https://zeabur.com/templates/8MQZG0?referralCode=JerryLiu369"><img alt="Deploy on Zeabur" src="https://zeabur.com/button.svg" height="34"></a>
+</p>
+
 支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、普通命令行脚本、Python 应用和远程 Streamable HTTP MCP 客户端。
 
 [搜索服务](#搜索服务) · [快速开始](#快速开始) ·
@@ -154,13 +163,6 @@ HTTP 服务提供 `POST /mcp` 和公开的 `GET /healthz`。`/mcp` 默认强制�
   }
 }
 ```
-
-### 一键部署
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&env=AGENT_WEB_SEARCH_AUTH_TOKEN)
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&envs=AGENT_WEB_SEARCH_AUTH_TOKEN)
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/JerryLiu369/agent-web-search)
-[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/8MQZG0?referralCode=JerryLiu369)
 
 所有公网部署都必须把 `AGENT_WEB_SEARCH_AUTH_TOKEN` 设置为至少 32 个字符。Provider Key 继续作为可选的服务端环境变量。
 
