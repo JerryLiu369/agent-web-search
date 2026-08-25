@@ -178,11 +178,6 @@ Remote MCP client example:
 Every public deployment must set `AGENT_WEB_SEARCH_AUTH_TOKEN` to at least 32
 characters. Provider keys remain optional server-side environment variables.
 
-Zeabur can deploy this repository directly from Git using the included
-`Dockerfile`. Zeabur requires a published platform Template before a reusable
-one-click button can be issued; the button will be added after that one-time
-account-side publication.
-
 Generic Docker deployment:
 
 ```bash

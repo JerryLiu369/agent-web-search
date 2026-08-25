@@ -163,8 +163,6 @@ HTTP 服务提供 `POST /mcp` 和公开的 `GET /healthz`。`/mcp` 默认强制�
 
 所有公网部署都必须把 `AGENT_WEB_SEARCH_AUTH_TOKEN` 设置为至少 32 个字符。Provider Key 继续作为可选的服务端环境变量。
 
-Zeabur 可以使用仓库内的 `Dockerfile` 直接从 Git 部署。Zeabur 必须先在平台账号中发布 Template，才能生成可复用的一键部署按钮；完成这次账号侧发布后再补上按钮。
-
 通用 Docker 部署：
 
 ```bash

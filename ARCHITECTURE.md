@@ -98,7 +98,7 @@ All platforms run the same ASGI application and differ only in their launch
 adapter:
 
 - Vercel imports the ASGI application as a stateless function.
-- Zeabur, Railway, Render, Koyeb, Fly.io, and generic Docker run the MCP command
+- Railway, Render, Koyeb, Fly.io, and generic Docker run the MCP command
   in HTTP mode and bind to the platform-provided port.
 - Cloud Run runs the same container with request-driven scaling.
 
