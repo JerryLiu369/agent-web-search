@@ -53,7 +53,7 @@ Agent / MCP client
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
 | **Gemini** | Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | xAI web search and X Search | `XAI_API_KEY` | No |
-| **Parallel** | Free MCP or paid LLM-optimized search | Optional `PARALLEL_API_KEY` | No |
+| **Parallel** | Free MCP or paid LLM-optimized search | Optional `PARALLEL_API_KEY` | Yes |
 | **Perplexity** | Native structured Search API | `PERPLEXITY_API_KEY` | No |
 | **Tavily** | Tavily Search API | `TAVILY_API_KEY` | No |
 | **You.com** | Unified web and news search | `YDC_API_KEY` | No |
@@ -73,7 +73,7 @@ pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 Run a search without configuring a paid API key:
 
 ```bash
-agent-web-search "What changed in the latest OpenAI Codex CLI?" --provider ddgs --provider exa
+agent-web-search "What changed in the latest OpenAI Codex CLI?"
 ```
 
 Or start the stdio MCP server for an MCP client:
@@ -130,7 +130,7 @@ Hermes plugin starts. Restart the process after changing provider settings.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `AGENT_WEB_SEARCH_PROVIDERS` | `ddgs,exa` | Comma-separated startup-enabled provider set |
+| `AGENT_WEB_SEARCH_PROVIDERS` | `ddgs,exa,parallel` | Comma-separated startup-enabled provider set |
 | `AGENT_WEB_SEARCH_TIMEOUT` | `60` | Per-provider timeout in seconds |
 
 Example:
@@ -248,7 +248,7 @@ calling agent does not need to distinguish `parallel-free` from `parallel`.
 | --- | :---: | --- |
 | `PARALLEL_API_KEY` | No | Enables the paid API; omit it to use the free MCP |
 
-Add `parallel` to `AGENT_WEB_SEARCH_PROVIDERS`; a key is optional.
+Parallel is enabled by default and its key is optional.
 
 #### 9. Perplexity
 
@@ -317,7 +317,7 @@ Or add a project `.mcp.json`:
       "command": "agent-web-search-mcp",
       "args": [],
       "env": {
-        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa"
+        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa,parallel"
       }
     }
   }
@@ -334,7 +334,7 @@ Or add a project `.mcp.json`:
       "type": "local",
       "command": ["agent-web-search-mcp"],
       "environment": {
-        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa"
+        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa,parallel"
       },
       "enabled": true
     }

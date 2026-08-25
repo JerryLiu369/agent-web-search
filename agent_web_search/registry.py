@@ -69,7 +69,7 @@ PROVIDER_SPECS = {
     ),
 }
 
-DEFAULT_PROVIDER_NAMES = ("ddgs", "exa")
+DEFAULT_PROVIDER_NAMES = ("ddgs", "exa", "parallel")
 
 
 def create_provider_pool(timeout: float) -> dict[str, Provider]:

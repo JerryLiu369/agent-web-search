@@ -73,7 +73,7 @@ def test_empty_query_rejected():
 def test_default_provider_set_requires_no_api_keys(monkeypatch):
     monkeypatch.delenv("AGENT_WEB_SEARCH_PROVIDERS", raising=False)
     engine = SearchEngine()
-    assert engine.enabled_provider_names == ["ddgs", "exa"]
+    assert engine.enabled_provider_names == ["ddgs", "exa", "parallel"]
 
 
 def test_disabled_provider_cannot_be_selected_at_request_time(monkeypatch):
