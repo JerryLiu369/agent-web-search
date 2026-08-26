@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-web-search-mcp"
-version = "0.2.0"
+version = "0.3.0"
 description = "A multi-provider web search layer for AI agents"
 readme = "README.md"
 requires-python = ">=3.10"
