@@ -351,7 +351,7 @@ See [.env.example](.env.example) for a commented template of every variable.
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `AGENT_WEB_SEARCH_PROVIDERS` | `ddgs,exa,parallel` | Comma-separated startup-enabled provider set |
-| `AGENT_WEB_SEARCH_TIMEOUT` | `60` | Per-provider timeout in seconds |
+| `AGENT_WEB_SEARCH_TIMEOUT` | `60` | Socket timeout for a single upstream HTTP call. Multi-step providers multiply it: keyless Parallel makes up to 3 calls (worst case 3×), ARK may append a continuation call (worst case 2×), so the whole search can take up to `3 ×` this value |
 
 Example:
 
@@ -521,7 +521,7 @@ ignores unsupported controls.
 | --- | --- | --- | --- |
 | DDGS | Native `max_results` | Ignored | Native `timelimit` |
 | Exa | Native result count | Ignored | Native publish date |
-| Parallel | Native `max_results` | Ignored | Ignored |
+| Parallel | REST: native `max_results`; keyless MCP: client-side truncation (`results[:max_results]`) | Ignored | Ignored |
 | ARK | Native `limit` | Native | Prompt constraint |
 | Brave | Native `count` | Ignored | Native `freshness` |
 | Gemini | Prompt constraint | Prompt constraint | Prompt constraint |
@@ -565,6 +565,11 @@ native plugin.
   `response.failed_provider_errors`.
 - **Provider changes have no effect** — provider settings are read once at
   startup; restart the CLI, MCP server, or Hermes plugin after changing them.
+- **MCP client times out before the tool returns** —
+  `AGENT_WEB_SEARCH_TIMEOUT` bounds a single upstream HTTP call, not the
+  whole search. Keyless Parallel issues up to 3 calls and ARK may append a
+  continuation request, so the worst case is `3 × AGENT_WEB_SEARCH_TIMEOUT`;
+  configure your MCP client's tool timeout accordingly.
 
 ## Development
 

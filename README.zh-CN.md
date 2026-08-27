@@ -331,7 +331,7 @@ CLI、MCP 服务器或 Hermes 插件启动时会读取环境变量。修改 Prov
 | 变量 | 默认值 | 用途 |
 | --- | --- | --- |
 | `AGENT_WEB_SEARCH_PROVIDERS` | `ddgs,exa,parallel` | 以逗号分隔的启动时启用 Provider 列表 |
-| `AGENT_WEB_SEARCH_TIMEOUT` | `60` | 单个 Provider 的超时时间，单位为秒 |
+| `AGENT_WEB_SEARCH_TIMEOUT` | `60` | 单次上游 HTTP 调用的 socket 超时。多步 Provider 会成倍放大：keyless Parallel 最多发 3 个请求（最坏 3×），ARK 可能追加续写请求（最坏 2×），因此整次搜索最长可达该值的 3 倍 |
 
 示例：
 
@@ -480,7 +480,7 @@ You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部�
 | --- | --- | --- | --- |
 | DDGS | 原生 `max_results` | 忽略 | 原生 `timelimit` |
 | Exa | 原生结果数量 | 忽略 | 原生发布日期 |
-| Parallel | 原生 `max_results` | 忽略 | 忽略 |
+| Parallel | REST：原生 `max_results`；keyless MCP：客户端截断（`results[:max_results]`） | 忽略 | 忽略 |
 | ARK | 原生 `limit` | 原生支持 | Prompt 约束 |
 | Brave | 原生 `count` | 忽略 | 原生 `freshness` |
 | Gemini | Prompt 约束 | Prompt 约束 | Prompt 约束 |
@@ -514,6 +514,7 @@ Hermes 也可以不安装原生插件，而是通过通用 MCP 集成连接本�
 - **HTTP 401 `invalid_token`** —— `Authorization: Bearer …` 请求头必须与 `AGENT_WEB_SEARCH_AUTH_TOKEN` 一致，且该 Token 至少 32 个字符。
 - **响应里少了某个 Provider** —— 失败的 Provider 会从成功响应中剔除。Python API 可以通过 `response.failed_provider_errors` 查看原因。
 - **修改 Provider 配置不生效** —— Provider 设置只在进程启动时读取一次；修改后请重启 CLI、MCP 服务器或 Hermes 插件。
+- **MCP 客户端在工具返回前超时** —— `AGENT_WEB_SEARCH_TIMEOUT` 限定的是单次上游 HTTP 调用的超时，不是整次搜索。keyless Parallel 最多发 3 个请求，ARK 可能追加续写请求，最坏总耗时是其 3 倍；请据此设置 MCP 客户端的 tool 超时。
 
 ## 开发
 
