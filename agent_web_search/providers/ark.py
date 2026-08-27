@@ -17,7 +17,7 @@ DEFAULT_MODELS = [
     "deepseek-v4-flash-ga-260731",
 ]
 ENDPOINT = "https://ark.cn-beijing.volces.com/api/v3/responses"
-CONTINUE_PROMPT = "请基于刚才的搜索结果，给出完整综合回答。"
+CONTINUE_PROMPT = "请基于刚才的搜索结果，给出完整综合回答。"  # noqa: RUF001 - intentional Chinese punctuation
 
 
 class ArkProvider(Provider):

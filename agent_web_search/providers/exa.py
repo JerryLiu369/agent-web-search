@@ -193,7 +193,10 @@ class ExaProvider(Provider):
         except urllib.error.HTTPError as exc:
             return ProviderResponse(
                 provider=self.name,
-                error=f"Exa HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}",
+                error=(
+                    f"Exa HTTP {exc.code}: "
+                    f"{exc.read().decode(errors='replace')[:500]}"
+                ),
             )
         except Exception as exc:  # noqa: BLE001 - remote errors vary
             return ProviderResponse(

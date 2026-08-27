@@ -69,12 +69,9 @@ def test_engine_tracks_failures_when_every_provider_fails():
 
 
 def test_empty_query_rejected():
-    try:
+    with pytest.raises(ValueError, match="empty") as exc_info:
         SearchEngine(providers={}).search(SearchRequest("  "))
-    except ValueError as exc:
-        assert "empty" in str(exc)
-    else:
-        assert False
+    assert "empty" in str(exc_info.value)
 
 
 def test_default_provider_set_requires_no_api_keys(monkeypatch):
@@ -156,24 +153,28 @@ def test_enabled_provider_bad_configuration_has_a_readable_error(monkeypatch):
     monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ark")
     monkeypatch.setenv("AGENT_WEB_SEARCH_ARK_MODELS", " , ")
 
-    try:
+    with pytest.raises(
+        ValueError, match="must contain at least one model"
+    ) as exc_info:
         SearchEngine()
-    except ValueError as exc:
-        assert str(exc) == "AGENT_WEB_SEARCH_ARK_MODELS must contain at least one model"
-    else:
-        assert False, "expected invalid enabled-provider configuration to fail"
+    assert (
+        str(exc_info.value)
+        == "AGENT_WEB_SEARCH_ARK_MODELS must contain at least one model"
+    )
 
 
 @pytest.mark.parametrize("raw_timeout", ["abc", "0", "-1", "inf", "nan"])
 def test_invalid_timeout_has_a_readable_error(monkeypatch, raw_timeout):
     monkeypatch.setenv("AGENT_WEB_SEARCH_TIMEOUT", raw_timeout)
 
-    try:
+    with pytest.raises(
+        ValueError, match="must be a positive number"
+    ) as exc_info:
         SearchEngine()
-    except ValueError as exc:
-        assert str(exc) == "AGENT_WEB_SEARCH_TIMEOUT must be a positive number"
-    else:
-        assert False, "expected invalid timeout to fail"
+    assert (
+        str(exc_info.value)
+        == "AGENT_WEB_SEARCH_TIMEOUT must be a positive number"
+    )
 
 
 def test_positive_timeout_is_accepted(monkeypatch):

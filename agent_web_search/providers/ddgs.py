@@ -16,7 +16,10 @@ class DDGSProvider(Provider):
         except ImportError:
             return ProviderResponse(
                 provider=self.name,
-                error="Install the optional dependency: pip install 'agent_web_search[ddgs]'",
+                error=(
+                    "Install the optional dependency: "
+                    "pip install 'agent_web_search[ddgs]'"
+                ),
             )
         try:
             with DDGS(timeout=self.timeout) as client:

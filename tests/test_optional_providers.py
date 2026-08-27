@@ -73,7 +73,8 @@ def test_gemini_parse_results():
             ],
         }
     )
-    assert result.searched and result.answer == "answer"
+    assert result.searched
+    assert result.answer == "answer"
     assert result.results[0].url == "https://example.com"
 
 
@@ -101,7 +102,39 @@ def test_grok_parse_web_and_x_search_calls():
                 },
             ],
         },
-        "x_search",
+        ["x_search"],
     )
-    assert result.searched and result.answer == "answer"
+    assert result.searched
+    assert result.answer == "answer"
     assert result.results[0].url == "https://x.com/post"
+
+
+def test_grok_parse_both_mode_matches_either_tool():
+    result = GrokProvider.parse(
+        {
+            "model": "grok-test",
+            "output": [
+                {"type": "web_search_call"},
+                {
+                    "type": "message",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": "answer",
+                            "annotations": [
+                                {
+                                    "type": "url_citation",
+                                    "url": "https://example.com",
+                                    "title": "Example",
+                                }
+                            ],
+                        }
+                    ],
+                },
+            ],
+        },
+        ["web_search", "x_search"],
+    )
+    assert result.searched
+    assert result.answer == "answer"
+    assert result.results[0].url == "https://example.com"

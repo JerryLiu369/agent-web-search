@@ -41,9 +41,8 @@ def test_hermes_adapter_uses_dynamic_core_schema(monkeypatch):
     assert context.tool["name"] == "web_search"
     assert context.tool["override"] is True
     assert context.tool["schema"] == build_tool_schema(["ark", "brave", "ddgs", "exa"])
-    assert context.tool["schema"]["parameters"]["properties"]["providers"]["items"]["enum"] == [
-        "ark", "brave", "ddgs", "exa"
-    ]
+    properties = context.tool["schema"]["parameters"]["properties"]
+    assert properties["providers"]["items"]["enum"] == ["ark", "brave", "ddgs", "exa"]
     assert "grok_search_mode" not in context.tool["schema"]["parameters"]["properties"]
 
 

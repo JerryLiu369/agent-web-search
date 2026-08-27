@@ -20,22 +20,34 @@ def search_prompt(
 ) -> str:
     """Build an English soft constraint prompt for model-backed search providers."""
     scope_instructions = {
-        "web": "Search the web and answer the question using current, verifiable sources.",
-        "x": "Search X and answer the question using current, verifiable posts and sources.",
-        "both": "Search the web and X and answer the question using current, verifiable sources.",
+        "web": (
+            "Search the web and answer the question using current, "
+            "verifiable sources."
+        ),
+        "x": (
+            "Search X and answer the question using current, verifiable "
+            "posts and sources."
+        ),
+        "both": (
+            "Search the web and X and answer the question using current, "
+            "verifiable sources."
+        ),
     }
     constraints = [scope_instructions.get(search_scope, scope_instructions["web"])]
     if time_range in TIME_RANGE_LABELS:
         constraints.append(
-            f"Focus on information published within {TIME_RANGE_LABELS[time_range]}."
+            f"Focus on information published within "
+            f"{TIME_RANGE_LABELS[time_range]}."
         )
     if max_results is not None:
         constraints.append(
-            f"Use no more than {max_results} sources in the final answer when practical."
+            f"Use no more than {max_results} sources in the final answer "
+            f"when practical."
         )
     if max_keyword is not None:
         constraints.append(
-            f"Use up to {max_keyword} distinct search queries if additional searches are needed."
+            f"Use up to {max_keyword} distinct search queries "
+            f"if additional searches are needed."
         )
     return " ".join(constraints) + f"\nQuestion: {query}"
 

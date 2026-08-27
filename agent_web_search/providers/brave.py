@@ -34,7 +34,9 @@ class BraveProvider(Provider):
             for item in (data.get("web") or {}).get("results") or []
             if isinstance(item, dict) and item.get("url")
         ]
-        return ProviderResponse(provider="brave", results=results, searched=bool(results))
+        return ProviderResponse(
+            provider="brave", results=results, searched=bool(results)
+        )
 
     def search(self, request: SearchRequest) -> ProviderResponse:
         if not self.api_key:

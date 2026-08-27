@@ -86,17 +86,6 @@ def test_exa_api_path_uses_key_and_parses_results(monkeypatch):
 def test_exa_mcp_path_used_without_key(monkeypatch):
     captured = {}
 
-    def fake_urlopen(req, timeout=None):
-        captured["url"] = req.full_url
-        captured["has_key"] = any(
-            k.lower() == "x-api-key" for k, _ in req.header_items()
-        )
-        body = (
-            'data: {"result": {"content": [{"type": "text", '
-            '"text": "Title: T\\nURL: https://x.example\\nHighlights: h"}]}}\n'
-        )
-        return _FakeResponse({}) if False else _RawResponse(body)
-
     class _RawResponse:
         def __init__(self, text):
             self._text = text
@@ -109,6 +98,17 @@ def test_exa_mcp_path_used_without_key(monkeypatch):
 
         def __exit__(self, *args):
             return False
+
+    def fake_urlopen(req, timeout=None):
+        captured["url"] = req.full_url
+        captured["has_key"] = any(
+            k.lower() == "x-api-key" for k, _ in req.header_items()
+        )
+        body = (
+            'data: {"result": {"content": [{"type": "text", '
+            '"text": "Title: T\\nURL: https://x.example\\nHighlights: h"}]}}\n'
+        )
+        return _RawResponse(body)
 
     monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
     provider = ExaProvider(api_key="", timeout=5)

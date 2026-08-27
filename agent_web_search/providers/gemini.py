@@ -109,7 +109,10 @@ class GeminiProvider(Provider):
             return ProviderResponse(
                 provider=self.name,
                 model=model,
-                error=f"Gemini HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}",
+                error=(
+                    f"Gemini HTTP {exc.code}: "
+                    f"{exc.read().decode(errors='replace')[:500]}"
+                ),
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
             return ProviderResponse(

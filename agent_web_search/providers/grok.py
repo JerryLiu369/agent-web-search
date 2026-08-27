@@ -34,7 +34,8 @@ class GrokProvider(Provider):
         self.timeout = timeout
 
     @staticmethod
-    def parse(data: dict, tool_name: str = "web_search") -> ProviderResponse:
+    def parse(data: dict, tool_names: list[str] | None = None) -> ProviderResponse:
+        names = list(tool_names) if tool_names else ["web_search"]
         answer = ""
         results: list[SearchResult] = []
         searched = False
@@ -42,7 +43,7 @@ class GrokProvider(Provider):
             item_type = item.get("type", "")
             searched |= (
                 item_type in {"web_search_call", "x_search_call"}
-                or tool_name in item_type
+                or any(name in item_type for name in names)
             )
             for content in item.get("content") or []:
                 if (
@@ -126,7 +127,7 @@ class GrokProvider(Provider):
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
                 parsed = self.parse(
-                    json.loads(response.read().decode()), ",".join(tool_names)
+                    json.loads(response.read().decode()), list(tool_names)
                 )
                 parsed.model = model
                 return parsed
@@ -134,7 +135,10 @@ class GrokProvider(Provider):
             return ProviderResponse(
                 provider=self.name,
                 model=model,
-                error=f"Grok HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}",
+                error=(
+                    f"Grok HTTP {exc.code}: "
+                    f"{exc.read().decode(errors='replace')[:500]}"
+                ),
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
             return ProviderResponse(

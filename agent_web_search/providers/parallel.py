@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import urllib.error
@@ -97,10 +98,8 @@ class ParallelProvider(Provider):
         if not body:
             return messages
         if body.startswith(("{", "[")):
-            try:
+            with contextlib.suppress(json.JSONDecodeError):
                 emit(json.loads(body))
-            except json.JSONDecodeError:
-                pass
             return messages
 
         data_lines: list[str] = []
@@ -108,10 +107,8 @@ class ParallelProvider(Provider):
         def flush() -> None:
             if not data_lines:
                 return
-            try:
+            with contextlib.suppress(json.JSONDecodeError):
                 emit(json.loads("\n".join(data_lines)))
-            except json.JSONDecodeError:
-                pass
             data_lines.clear()
 
         for raw_line in body.splitlines():
@@ -245,7 +242,11 @@ class ParallelProvider(Provider):
 
     def search(self, request: SearchRequest) -> ProviderResponse:
         try:
-            return self._search_api(request) if self.api_key else self._search_mcp(request)
+            return (
+                self._search_api(request)
+                if self.api_key
+                else self._search_mcp(request)
+            )
         except urllib.error.HTTPError as exc:
             transport = "API" if self.api_key else "Free MCP"
             return ProviderResponse(
