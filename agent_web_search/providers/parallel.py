@@ -20,7 +20,10 @@ MAX_OBJECTIVE_CHARS = 5000
 try:
     PACKAGE_VERSION = version("agent-web-search-mcp")
 except PackageNotFoundError:
-    PACKAGE_VERSION = "0.1.0"
+    # Source checkout without an installed distribution: report the in-package
+    # version instead of a stale hardcoded number (the old "0.1.0" fallback
+    # drifted and made User-Agent traffic lie about the release).
+    from .. import __version__ as PACKAGE_VERSION
 USER_AGENT = f"agent-web-search/{PACKAGE_VERSION}"
 
 

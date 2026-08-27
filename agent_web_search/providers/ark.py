@@ -11,6 +11,12 @@ from ..models import ProviderResponse, SearchRequest, SearchResult
 from ..prompting import search_prompt
 from .base import Provider
 
+# When the first ARK response comes back with a prose answer shorter than
+# this, we assume it was truncated mid-sentence and issue one follow-up
+# /responses continuation request — which is billed as a second call by the
+# upstream. Keep the threshold visible: answers above it are returned as-is.
+MIN_ANSWER_CHARS_FOR_CONTINUE = 100
+
 DEFAULT_MODELS = [
     "glm-5-2-260617",
     "doubao-seed-2-1-turbo-260628",
@@ -128,7 +134,7 @@ class ArkProvider(Provider):
                 parsed = self.parse(data)
                 if (
                     parsed.searched
-                    and len(parsed.answer.strip()) < 100
+                    and len(parsed.answer.strip()) < MIN_ANSWER_CHARS_FOR_CONTINUE
                     and data.get("id")
                 ):
                     continued = self._continue(key, data["id"])

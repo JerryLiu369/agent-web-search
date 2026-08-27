@@ -11,16 +11,11 @@ class DDGSProvider(Provider):
         self.timeout = timeout
 
     def search(self, request: SearchRequest) -> ProviderResponse:
-        try:
-            from ddgs import DDGS
-        except ImportError:
-            return ProviderResponse(
-                provider=self.name,
-                error=(
-                    "Install the optional dependency: "
-                    "pip install 'agent_web_search[ddgs]'"
-                ),
-            )
+        # `ddgs` is a hard dependency, so a guarded ImportError here would be
+        # unreachable — and the hint it used to print named a package and an
+        # extra that do not exist on PyPI.
+        from ddgs import DDGS
+
         try:
             with DDGS(timeout=self.timeout) as client:
                 hits = client.text(

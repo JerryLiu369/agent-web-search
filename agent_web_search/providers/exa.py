@@ -141,7 +141,9 @@ class ExaProvider(Provider):
         payload: dict = {
             "query": request.query,
             "type": "auto",
-            "numResults": max(1, min(100, request.max_results)),
+            # `SearchRequest.normalized()` already caps max_results at 20, so
+            # a second min() bound here was dead code.
+            "numResults": max(1, request.max_results),
             "useAutoprompt": True,
             "contents": {"highlights": True},
         }
