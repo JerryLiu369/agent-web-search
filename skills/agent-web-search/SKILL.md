@@ -59,13 +59,11 @@ On success, exit status is `0` and stdout is one JSON document:
   "query": "...",
   "providers": {
     "ddgs": {
-      "answer": "",
       "results": [
         {
           "title": "...",
           "url": "https://example.com",
-          "description": "...",
-          "provider": "ddgs"
+          "description": "..."
         }
       ]
     }

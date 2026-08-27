@@ -281,13 +281,11 @@ providers are omitted:
   "query": "GPU kernel generation papers from the past month",
   "providers": {
     "ddgs": {
-      "answer": "",
       "results": [
         {
           "title": "Example result",
           "url": "https://example.com/paper",
           "description": "Excerpt of the matching page",
-          "provider": "ddgs",
           "published_at": "2026-08-02"
         }
       ]
@@ -298,8 +296,8 @@ providers are omitted:
 
 | Field | Meaning |
 | --- | --- |
-| `answer` | Provider-generated prose answer, when the backend produces one |
-| `results` | Result rows: `title`, `url`, `description`, `provider`, plus optional `published_at` and `author` |
+| `answer` | Provider-generated prose answer, when the backend produces one; omitted otherwise |
+| `results` | Result rows: `title`, `url`, `description`, plus optional `published_at` and `author` |
 
 If every selected provider fails, MCP returns a tool error. The CLI writes the
 same payload to stderr and exits with status 1. Both use the stable code

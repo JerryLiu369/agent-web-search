@@ -80,7 +80,7 @@ def test_default_provider_set_requires_no_api_keys(monkeypatch):
     assert engine.enabled_provider_names == ["ddgs", "exa", "parallel"]
 
 
-def test_public_provider_response_only_contains_answer_and_results():
+def test_public_provider_response_omits_empty_answer_and_redundant_provider():
     response = SearchResponse(
         query="hello",
         providers={
@@ -90,7 +90,12 @@ def test_public_provider_response_only_contains_answer_and_results():
                 results=[SearchResult(url="https://example.com")],
                 model="model-id",
                 searched=True,
-            )
+            ),
+            "keywords": ProviderResponse(
+                provider="keywords",
+                results=[SearchResult(url="https://example.org")],
+                searched=True,
+            ),
         },
     )
 
@@ -103,9 +108,13 @@ def test_public_provider_response_only_contains_answer_and_results():
                 "title": "",
                 "url": "https://example.com",
                 "description": "",
-                "provider": "",
             }
         ],
+    }
+    # A keyword provider with no prose omits `answer` entirely, and rows
+    # never repeat the provider name that is already the enclosing key.
+    assert response.to_dict()["providers"]["keywords"] == {
+        "results": [{"title": "", "url": "https://example.org", "description": ""}]
     }
 
 

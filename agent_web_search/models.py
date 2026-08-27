@@ -95,7 +95,6 @@ class SearchResponse:
                 "title": x.title,
                 "url": x.url,
                 "description": x.description,
-                "provider": x.provider,
             }
             if x.published_at:
                 d["published_at"] = x.published_at
@@ -103,13 +102,14 @@ class SearchResponse:
                 d["author"] = x.author
             return d
 
+        def provider(x: ProviderResponse) -> dict[str, Any]:
+            d: dict[str, Any] = {}
+            if x.answer:
+                d["answer"] = x.answer
+            d["results"] = [result(row) for row in x.results]
+            return d
+
         return {
             "query": self.query,
-            "providers": {
-                k: {
-                    "answer": v.answer,
-                    "results": [result(x) for x in v.results],
-                }
-                for k, v in self.providers.items()
-            },
+            "providers": {k: provider(v) for k, v in self.providers.items()},
         }

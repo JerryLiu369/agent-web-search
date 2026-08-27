@@ -22,11 +22,15 @@ Agent Web Search is one provider-neutral search core with thin adapters:
 The adapters must not implement their own provider dispatch, response models,
 tool schema, or failure semantics.
 
-Each public provider response contains only `answer` and `results`. `results`
+Each public provider response contains at most `answer` and `results`; `answer`
+is omitted when the provider produces no prose. `results`
 is the sole normalized source list for every provider. Model-backed providers
 may also return `answer`; URLs supporting that answer are normalized into
-`results`. Rich, span-level citations and execution metadata are internal and
-out of scope for the public response until explicitly designed.
+`results`. Result rows never repeat the provider name that is already the
+enclosing dictionary key — the payload goes straight into an LLM context, so
+redundant fields have a real token cost. Rich, span-level citations and
+execution metadata are internal and out of scope for the public response until
+explicitly designed.
 
 ## Agent integration shapes
 

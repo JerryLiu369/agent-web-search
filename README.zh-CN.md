@@ -265,13 +265,11 @@ Provider 选择分为两层：
   "query": "GPU kernel generation papers from the past month",
   "providers": {
     "ddgs": {
-      "answer": "",
       "results": [
         {
           "title": "Example result",
           "url": "https://example.com/paper",
           "description": "Excerpt of the matching page",
-          "provider": "ddgs",
           "published_at": "2026-08-02"
         }
       ]
@@ -282,8 +280,8 @@ Provider 选择分为两层：
 
 | 字段 | 含义 |
 | --- | --- |
-| `answer` | 后端生成时返回的文本回答 |
-| `results` | 结果行：`title`、`url`、`description`、`provider`，以及可选的 `published_at` 和 `author` |
+| `answer` | 后端生成时返回的文本回答，无则省略该字段 |
+| `results` | 结果行：`title`、`url`、`description`，以及可选的 `published_at` 和 `author` |
 
 如果选中的 Provider 全部失败，MCP 会返回工具错误；CLI 则把同一载荷写入
 stderr 并以状态码 1 退出。两者都使用稳定错误码 `all_providers_failed`，并附带
