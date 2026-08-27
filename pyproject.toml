@@ -29,8 +29,9 @@ dependencies = [
     "ddgs>=9.0",
     "mcp>=2.1,<3",
     "mcp-types>=2.1,<3",
-    "starlette>=0.37",
-    "uvicorn>=0.30",
+    # starlette/uvicorn are deliberately not listed: `mcp` requires both
+    # unconditionally, and stdio-only installs (pipx default) should not
+    # carry HTTP-server constraints owned elsewhere.
 ]
 
 [project.urls]
