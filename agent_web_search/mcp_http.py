@@ -22,9 +22,7 @@ TRUE_VALUES = frozenset({"1", "true", "yes", "on"})
 def _split_values(value: str) -> tuple[str, ...]:
     return tuple(
         dict.fromkeys(
-            item.strip()
-            for item in value.replace("\n", ",").split(",")
-            if item.strip()
+            item.strip() for item in value.replace("\n", ",").split(",") if item.strip()
         )
     )
 
@@ -58,18 +56,14 @@ class HTTPSettings:
         host = env.get("AGENT_WEB_SEARCH_HTTP_HOST", "0.0.0.0").strip()
         if not host:
             raise ValueError("AGENT_WEB_SEARCH_HTTP_HOST must not be empty")
-        raw_port = (
-            env.get("AGENT_WEB_SEARCH_HTTP_PORT")
-            or env.get("PORT")
-            or "8000"
-        )
+        raw_port = env.get("AGENT_WEB_SEARCH_HTTP_PORT") or env.get("PORT") or "8000"
         return cls(
             host=host,
             port=_parse_port(raw_port),
             auth_token=env.get("AGENT_WEB_SEARCH_AUTH_TOKEN", "").strip(),
-            allow_anonymous=env.get(
-                "AGENT_WEB_SEARCH_ALLOW_ANONYMOUS", ""
-            ).strip().lower()
+            allow_anonymous=env.get("AGENT_WEB_SEARCH_ALLOW_ANONYMOUS", "")
+            .strip()
+            .lower()
             in TRUE_VALUES,
             allowed_hosts=_split_values(
                 env.get("AGENT_WEB_SEARCH_HTTP_ALLOWED_HOSTS", "")
@@ -77,9 +71,7 @@ class HTTPSettings:
             allowed_origins=_split_values(
                 env.get("AGENT_WEB_SEARCH_HTTP_ALLOWED_ORIGINS", "")
             ),
-            log_level=env.get(
-                "AGENT_WEB_SEARCH_HTTP_LOG_LEVEL", "info"
-            ).strip().lower()
+            log_level=env.get("AGENT_WEB_SEARCH_HTTP_LOG_LEVEL", "info").strip().lower()
             or "info",
         )
 

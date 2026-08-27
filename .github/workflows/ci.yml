@@ -51,6 +51,9 @@ jobs:
       - name: Run Ruff
         run: ruff check .
 
+      - name: Run Ruff format check
+        run: ruff format --check .
+
   container:
     name: Docker build
     runs-on: ubuntu-latest

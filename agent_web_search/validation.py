@@ -31,8 +31,10 @@ def validate_web_search_arguments(
     unknown = sorted(set(arguments) - _KNOWN_FIELDS)
     if unknown:
         details.append(
-            "unknown argument(s): " + ", ".join(unknown)
-            + "; allowed: " + ", ".join(sorted(_KNOWN_FIELDS))
+            "unknown argument(s): "
+            + ", ".join(unknown)
+            + "; allowed: "
+            + ", ".join(sorted(_KNOWN_FIELDS))
         )
 
     query = arguments.get("query")
@@ -56,9 +58,7 @@ def validate_web_search_arguments(
 
     time_range = arguments.get("time_range")
     if time_range is not None and time_range not in {"d", "w", "m", "y"}:
-        details.append(
-            f"time_range must be one of d/w/m/y, got {time_range!r}"
-        )
+        details.append(f"time_range must be one of d/w/m/y, got {time_range!r}")
 
     providers = arguments.get("providers")
     if providers is not None:
@@ -76,8 +76,7 @@ def validate_web_search_arguments(
             for item in providers:
                 if not isinstance(item, str):
                     details.append(
-                        "providers must contain strings, got "
-                        f"{type(item).__name__}"
+                        f"providers must contain strings, got {type(item).__name__}"
                     )
                 else:
                     names.append(item)
@@ -93,8 +92,7 @@ def validate_web_search_arguments(
     mode = arguments.get("grok_search_mode")
     if mode is not None and mode not in {"web_search", "x_search", "both"}:
         details.append(
-            "grok_search_mode must be one of web_search/x_search/both, "
-            f"got {mode!r}"
+            f"grok_search_mode must be one of web_search/x_search/both, got {mode!r}"
         )
 
     return details

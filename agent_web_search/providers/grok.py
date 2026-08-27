@@ -41,9 +41,8 @@ class GrokProvider(Provider):
         searched = False
         for item in data.get("output") or []:
             item_type = item.get("type", "")
-            searched |= (
-                item_type in {"web_search_call", "x_search_call"}
-                or any(name in item_type for name in names)
+            searched |= item_type in {"web_search_call", "x_search_call"} or any(
+                name in item_type for name in names
             )
             for content in item.get("content") or []:
                 if (
@@ -136,8 +135,7 @@ class GrokProvider(Provider):
                 provider=self.name,
                 model=model,
                 error=(
-                    f"Grok HTTP {exc.code}: "
-                    f"{exc.read().decode(errors='replace')[:500]}"
+                    f"Grok HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}"
                 ),
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary

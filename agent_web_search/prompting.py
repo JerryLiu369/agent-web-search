@@ -21,8 +21,7 @@ def search_prompt(
     """Build an English soft constraint prompt for model-backed search providers."""
     scope_instructions = {
         "web": (
-            "Search the web and answer the question using current, "
-            "verifiable sources."
+            "Search the web and answer the question using current, verifiable sources."
         ),
         "x": (
             "Search X and answer the question using current, verifiable "
@@ -36,8 +35,7 @@ def search_prompt(
     constraints = [scope_instructions.get(search_scope, scope_instructions["web"])]
     if time_range in TIME_RANGE_LABELS:
         constraints.append(
-            f"Focus on information published within "
-            f"{TIME_RANGE_LABELS[time_range]}."
+            f"Focus on information published within {TIME_RANGE_LABELS[time_range]}."
         )
     if max_results is not None:
         constraints.append(

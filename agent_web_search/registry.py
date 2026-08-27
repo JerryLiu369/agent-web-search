@@ -77,11 +77,15 @@ def create_provider_pool(
     timeout: float, names: Iterable[str] | None = None
 ) -> dict[str, Provider]:
     """Construct only the requested providers, or all providers by default."""
-    selected = PROVIDER_SPECS if names is None else {
-        name: PROVIDER_SPECS[name]
-        for name in dict.fromkeys(names)
-        if name in PROVIDER_SPECS
-    }
+    selected = (
+        PROVIDER_SPECS
+        if names is None
+        else {
+            name: PROVIDER_SPECS[name]
+            for name in dict.fromkeys(names)
+            if name in PROVIDER_SPECS
+        }
+    )
     return {
         name: spec.provider_type(timeout=timeout)  # type: ignore[call-arg]
         for name, spec in selected.items()

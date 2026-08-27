@@ -19,9 +19,7 @@ class SearchEngine:
                     "AGENT_WEB_SEARCH_TIMEOUT must be a positive number"
                 ) from exc
             if not math.isfinite(timeout) or timeout <= 0:
-                raise ValueError(
-                    "AGENT_WEB_SEARCH_TIMEOUT must be a positive number"
-                )
+                raise ValueError("AGENT_WEB_SEARCH_TIMEOUT must be a positive number")
 
         if providers is not None:
             # Explicit provider injection is a test/API escape hatch. Preserve

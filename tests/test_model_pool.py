@@ -34,9 +34,7 @@ def test_round_robin_uses_one_or_many_models_deterministically():
 
 
 def test_plural_model_env_accepts_commas_newlines_and_duplicates(monkeypatch):
-    monkeypatch.setenv(
-        "AGENT_WEB_SEARCH_GEMINI_MODELS", "gemini-a,gemini-b\ngemini-a"
-    )
+    monkeypatch.setenv("AGENT_WEB_SEARCH_GEMINI_MODELS", "gemini-a,gemini-b\ngemini-a")
 
     provider = GeminiProvider(api_key="test-key")
 
@@ -56,9 +54,7 @@ def test_ark_round_robins_models_between_requests(monkeypatch):
                     {"type": "web_search_call", "status": "completed"},
                     {
                         "type": "message",
-                        "content": [
-                            {"type": "output_text", "text": "complete " * 20}
-                        ],
+                        "content": [{"type": "output_text", "text": "complete " * 20}],
                     },
                 ],
             }

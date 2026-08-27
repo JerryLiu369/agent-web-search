@@ -42,11 +42,12 @@ class YouProvider(Provider):
             snippets = item.get("snippets") or []
             if not isinstance(snippets, list):
                 snippets = []
-            description = "\n\n".join(
-                str(snippet).strip()
-                for snippet in snippets
-                if str(snippet).strip()
-            ) or (item.get("description") or "").strip()
+            description = (
+                "\n\n".join(
+                    str(snippet).strip() for snippet in snippets if str(snippet).strip()
+                )
+                or (item.get("description") or "").strip()
+            )
             results.append(
                 SearchResult(
                     title=(item.get("title") or "").strip(),

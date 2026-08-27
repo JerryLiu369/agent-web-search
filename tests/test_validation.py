@@ -44,14 +44,10 @@ def test_missing_query_is_rejected():
     assert validate_web_search_arguments({}, ENABLED)
 
 
-@pytest.mark.parametrize(
-    "value", ["ten", 1.5, True, 0, 21, -3]
-)
+@pytest.mark.parametrize("value", ["ten", 1.5, True, 0, 21, -3])
 def test_out_of_range_or_non_integer_counts_are_rejected(value):
     for field in ("max_results", "max_keyword"):
-        details = validate_web_search_arguments(
-            {"query": "hi", field: value}, ENABLED
-        )
+        details = validate_web_search_arguments({"query": "hi", field: value}, ENABLED)
         assert details, f"{field}={value!r} should be rejected"
 
 
@@ -75,9 +71,7 @@ def test_string_providers_is_rejected_with_a_hint():
     details = validate_web_search_arguments(
         {"query": "hi", "providers": "ddgs"}, ENABLED
     )
-    assert any(
-        "providers must be an array" in d and '["ddgs"]' in d for d in details
-    )
+    assert any("providers must be an array" in d and '["ddgs"]' in d for d in details)
 
 
 def test_empty_providers_list_is_rejected():
@@ -96,9 +90,7 @@ def test_unknown_provider_is_rejected_with_enabled_list():
     details = validate_web_search_arguments(
         {"query": "hi", "providers": ["nope"]}, ENABLED
     )
-    assert any(
-        "providers are not enabled: nope" in d and "ddgs" in d for d in details
-    )
+    assert any("providers are not enabled: nope" in d and "ddgs" in d for d in details)
 
 
 def test_invalid_grok_mode_is_rejected():

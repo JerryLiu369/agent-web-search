@@ -46,9 +46,7 @@ class ParallelProvider(Provider):
             if not isinstance(excerpts, list):
                 excerpts = []
             description = "\n\n".join(
-                str(excerpt).strip()
-                for excerpt in excerpts
-                if str(excerpt).strip()
+                str(excerpt).strip() for excerpt in excerpts if str(excerpt).strip()
             )
             results.append(
                 SearchResult(
@@ -246,9 +244,7 @@ class ParallelProvider(Provider):
     def search(self, request: SearchRequest) -> ProviderResponse:
         try:
             return (
-                self._search_api(request)
-                if self.api_key
-                else self._search_mcp(request)
+                self._search_api(request) if self.api_key else self._search_mcp(request)
             )
         except urllib.error.HTTPError as exc:
             transport = "API" if self.api_key else "Free MCP"

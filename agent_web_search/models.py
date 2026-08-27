@@ -35,9 +35,7 @@ class SearchRequest:
             except (TypeError, ValueError):
                 return default
 
-        if self.providers is not None and not isinstance(
-            self.providers, (list, tuple)
-        ):
+        if self.providers is not None and not isinstance(self.providers, (list, tuple)):
             # A bare string would otherwise be iterated character by
             # character and silently produce an empty provider set.
             raise ValueError(

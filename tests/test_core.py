@@ -162,9 +162,7 @@ def test_enabled_provider_bad_configuration_has_a_readable_error(monkeypatch):
     monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ark")
     monkeypatch.setenv("AGENT_WEB_SEARCH_ARK_MODELS", " , ")
 
-    with pytest.raises(
-        ValueError, match="must contain at least one model"
-    ) as exc_info:
+    with pytest.raises(ValueError, match="must contain at least one model") as exc_info:
         SearchEngine()
     assert (
         str(exc_info.value)
@@ -176,14 +174,9 @@ def test_enabled_provider_bad_configuration_has_a_readable_error(monkeypatch):
 def test_invalid_timeout_has_a_readable_error(monkeypatch, raw_timeout):
     monkeypatch.setenv("AGENT_WEB_SEARCH_TIMEOUT", raw_timeout)
 
-    with pytest.raises(
-        ValueError, match="must be a positive number"
-    ) as exc_info:
+    with pytest.raises(ValueError, match="must be a positive number") as exc_info:
         SearchEngine()
-    assert (
-        str(exc_info.value)
-        == "AGENT_WEB_SEARCH_TIMEOUT must be a positive number"
-    )
+    assert str(exc_info.value) == "AGENT_WEB_SEARCH_TIMEOUT must be a positive number"
 
 
 def test_positive_timeout_is_accepted(monkeypatch):

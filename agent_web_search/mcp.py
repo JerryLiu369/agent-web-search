@@ -67,11 +67,7 @@ def create_mcp_server(engine: SearchEngine | None = None) -> Server:
             # surface as structured tool errors, never as protocol-level
             # exceptions with a traceback.
             return types.CallToolResult(
-                content=[
-                    types.TextContent(
-                        text=format_invalid_arguments([str(exc)])
-                    )
-                ],
+                content=[types.TextContent(text=format_invalid_arguments([str(exc)]))],
                 isError=True,
             )
         text, is_error = format_mcp_result(result)
@@ -103,15 +99,11 @@ async def run_stdio(server: Server | None = None) -> None:
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Multi-provider web search MCP server"
-    )
+    parser = argparse.ArgumentParser(description="Multi-provider web search MCP server")
     parser.add_argument(
         "--transport",
         choices=("stdio", "http"),
-        help=(
-            "MCP transport; defaults to AGENT_WEB_SEARCH_MCP_TRANSPORT or stdio"
-        ),
+        help=("MCP transport; defaults to AGENT_WEB_SEARCH_MCP_TRANSPORT or stdio"),
     )
     return parser
 
@@ -120,9 +112,10 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser = _parser()
     args = parser.parse_args(argv)
     transport = (
-        args.transport
-        or os.getenv("AGENT_WEB_SEARCH_MCP_TRANSPORT", "stdio")
-    ).strip().lower()
+        (args.transport or os.getenv("AGENT_WEB_SEARCH_MCP_TRANSPORT", "stdio"))
+        .strip()
+        .lower()
+    )
 
     if transport == "stdio":
         asyncio.run(run_stdio())
@@ -135,6 +128,4 @@ def main(argv: Sequence[str] | None = None) -> None:
         except ValueError as exc:
             parser.error(str(exc))
         return
-    parser.error(
-        "AGENT_WEB_SEARCH_MCP_TRANSPORT must be either 'stdio' or 'http'"
-    )
+    parser.error("AGENT_WEB_SEARCH_MCP_TRANSPORT must be either 'stdio' or 'http'")
