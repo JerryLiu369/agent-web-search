@@ -35,6 +35,15 @@ class SearchRequest:
             except (TypeError, ValueError):
                 return default
 
+        if self.providers is not None and not isinstance(
+            self.providers, (list, tuple)
+        ):
+            # A bare string would otherwise be iterated character by
+            # character and silently produce an empty provider set.
+            raise ValueError(
+                "providers must be a list of provider names, got "
+                f"{type(self.providers).__name__}"
+            )
         providers = None
         if self.providers:
             providers = list(dict.fromkeys(str(name) for name in self.providers))

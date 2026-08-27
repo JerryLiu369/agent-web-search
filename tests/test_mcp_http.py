@@ -208,3 +208,86 @@ def test_http_preserves_all_provider_failure_as_a_tool_error():
     assert response.status_code == 200
     assert result["isError"] is True
     assert '"code": "all_providers_failed"' in result["content"][0]["text"]
+
+
+def _tool_call(arguments):
+    return {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "method": "tools/call",
+        "params": {"name": "web_search", "arguments": arguments},
+    }
+
+
+def test_http_rejects_unknown_provider_as_a_tool_error():
+    with TestClient(_app(_settings())) as client:
+        response = client.post(
+            "/mcp",
+            headers={**MCP_HEADERS, "Authorization": f"Bearer {TOKEN}"},
+            json=_tool_call({"query": "hi", "providers": ["nope"]}),
+        )
+
+    result = response.json()["result"]
+    assert response.status_code == 200
+    assert result["isError"] is True
+    assert '"code": "invalid_arguments"' in result["content"][0]["text"]
+    assert "not enabled" in result["content"][0]["text"]
+
+
+def test_http_rejects_string_providers_as_a_tool_error():
+    with TestClient(_app(_settings())) as client:
+        response = client.post(
+            "/mcp",
+            headers={**MCP_HEADERS, "Authorization": f"Bearer {TOKEN}"},
+            json=_tool_call({"query": "hi", "providers": "ddgs"}),
+        )
+
+    result = response.json()["result"]
+    assert response.status_code == 200
+    assert result["isError"] is True
+    assert '"code": "invalid_arguments"' in result["content"][0]["text"]
+    assert "array" in result["content"][0]["text"]
+
+
+def test_http_rejects_out_of_range_max_results():
+    with TestClient(_app(_settings())) as client:
+        response = client.post(
+            "/mcp",
+            headers={**MCP_HEADERS, "Authorization": f"Bearer {TOKEN}"},
+            json=_tool_call({"query": "hi", "max_results": 999}),
+        )
+
+    result = response.json()["result"]
+    assert response.status_code == 200
+    assert result["isError"] is True
+    assert "max_results" in result["content"][0]["text"]
+
+
+def test_http_rejects_unknown_arguments():
+    with TestClient(_app(_settings())) as client:
+        response = client.post(
+            "/mcp",
+            headers={**MCP_HEADERS, "Authorization": f"Bearer {TOKEN}"},
+            json=_tool_call({"query": "hi", "bogus_extra": 1}),
+        )
+
+    result = response.json()["result"]
+    assert response.status_code == 200
+    assert result["isError"] is True
+    assert "unknown argument" in result["content"][0]["text"]
+
+
+def test_http_empty_query_is_a_tool_error_not_a_protocol_error():
+    for query in ("", "   ", None):
+        arguments = {"query": query} if query is not None else {}
+        with TestClient(_app(_settings())) as client:
+            response = client.post(
+                "/mcp",
+                headers={**MCP_HEADERS, "Authorization": f"Bearer {TOKEN}"},
+                json=_tool_call(arguments),
+            )
+        body = response.json()
+        assert response.status_code == 200
+        assert "error" not in body
+        assert body["result"]["isError"] is True
+        assert '"code": "invalid_arguments"' in body["result"]["content"][0]["text"]

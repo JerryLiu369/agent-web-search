@@ -1,4 +1,5 @@
 import json
+from typing import ClassVar
 
 import pytest
 
@@ -86,3 +87,83 @@ def test_mcp_command_rejects_an_unknown_environment_transport(monkeypatch):
         mcp.main([])
 
     assert exc_info.value.code == 2
+
+
+def _call_web_search(server, arguments):
+    """Invoke the shared stdio tools/call handler directly."""
+    import asyncio
+
+    import mcp_types as types
+
+    async def run():
+        entry = server._request_handlers["tools/call"]
+        return await entry.handler(
+            None, types.CallToolRequestParams(name="web_search", arguments=arguments)
+        )
+
+    return asyncio.run(run())
+
+
+class _StubEngine:
+    enabled_provider_names: ClassVar[list[str]] = ["ddgs", "exa", "parallel"]
+
+    def search(self, request):
+        from agent_web_search.models import ProviderResponse, SearchResponse
+
+        return SearchResponse(
+            query=request.query,
+            providers={"ddgs": ProviderResponse(provider="ddgs", searched=True)},
+        )
+
+
+def test_stdio_rejects_invalid_arguments_as_a_tool_error():
+    server = mcp.create_mcp_server(_StubEngine())
+
+    result = _call_web_search(server, {"query": "hi", "providers": ["nope"]})
+    payload = json.loads(result.content[0].text)
+
+    assert result.is_error is True
+    assert payload["error"]["code"] == "invalid_arguments"
+    assert any("not enabled" in d for d in payload["error"]["details"])
+
+
+def test_stdio_rejects_string_providers_as_a_tool_error():
+    server = mcp.create_mcp_server(_StubEngine())
+
+    result = _call_web_search(server, {"query": "hi", "providers": "ddgs"})
+    payload = json.loads(result.content[0].text)
+
+    assert result.is_error is True
+    assert payload["error"]["code"] == "invalid_arguments"
+    assert any("array" in d for d in payload["error"]["details"])
+
+
+def test_stdio_rejects_unknown_arguments():
+    server = mcp.create_mcp_server(_StubEngine())
+
+    result = _call_web_search(server, {"query": "hi", "bogus": 1})
+    payload = json.loads(result.content[0].text)
+
+    assert result.is_error is True
+    assert any("unknown argument" in d for d in payload["error"]["details"])
+
+
+def test_stdio_empty_query_is_a_tool_error_not_a_protocol_error():
+    server = mcp.create_mcp_server(_StubEngine())
+
+    for arguments in ({"query": ""}, {"query": "   "}, {}):
+        result = _call_web_search(server, arguments)
+        payload = json.loads(result.content[0].text)
+        assert result.is_error is True
+        assert payload["error"]["code"] == "invalid_arguments"
+
+
+def test_stdio_valid_arguments_still_succeed():
+    server = mcp.create_mcp_server(_StubEngine())
+
+    result = _call_web_search(server, {"query": "latest news"})
+    payload = json.loads(result.content[0].text)
+
+    assert result.is_error is False
+    assert '"query": "latest news"' in result.content[0].text
+    assert list(payload["providers"]) == ["ddgs"]

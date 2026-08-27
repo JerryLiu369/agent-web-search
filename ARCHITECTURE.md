@@ -154,11 +154,14 @@ Every transport change must verify:
 5. missing or invalid HTTP credentials are rejected.
 6. all-provider failure remains an MCP tool error with code
    `all_providers_failed`.
-7. Python 3.10 through 3.13 and Ruff remain green.
-8. CLI success stays on stdout with status 0; all-provider failure stays on
+7. schema-invalid `web_search` arguments (empty query, wrong types, unknown
+   providers, out-of-range values, unknown fields) return a structured tool
+   error with code `invalid_arguments` on both stdio and HTTP.
+8. Python 3.10 through 3.13 and Ruff remain green.
+9. CLI success stays on stdout with status 0; all-provider failure stays on
    stderr with the shared payload and status 1.
-9. The bundled Agent Skill passes structural validation and documents the
-   current CLI contract.
+10. The bundled Agent Skill passes structural validation and documents the
+    current CLI contract.
 
 ## Explicit non-goals for the first HTTP release
 

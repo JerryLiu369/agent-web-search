@@ -9,6 +9,11 @@ ALL_PROVIDERS_FAILED_MESSAGE = (
     "All enabled search providers failed. Check provider configuration, "
     "credentials, quotas, and network access."
 )
+INVALID_ARGUMENTS_CODE = "invalid_arguments"
+INVALID_ARGUMENTS_MESSAGE = (
+    "The web_search arguments do not match the tool schema. Fix the "
+    "arguments and retry."
+)
 
 
 def search_result_payload(result: SearchResponse) -> tuple[dict[str, Any], bool]:
@@ -26,3 +31,14 @@ def search_result_payload(result: SearchResponse) -> tuple[dict[str, Any], bool]
             True,
         )
     return result.to_dict(), False
+
+
+def invalid_arguments_payload(details: list[str]) -> dict[str, Any]:
+    """Build the shared payload for schema-invalid web_search arguments."""
+    return {
+        "error": {
+            "code": INVALID_ARGUMENTS_CODE,
+            "message": INVALID_ARGUMENTS_MESSAGE,
+            "details": details,
+        },
+    }
