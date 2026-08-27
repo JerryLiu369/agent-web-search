@@ -20,7 +20,7 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
             "maximum": 20,
             "default": 10,
             "description": (
-                "Desired maximum number of results or cited sources. Providers "
+                "Desired maximum number of results. Providers "
                 "enforce this natively or as a best-effort prompt constraint."
             ),
         },

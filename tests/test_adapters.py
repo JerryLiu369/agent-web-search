@@ -1,8 +1,11 @@
 import importlib.util
+import json
 import sys
 import types
 from pathlib import Path
+from typing import ClassVar
 
+from agent_web_search.models import SearchResponse
 from agent_web_search.schema import build_tool_schema
 
 
@@ -52,3 +55,27 @@ def test_hermes_adapter_exposes_grok_mode_only_when_enabled(monkeypatch):
     properties = context.tool["schema"]["parameters"]["properties"]
     assert "grok_search_mode" in properties
     assert properties["providers"]["items"]["enum"] == ["ark", "grok"]
+
+
+def test_hermes_adapter_uses_shared_all_provider_failure_payload(monkeypatch):
+    module = _load_hermes_adapter()
+    response = SearchResponse(
+        query="latest news",
+        providers={},
+        failed_provider_errors={"ddgs": "timed out"},
+    )
+
+    class Engine:
+        enabled_provider_names: ClassVar[list[str]] = ["ddgs"]
+
+        def search(self, _request):
+            return response
+
+    monkeypatch.setattr(module, "SearchEngine", Engine)
+    context = _HermesContext()
+    module.register(context)
+
+    payload = json.loads(context.tool["handler"]({"query": "latest news"}))
+
+    assert payload["error"]["code"] == "all_providers_failed"
+    assert payload["error"]["provider_errors"] == {"ddgs": "timed out"}

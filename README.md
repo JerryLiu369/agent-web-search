@@ -2,7 +2,7 @@
 
 # Agent Web Search
 
-**One web-search tool for AI agents, backed by multiple independent providers.**
+**One web-search core for AI agents, backed by multiple independent providers.**
 
 **English** | [简体中文](https://github.com/JerryLiu369/agent-web-search/blob/main/README.zh-CN.md)
 
@@ -12,7 +12,7 @@
 [![MCP 2.x](https://img.shields.io/badge/MCP-2.x-6C47FF)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-<p><strong>Deploy a remote MCP</strong></p>
+<p><strong>One-click remote MCP</strong></p>
 
 <p>
   <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&amp;env=AGENT_WEB_SEARCH_AUTH_TOKEN"><img alt="Deploy with Vercel" src="https://vercel.com/button" height="34"></a>
@@ -24,38 +24,29 @@
 Works with **Codex CLI**, **Claude Code**, **OpenCode**, **Hermes**, ordinary
 shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 
-[Providers](#providers) · [Quick start](#quick-start) · [CLI](#cli) ·
-[Remote MCP](#remote-mcp-over-https) · [Tool interface](#tool-interface) ·
-[Python API](#python-api) · [Configuration](#configuration) ·
-[Integrations](#integrations) · [Troubleshooting](#troubleshooting) ·
+[Use with an agent](#use-with-an-agent) · [Providers](#providers) ·
+[Shared interface](#shared-request-and-response) · [Configuration](#configuration) ·
+[Other interfaces](#other-interfaces) · [Troubleshooting](#troubleshooting) ·
 [Architecture](ARCHITECTURE.md) · [Development](#development)
 
 </div>
 
 ---
 
-Agent Web Search exposes one provider-neutral `web_search` tool. It dispatches
-the enabled providers concurrently, normalizes their responses into one schema,
-keeps partial failures isolated, and lets the calling agent choose which
-enabled providers to use for each request.
+Agent Web Search gives an agent two ways to reach the same provider-neutral
+search core: a native MCP tool, or a CLI taught through a standard Agent Skill.
+Both dispatch enabled providers concurrently, normalize them into one schema,
+and isolate provider failures.
 
 ```text
-Agent / MCP client
-        │
-        ▼
-    web_search
-        │
-        ▼
-  SearchEngine ──┬── DDGS
-                 ├── Exa
-                 ├── Parallel
-                 ├── ARK
-                 ├── Brave
-                 ├── Gemini
-                 ├── Grok
-                 ├── Perplexity
-                 ├── Tavily
-                 └── You.com
+Agent ──┬── MCP client ────── web_search ──┐
+        │                                  │
+        └── Shell + Skill ── CLI command ──┤
+                                           ▼
+                                      SearchEngine
+                                           │
+                     DDGS · Exa · Parallel · ARK · Brave
+                     Gemini · Grok · Perplexity · Tavily · You.com
 ```
 
 ## Why Agent Web Search
@@ -64,12 +55,11 @@ Agent / MCP client
   time, and one provider's failure never discards another provider's results.
 - **Zero-key start.** The default providers — DDGS, Exa, and Parallel — work
   without any API key.
-- **One interface everywhere.** MCP (stdio and HTTP), the CLI, the Python API,
-  and the Hermes plugin share the same search engine, tool schema, and response
-  model.
+- **Two clean agent integrations.** Use MCP for a protocol-native tool, or pair
+  the CLI with the included Skill for agents that already have shell access.
 - **Focused responses.** Every provider response contains only a generated
   `answer` when available and normalized `results`.
-- **No telemetry, no shared secrets.** Provider keys stay in server-side
+- **No telemetry, no shared secrets.** Provider keys stay in runtime
   environment variables; there is no shared API-key service.
 
 ## Providers
@@ -95,118 +85,88 @@ The provider architecture is intentionally open: another search-capable
 backend can be added without changing the MCP, Hermes, CLI, or Python-facing
 interfaces.
 
-## Quick start
+## Use with an agent
 
-**Requirements:** Python 3.10+. No API key is needed; the default providers
-are free and keyless.
+**Requirements:** Python 3.10+. The default providers — DDGS, Exa, and
+Parallel — need no API key. Choose one integration shape for your agent; both
+use the same package and search engine. The PyPI package installs both
+`agent-web-search-mcp` and `agent-web-search` commands.
 
-Install from PyPI with whichever package runner you already use:
+### Option 1: MCP
+
+Choose MCP when the agent supports tool servers and you want typed discovery,
+protocol-level errors, or remote access. The same `agent-web-search-mcp`
+command supports local stdio and stateless Streamable HTTP.
+
+#### Local stdio MCP
+
+Install the package once:
 
 ```bash
-# Standard Python installation
-python -m pip install agent-web-search-mcp
-
-# Isolated persistent installation
+# Recommended isolated installation
 pipx install agent-web-search-mcp
 
-# Run without a persistent installation
-uvx agent-web-search-mcp
+# Or install into the active Python environment
+python -m pip install agent-web-search-mcp
 ```
 
-The PyPI package `agent-web-search-mcp` installs two commands —
-`agent-web-search` (CLI) and `agent-web-search-mcp` (MCP server) — and imports
-as the Python module `agent_web_search`. `uvx` runs either command without a
-persistent installation.
-
-Search right away:
-
-```bash
-agent-web-search "What changed in the latest OpenAI Codex CLI?"
-```
-
-Or run the CLI through `uvx` without installing it:
-
-```bash
-uvx --from agent-web-search-mcp agent-web-search \
-  "What changed in the latest OpenAI Codex CLI?"
-```
-
-Start the stdio MCP server for an MCP client:
-
-```bash
-agent-web-search-mcp
-```
-
-To use `uvx` directly from an MCP client without installing the package first,
-configure the client to run `uvx agent-web-search-mcp`. For example:
+Then configure the MCP client to launch `agent-web-search-mcp`:
 
 ```json
 {
   "mcpServers": {
     "agent-web-search": {
-      "command": "uvx",
-      "args": ["agent-web-search-mcp"]
+      "command": "agent-web-search-mcp",
+      "args": []
     }
   }
 }
 ```
 
+If `uvx` is already available, a client can run the package without a
+persistent install by using command `uvx` with args `["agent-web-search-mcp"]`.
+
 <details>
-<summary><strong>Install the latest development version from GitHub</strong></summary>
+<summary><strong>Codex CLI, Claude Code, and OpenCode examples</strong></summary>
 
 ```bash
-pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
+# Codex CLI
+codex mcp add agent-web-search -- agent-web-search-mcp
+
+# Claude Code
+claude mcp add agent-web-search -- agent-web-search-mcp
+```
+
+OpenCode:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "agent-web-search": {
+      "type": "local",
+      "command": ["agent-web-search-mcp"],
+      "enabled": true
+    }
+  }
+}
 ```
 
 </details>
 
-> [!IMPORTANT]
-> Do not place API keys in shell history, source code, Git commits, screenshots,
-> or checked-in MCP configuration. Export them from a secret manager or a local
-> environment file that is not committed.
+#### Remote MCP over HTTPS
 
-## CLI
-
-`agent-web-search QUERY` runs one search and prints a single JSON document to
-stdout.
-
-| Option | Values | Default | Purpose |
-| --- | --- | --- | --- |
-| `--provider` | provider name, repeatable | all enabled | Restrict this request to specific enabled providers |
-| `--max-results` | 1–20 | `10` | Desired maximum number of results |
-| `--max-keyword` | 1–10 | `3` | Desired maximum number of search queries or keywords |
-| `--time-range` | `d`, `w`, `m`, `y` | — | Past day, week, month, or year |
-| `--grok-search-mode` | `web_search`, `x_search`, `both` | `web_search` | Only meaningful when Grok is enabled |
+Use one of the deployment buttons at the top of this README, or run the same
+server yourself:
 
 ```bash
-# Use every startup-enabled provider.
-agent-web-search "What changed in the latest OpenAI Codex CLI?"
-
-# Limit results and publication time.
-agent-web-search "GPU kernel generation papers" --time-range m --max-results 5
-
-# Select a provider subset for this request.
-agent-web-search "latest AI news" --provider ark --provider ddgs
-```
-
-## Remote MCP over HTTPS
-
-The same `agent-web-search-mcp` command supports both MCP transports. It keeps
-stdio as the zero-argument default and enables stateless Streamable HTTP with a
-transport switch:
-
-```bash
-# Generate a deployment token once.
 python -c "import secrets; print(secrets.token_urlsafe(32))"
-
 export AGENT_WEB_SEARCH_AUTH_TOKEN="replace-with-the-generated-token"
 agent-web-search-mcp --transport http
 ```
 
-The HTTP server exposes `POST /mcp` and public `GET /healthz`. `/mcp` requires
-the deployment Bearer Token by default and never creates an `MCP-Session-Id`.
-
-Remote MCP client example:
+The server exposes authenticated `POST /mcp` and public `GET /healthz`. A
+remote MCP client connects like this:
 
 ```json
 {
@@ -222,20 +182,68 @@ Remote MCP client example:
 ```
 
 Every public deployment must set `AGENT_WEB_SEARCH_AUTH_TOKEN` to at least 32
-characters. Provider keys remain optional server-side environment variables.
+characters. The server is stateless and does not create `MCP-Session-Id` values.
 
-Generic Docker deployment:
+### Option 2: CLI + Skill
+
+Choose this shape when the agent already has shell access and supports Agent
+Skills. The Skill teaches the agent how to invoke the CLI, select controls,
+interpret `results`, and handle structured failures; no MCP configuration is
+needed.
+
+1. Install the CLI:
+
+   ```bash
+   pipx install agent-web-search-mcp
+   # Or: python -m pip install agent-web-search-mcp
+   ```
+
+2. Install the included [`agent-web-search` Skill](https://github.com/JerryLiu369/agent-web-search/tree/main/skills/agent-web-search):
+
+   ```bash
+   npx skills add JerryLiu369/agent-web-search --skill agent-web-search
+   ```
+
+   If the agent does not use the `skills` installer, copy
+   `skills/agent-web-search` into that client's Skills directory.
+
+3. Verify the CLI, then let the agent search:
+
+   ```bash
+   agent-web-search --version
+   agent-web-search "What changed in the latest OpenAI Codex CLI?"
+   ```
+
+The CLI writes one JSON document to stdout on success. If every provider fails,
+it writes the shared `all_providers_failed` JSON to stderr and exits with status
+1, so shell-capable agents can distinguish a real failure from empty results.
+
+| CLI option | MCP argument | Values | Default |
+| --- | --- | --- | --- |
+| positional `QUERY` | `query` | natural-language question | required |
+| `--provider` (repeatable) | `providers` | enabled provider names | all enabled |
+| `--max-results` | `max_results` | 1–20 | `10` |
+| `--max-keyword` | `max_keyword` | 1–10 | `3` |
+| `--time-range` | `time_range` | `d`, `w`, `m`, `y` | — |
+| `--grok-search-mode` | `grok_search_mode` | `web_search`, `x_search`, `both` | `web_search` |
+
+<details>
+<summary><strong>Install the latest development version from GitHub</strong></summary>
 
 ```bash
-docker build -t agent-web-search .
-docker run --rm -p 8000:8000 \
-  -e AGENT_WEB_SEARCH_AUTH_TOKEN="replace-with-a-32-character-token" \
-  agent-web-search
+pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 ```
 
-## Tool interface
+</details>
 
-The MCP server and Hermes plugin register one tool named `web_search`.
+> [!IMPORTANT]
+> Do not place API keys in shell history, source code, Git commits, screenshots,
+> or checked-in MCP configuration. Supply them through server-side or local
+> environment variables.
+
+## Shared request and response
+
+MCP exposes one tool named `web_search`; the CLI maps to the same inputs.
 
 | Argument | Type | Required | Default | Description |
 | --- | --- | :---: | --- | --- |
@@ -293,8 +301,9 @@ providers are omitted:
 | `answer` | Provider-generated prose answer, when the backend produces one |
 | `results` | Result rows: `title`, `url`, `description`, `provider`, plus optional `published_at` and `author` |
 
-If every selected provider fails, the MCP tool returns an error with the stable
-code `all_providers_failed` and per-provider diagnostics:
+If every selected provider fails, MCP returns a tool error. The CLI writes the
+same payload to stderr and exits with status 1. Both use the stable code
+`all_providers_failed` and include per-provider diagnostics:
 
 ```json
 {
@@ -523,56 +532,9 @@ ignores unsupported controls.
 
 Prompt-based controls are best-effort and are not strict guarantees.
 
-## Integrations
+## Other interfaces
 
-### Codex CLI
-
-```bash
-codex mcp add agent-web-search -- agent-web-search-mcp
-codex mcp list
-```
-
-### Claude Code
-
-```bash
-claude mcp add agent-web-search -- agent-web-search-mcp
-```
-
-Or add a project `.mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "agent-web-search": {
-      "command": "agent-web-search-mcp",
-      "args": [],
-      "env": {
-        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa,parallel"
-      }
-    }
-  }
-}
-```
-
-### OpenCode
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "agent-web-search": {
-      "type": "local",
-      "command": ["agent-web-search-mcp"],
-      "environment": {
-        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa,parallel"
-      },
-      "enabled": true
-    }
-  }
-}
-```
-
-### Hermes
+### Native Hermes plugin
 
 Install the native plugin directly from GitHub:
 
@@ -591,10 +553,11 @@ native plugin.
 
 ## Troubleshooting
 
-- **`all_providers_failed`** — every selected provider errored. The error
-  carries per-provider diagnostics; check keys, quotas, and network access.
-  Free backends can be rate-limited, so retrying or raising
-  `AGENT_WEB_SEARCH_TIMEOUT` may help.
+- **`all_providers_failed`** — every selected provider errored. MCP marks the
+  call as an error; the CLI writes diagnostics to stderr and exits 1. Check
+  keys, quotas, and network access. A single retry may help a transient limit.
+- **`agent-web-search` is not found** — install the PyPI package with `pipx` or
+  `pip`, then start a new shell so its scripts directory is on `PATH`.
 - **HTTP 401 `invalid_token`** — the `Authorization: Bearer …` header must
   match `AGENT_WEB_SEARCH_AUTH_TOKEN`, which must be at least 32 characters.
 - **A provider is missing from a response** — failed providers are omitted

@@ -28,9 +28,29 @@ may also return `answer`; URLs supporting that answer are normalized into
 `results`. Rich, span-level citations and execution metadata are internal and
 out of scope for the public response until explicitly designed.
 
+## Agent integration shapes
+
+The project has two first-class ways for an agent to use the same search core:
+
+1. **MCP:** `agent-web-search-mcp` exposes `web_search` over local stdio or
+   authenticated, stateless Streamable HTTP.
+2. **CLI + Skill:** an agent with shell access follows
+   `skills/agent-web-search/SKILL.md` and invokes `agent-web-search` directly.
+
+The Skill is an instruction layer, not a second search implementation. It does
+not own configuration, provider dispatch, response normalization, or retry
+state. The CLI and MCP reuse the same request model, search engine, success
+payload, and `all_providers_failed` error payload.
+
+On CLI success, stdout contains one JSON response and the process exits with
+status 0. If every provider fails, stderr contains the shared structured error
+payload and the process exits with status 1. Argument errors use status 2.
+
 ## Public interfaces
 
 - `agent-web-search QUERY` runs a direct CLI search.
+- `skills/agent-web-search/SKILL.md` teaches shell-capable agents to use that
+  CLI without introducing another runtime or configuration layer.
 - `agent-web-search-mcp` starts MCP over stdio by default.
 - `agent-web-search-mcp --transport http` starts the same MCP server over
   Streamable HTTP.
@@ -135,6 +155,10 @@ Every transport change must verify:
 6. all-provider failure remains an MCP tool error with code
    `all_providers_failed`.
 7. Python 3.10 through 3.13 and Ruff remain green.
+8. CLI success stays on stdout with status 0; all-provider failure stays on
+   stderr with the shared payload and status 1.
+9. The bundled Agent Skill passes structural validation and documents the
+   current CLI contract.
 
 ## Explicit non-goals for the first HTTP release
 

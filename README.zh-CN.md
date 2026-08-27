@@ -2,7 +2,7 @@
 
 # Agent Web Search
 
-**面向 AI Agent 的统一联网搜索工具，由多个相互独立的 Provider 提供支持。**
+**面向 AI Agent 的统一联网搜索核心，由多个相互独立的 Provider 提供支持。**
 
 [English](https://github.com/JerryLiu369/agent-web-search/blob/main/README.md) | **简体中文**
 
@@ -23,43 +23,36 @@
 
 支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、普通命令行脚本、Python 应用和远程 Streamable HTTP MCP 客户端。
 
-[搜索服务](#搜索服务) · [快速开始](#快速开始) · [命令行](#命令行) ·
-[远程 MCP](#通过-https-使用远程-mcp) · [工具接口](#工具接口) ·
-[Python API](#python-api) · [配置](#配置) · [集成](#集成) ·
+[给 Agent 使用](#给-agent-使用) · [搜索服务](#搜索服务) ·
+[统一接口](#统一请求与响应) · [配置](#配置) · [其他接口](#其他接口) ·
 [故障排查](#故障排查) · [架构](ARCHITECTURE.md) · [开发](#开发)
 
 </div>
 
 ---
 
-Agent Web Search 对外提供一个与 Provider 无关的 `web_search` 工具。它会并发调用已启用的 Provider，统一不同返回格式，隔离单个 Provider 的故障，并允许调用 Agent 在每次请求中选择要使用的已启用 Provider。
+Agent Web Search 为 Agent 提供两种接入同一个搜索核心的方式：原生 MCP
+工具，或者由标准 Agent Skill 教会 Agent 调用 CLI。两种方式都会并发调用
+已启用的 Provider、归一化响应，并隔离单个 Provider 的失败。
 
 ```text
-Agent / MCP 客户端
-        │
-        ▼
-    web_search
-        │
-        ▼
-  SearchEngine ──┬── DDGS
-                 ├── Exa
-                 ├── Parallel
-                 ├── ARK
-                 ├── Brave
-                 ├── Gemini
-                 ├── Grok
-                 ├── Perplexity
-                 ├── Tavily
-                 └── You.com
+Agent ──┬── MCP 客户端 ───── web_search ──┐
+        │                                 │
+        └── Shell + Skill ── CLI 命令 ────┤
+                                          ▼
+                                     SearchEngine
+                                          │
+                    DDGS · Exa · Parallel · ARK · Brave
+                    Gemini · Grok · Perplexity · Tavily · You.com
 ```
 
 ## 为什么选择 Agent Web Search
 
 - **并发且相互独立。** 所有选中的 Provider 同时发起请求，单个 Provider 失败不会丢弃其他 Provider 的成功结果。
 - **零 Key 即可上手。** 默认 Provider（DDGS、Exa、Parallel）无需任何 API Key。
-- **四处同一接口。** MCP（stdio 和 HTTP）、CLI、Python API 与 Hermes 插件共享同一个搜索引擎、工具 Schema 和响应模型。
+- **两种清晰的 Agent 接入。** 需要协议原生工具时用 MCP；已有 Shell 能力的 Agent 则使用 CLI + Skill。
 - **响应聚焦。** 每个 Provider 响应仅包含可用时的文本 `answer` 和统一的 `results`。
-- **无遥测、不共享密钥。** Provider Key 只存在于服务端环境变量中，项目不提供任何共享 API Key 服务。
+- **无遥测、不共享密钥。** Provider Key 只存在于运行环境变量中，项目不提供任何共享 API Key 服务。
 
 ## 搜索服务
 
@@ -82,107 +75,86 @@ Agent / MCP 客户端
 
 Provider 架构是开放的：添加新的搜索后端时，不需要修改 MCP、Hermes、CLI 或 Python 接口。
 
-## 快速开始
+## 给 Agent 使用
 
-**环境要求：** Python 3.10+。无需任何 API Key，默认 Provider 全部免费且无需配置。
+**环境要求：** Python 3.10+。默认的 DDGS、Exa 和 Parallel 都无需 API
+Key。请为 Agent 选择一种接入形态；两者使用的是同一个包和搜索引擎。PyPI
+包会同时安装 `agent-web-search-mcp` 和 `agent-web-search` 两个命令。
 
-用你已经使用的包管理方式从 PyPI 安装：
+### 形态一：MCP
+
+当 Agent 支持工具服务器，或者你需要类型化的工具发现、协议级错误、远程
+访问时，选择 MCP。同一个 `agent-web-search-mcp` 命令同时支持本地 stdio
+和无状态 Streamable HTTP。
+
+#### 本地 stdio MCP
+
+先安装一次：
 
 ```bash
-# 标准 Python 安装
-python -m pip install agent-web-search-mcp
-
-# 隔离且持久的安装
+# 推荐：隔离安装
 pipx install agent-web-search-mcp
 
-# 无需持久安装，直接运行
-uvx agent-web-search-mcp
+# 或安装到当前 Python 环境
+python -m pip install agent-web-search-mcp
 ```
 
-PyPI 包 `agent-web-search-mcp` 会安装两个命令——`agent-web-search`（CLI）和 `agent-web-search-mcp`（MCP 服务器），并以 `agent_web_search` 作为 Python 模块导入。`uvx` 可以在不持久安装的情况下直接运行其中任意一个命令。
-
-安装后即可搜索：
-
-```bash
-agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
-```
-
-也可以不安装，通过 `uvx` 直接运行 CLI：
-
-```bash
-uvx --from agent-web-search-mcp agent-web-search \
-  "OpenAI Codex CLI 最新版本有哪些变化？"
-```
-
-启动供 MCP 客户端连接的 stdio 服务器：
-
-```bash
-agent-web-search-mcp
-```
-
-如果希望 MCP 客户端直接通过 `uvx` 运行而不预先安装，可以让客户端执行 `uvx agent-web-search-mcp`。例如：
+然后让 MCP 客户端启动 `agent-web-search-mcp`：
 
 ```json
 {
   "mcpServers": {
     "agent-web-search": {
-      "command": "uvx",
-      "args": ["agent-web-search-mcp"]
+      "command": "agent-web-search-mcp",
+      "args": []
     }
   }
 }
 ```
 
+如果本机已经有 `uvx`，也可以不持久安装，让客户端使用命令 `uvx`、参数
+`["agent-web-search-mcp"]`。
+
 <details>
-<summary><strong>从 GitHub 安装最新开发版本</strong></summary>
+<summary><strong>Codex CLI、Claude Code 和 OpenCode 示例</strong></summary>
 
 ```bash
-pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
+# Codex CLI
+codex mcp add agent-web-search -- agent-web-search-mcp
+
+# Claude Code
+claude mcp add agent-web-search -- agent-web-search-mcp
+```
+
+OpenCode：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "agent-web-search": {
+      "type": "local",
+      "command": ["agent-web-search-mcp"],
+      "enabled": true
+    }
+  }
+}
 ```
 
 </details>
 
-> [!IMPORTANT]
-> 不要把 API Key 写入 Shell 历史、源代码、Git 提交、截图或纳入版本控制的 MCP 配置。请通过密钥管理工具或未提交到仓库的本地环境变量文件提供密钥。
+#### 远程 HTTPS MCP
 
-## 命令行
-
-`agent-web-search QUERY` 执行一次搜索，并把单个 JSON 文档打印到 stdout。
-
-| 选项 | 取值 | 默认值 | 用途 |
-| --- | --- | --- | --- |
-| `--provider` | Provider 名，可重复 | 所有已启用 | 将本次请求限定在指定的已启用 Provider |
-| `--max-results` | 1–20 | `10` | 期望的最大结果数量 |
-| `--max-keyword` | 1–10 | `3` | 期望的最大搜索查询词或关键词数量 |
-| `--time-range` | `d`、`w`、`m`、`y` | — | 过去一天、一周、一月或一年 |
-| `--grok-search-mode` | `web_search`、`x_search`、`both` | `web_search` | 仅在启用 Grok 时有意义 |
+可以直接使用 README 顶部的一键部署按钮，也可以自行运行同一个服务器：
 
 ```bash
-# 使用所有启动时启用的 Provider
-agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
-
-# 限制结果数量和发布时间
-agent-web-search "GPU kernel generation 论文" --time-range m --max-results 5
-
-# 只选择部分 Provider
-agent-web-search "最新 AI 新闻" --provider ark --provider ddgs
-```
-
-## 通过 HTTPS 使用远程 MCP
-
-同一个 `agent-web-search-mcp` 命令同时支持两种 MCP Transport。无参数时保持 stdio，通过 Transport 参数启动无状态 Streamable HTTP：
-
-```bash
-# 只需生成一次部署 Token
 python -c "import secrets; print(secrets.token_urlsafe(32))"
-
 export AGENT_WEB_SEARCH_AUTH_TOKEN="替换为刚生成的-token"
 agent-web-search-mcp --transport http
 ```
 
-HTTP 服务提供 `POST /mcp` 和公开的 `GET /healthz`。`/mcp` 默认强制验证部署 Bearer Token，并且不会创建 `MCP-Session-Id`。
-
-远程 MCP 客户端配置示例：
+服务器提供需要鉴权的 `POST /mcp` 和公开的 `GET /healthz`。远程 MCP
+客户端这样连接：
 
 ```json
 {
@@ -197,20 +169,67 @@ HTTP 服务提供 `POST /mcp` 和公开的 `GET /healthz`。`/mcp` 默认强制�
 }
 ```
 
-所有公网部署都必须把 `AGENT_WEB_SEARCH_AUTH_TOKEN` 设置为至少 32 个字符。Provider Key 继续作为可选的服务端环境变量。
+所有公网部署都必须设置至少 32 个字符的 `AGENT_WEB_SEARCH_AUTH_TOKEN`。
+服务端无状态，不会创建 `MCP-Session-Id`。
 
-通用 Docker 部署：
+### 形态二：CLI + Skill
+
+当 Agent 已经有 Shell 能力并支持 Agent Skills 时，选择这个形态。Skill
+会教 Agent 调用 CLI、选择控制参数、理解 `results` 并处理结构化失败，不需要
+配置 MCP Server。
+
+1. 安装 CLI：
+
+   ```bash
+   pipx install agent-web-search-mcp
+   # 或：python -m pip install agent-web-search-mcp
+   ```
+
+2. 安装仓库内的 [`agent-web-search` Skill](https://github.com/JerryLiu369/agent-web-search/tree/main/skills/agent-web-search)：
+
+   ```bash
+   npx skills add JerryLiu369/agent-web-search --skill agent-web-search
+   ```
+
+   如果 Agent 不使用 `skills` 安装器，就把 `skills/agent-web-search` 复制到
+   对应客户端的 Skills 目录。
+
+3. 验证 CLI，然后让 Agent 搜索：
+
+   ```bash
+   agent-web-search --version
+   agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
+   ```
+
+CLI 成功时向 stdout 写入一个 JSON 文档。如果所有 Provider 都失败，它会向
+stderr 写入统一的 `all_providers_failed` JSON，并以状态码 1 退出，因此 Agent
+可以区分真正的失败和空结果。
+
+| CLI 选项 | MCP 参数 | 取值 | 默认值 |
+| --- | --- | --- | --- |
+| 位置参数 `QUERY` | `query` | 自然语言问题 | 必填 |
+| `--provider`（可重复） | `providers` | 已启用的 Provider 名 | 所有已启用 |
+| `--max-results` | `max_results` | 1–20 | `10` |
+| `--max-keyword` | `max_keyword` | 1–10 | `3` |
+| `--time-range` | `time_range` | `d`、`w`、`m`、`y` | — |
+| `--grok-search-mode` | `grok_search_mode` | `web_search`、`x_search`、`both` | `web_search` |
+
+<details>
+<summary><strong>从 GitHub 安装最新开发版本</strong></summary>
 
 ```bash
-docker build -t agent-web-search .
-docker run --rm -p 8000:8000 \
-  -e AGENT_WEB_SEARCH_AUTH_TOKEN="替换为至少-32-字符的-token" \
-  agent-web-search
+pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 ```
 
-## 工具接口
+</details>
 
-MCP 服务器和 Hermes 插件都会注册一个名为 `web_search` 的工具。
+> [!IMPORTANT]
+> 不要把 API Key 写入 Shell 历史、源代码、Git 提交、截图或纳入版本控制的
+> MCP 配置。请通过服务端或本地环境变量提供 Key。
+
+## 统一请求与响应
+
+MCP 对外注册一个名为 `web_search` 的工具；CLI 映射到同一组输入。
 
 | 参数 | 类型 | 必填 | 默认值 | 说明 |
 | --- | --- | :---: | --- | --- |
@@ -266,7 +285,9 @@ Provider 选择分为两层：
 | `answer` | 后端生成时返回的文本回答 |
 | `results` | 结果行：`title`、`url`、`description`、`provider`，以及可选的 `published_at` 和 `author` |
 
-如果选中的 Provider 全部失败，MCP 工具会改为返回错误，稳定错误码为 `all_providers_failed`，并附带各 Provider 的诊断信息：
+如果选中的 Provider 全部失败，MCP 会返回工具错误；CLI 则把同一载荷写入
+stderr 并以状态码 1 退出。两者都使用稳定错误码 `all_providers_failed`，并附带
+各 Provider 的诊断信息：
 
 ```json
 {
@@ -470,56 +491,9 @@ You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部�
 
 基于 Prompt 的控制属于尽力而为，不是严格保证。
 
-## 集成
+## 其他接口
 
-### Codex CLI
-
-```bash
-codex mcp add agent-web-search -- agent-web-search-mcp
-codex mcp list
-```
-
-### Claude Code
-
-```bash
-claude mcp add agent-web-search -- agent-web-search-mcp
-```
-
-也可以添加项目级 `.mcp.json`：
-
-```json
-{
-  "mcpServers": {
-    "agent-web-search": {
-      "command": "agent-web-search-mcp",
-      "args": [],
-      "env": {
-        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa,parallel"
-      }
-    }
-  }
-}
-```
-
-### OpenCode
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "agent-web-search": {
-      "type": "local",
-      "command": ["agent-web-search-mcp"],
-      "environment": {
-        "AGENT_WEB_SEARCH_PROVIDERS": "ddgs,exa,parallel"
-      },
-      "enabled": true
-    }
-  }
-}
-```
-
-### Hermes
+### Hermes 原生插件
 
 直接从 GitHub 安装原生插件：
 
@@ -535,7 +509,8 @@ Hermes 也可以不安装原生插件，而是通过通用 MCP 集成连接本�
 
 ## 故障排查
 
-- **`all_providers_failed`** —— 所有选中的 Provider 都失败了。错误信息包含各 Provider 的诊断；请检查 Key、配额和网络。免费后端可能被限流，重试或调大 `AGENT_WEB_SEARCH_TIMEOUT` 可能有帮助。
+- **`all_providers_failed`** —— 所有 Provider 都失败了。MCP 会标记工具错误；CLI 会把诊断写入 stderr 并退出 1。请检查 Key、配额和网络；临时限流可以有界重试一次。
+- **找不到 `agent-web-search`** —— 使用 `pipx` 或 `pip` 安装 PyPI 包，然后重新打开 Shell，确保脚本目录已经加入 `PATH`。
 - **HTTP 401 `invalid_token`** —— `Authorization: Bearer …` 请求头必须与 `AGENT_WEB_SEARCH_AUTH_TOKEN` 一致，且该 Token 至少 32 个字符。
 - **响应里少了某个 Provider** —— 失败的 Provider 会从成功响应中剔除。Python API 可以通过 `response.failed_provider_errors` 查看原因。
 - **修改 Provider 配置不生效** —— Provider 设置只在进程启动时读取一次；修改后请重启 CLI、MCP 服务器或 Hermes 插件。

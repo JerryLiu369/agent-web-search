@@ -3,8 +3,9 @@ import json
 import pytest
 
 from agent_web_search import mcp
-from agent_web_search.mcp import ALL_PROVIDERS_FAILED_CODE, format_mcp_result
+from agent_web_search.mcp import format_mcp_result
 from agent_web_search.models import ProviderResponse, SearchResponse
+from agent_web_search.output import ALL_PROVIDERS_FAILED_CODE
 
 
 def test_mcp_result_is_an_error_when_all_providers_fail():
