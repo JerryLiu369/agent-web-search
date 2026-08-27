@@ -29,7 +29,6 @@ class _Response:
 
 
 def test_parallel_without_key_uses_free_mcp(monkeypatch):
-    monkeypatch.delenv("PARALLEL_API_KEY", raising=False)
     captured = []
 
     def fake_urlopen(request, timeout=None):
@@ -99,7 +98,6 @@ def test_parallel_without_key_uses_free_mcp(monkeypatch):
 
 
 def test_parallel_maps_request_and_dense_excerpts(monkeypatch):
-    monkeypatch.delenv("PARALLEL_API_KEY", raising=False)
     captured = {}
 
     def fake_urlopen(request, timeout=None):
