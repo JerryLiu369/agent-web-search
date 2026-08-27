@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 from .providers import (
@@ -72,8 +73,14 @@ PROVIDER_SPECS = {
 DEFAULT_PROVIDER_NAMES = ("ddgs", "exa", "parallel")
 
 
-def create_provider_pool(timeout: float) -> dict[str, Provider]:
+def create_provider_pool(
+    timeout: float, names: Iterable[str] | None = None
+) -> dict[str, Provider]:
+    """Construct only the requested providers, or all providers by default."""
+    selected = PROVIDER_SPECS if names is None else {
+        name: PROVIDER_SPECS[name] for name in dict.fromkeys(names) if name in PROVIDER_SPECS
+    }
     return {
         name: spec.provider_type(timeout=timeout)  # type: ignore[call-arg]
-        for name, spec in PROVIDER_SPECS.items()
+        for name, spec in selected.items()
     }

@@ -1,3 +1,5 @@
+import pytest
+
 from agent_web_search.engine import SearchEngine
 from agent_web_search.models import (
     ProviderResponse,
@@ -138,3 +140,43 @@ def test_common_controls_are_normalized_before_provider_dispatch():
     assert provider.request.max_keyword == 1
     assert provider.request.time_range is None
     assert provider.request.providers == ["capture"]
+
+
+def test_disabled_provider_bad_configuration_does_not_block_startup(monkeypatch):
+    monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ddgs,exa,parallel")
+    monkeypatch.setenv("AGENT_WEB_SEARCH_ARK_MODELS", ",")
+
+    engine = SearchEngine()
+
+    assert engine.enabled_provider_names == ["ddgs", "exa", "parallel"]
+    assert not hasattr(engine, "_all_providers")
+
+
+def test_enabled_provider_bad_configuration_has_a_readable_error(monkeypatch):
+    monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ark")
+    monkeypatch.setenv("AGENT_WEB_SEARCH_ARK_MODELS", " , ")
+
+    try:
+        SearchEngine()
+    except ValueError as exc:
+        assert str(exc) == "AGENT_WEB_SEARCH_ARK_MODELS must contain at least one model"
+    else:
+        assert False, "expected invalid enabled-provider configuration to fail"
+
+
+@pytest.mark.parametrize("raw_timeout", ["abc", "0", "-1", "inf", "nan"])
+def test_invalid_timeout_has_a_readable_error(monkeypatch, raw_timeout):
+    monkeypatch.setenv("AGENT_WEB_SEARCH_TIMEOUT", raw_timeout)
+
+    try:
+        SearchEngine()
+    except ValueError as exc:
+        assert str(exc) == "AGENT_WEB_SEARCH_TIMEOUT must be a positive number"
+    else:
+        assert False, "expected invalid timeout to fail"
+
+
+def test_positive_timeout_is_accepted(monkeypatch):
+    monkeypatch.setenv("AGENT_WEB_SEARCH_TIMEOUT", "0.5")
+    engine = SearchEngine(providers={})
+    assert engine.enabled_provider_names == []

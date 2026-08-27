@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -9,31 +10,33 @@ from .registry import DEFAULT_PROVIDER_NAMES, create_provider_pool
 
 class SearchEngine:
     def __init__(self, providers=None, timeout: float | None = None):
-        timeout = (
-            float(os.getenv("AGENT_WEB_SEARCH_TIMEOUT", "60"))
-            if timeout is None
-            else timeout
-        )
-        all_providers = (
-            create_provider_pool(timeout) if providers is None else providers
-        )
-        configured = [
-            item.strip()
-            for item in os.getenv(
-                "AGENT_WEB_SEARCH_PROVIDERS", ",".join(DEFAULT_PROVIDER_NAMES)
-            ).split(",")
-            if item.strip()
-        ]
-        self._all_providers = all_providers
-        self.providers = (
-            all_providers
-            if providers is not None
-            else {
-                name: all_providers[name]
-                for name in configured
-                if name in all_providers
-            }
-        )
+        if timeout is None:
+            raw_timeout = os.getenv("AGENT_WEB_SEARCH_TIMEOUT", "60")
+            try:
+                timeout = float(raw_timeout)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "AGENT_WEB_SEARCH_TIMEOUT must be a positive number"
+                ) from exc
+            if not math.isfinite(timeout) or timeout <= 0:
+                raise ValueError(
+                    "AGENT_WEB_SEARCH_TIMEOUT must be a positive number"
+                )
+
+        if providers is not None:
+            # Explicit provider injection is a test/API escape hatch. Preserve
+            # its existing semantics: use the supplied mapping verbatim and
+            # ignore AGENT_WEB_SEARCH_PROVIDERS.
+            self.providers = providers
+        else:
+            configured = [
+                item.strip()
+                for item in os.getenv(
+                    "AGENT_WEB_SEARCH_PROVIDERS", ",".join(DEFAULT_PROVIDER_NAMES)
+                ).split(",")
+                if item.strip()
+            ]
+            self.providers = create_provider_pool(timeout, configured)
 
     @property
     def enabled_provider_names(self) -> list[str]:
@@ -51,7 +54,7 @@ class SearchEngine:
         output = {}
         with ThreadPoolExecutor(max_workers=max(1, len(selected))) as pool:
             futures = {
-                pool.submit(self._all_providers[name].search, request): name
+                pool.submit(self.providers[name].search, request): name
                 for name in selected
             }
             for future in as_completed(futures):
