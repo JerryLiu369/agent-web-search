@@ -73,7 +73,7 @@ Agent ──┬── MCP client ────── web_search ──┐
 | **DDGS** | DuckDuckGo search | **Free · no key required** | Yes |
 | **Exa** | Paid Search API or free MCP fallback | **Free without key** · optional `EXA_API_KEY` | Yes |
 | **Parallel** | Free MCP or paid LLM-optimized search | **Free without key** · optional `PARALLEL_API_KEY` | Yes |
-| **ARK (Recommended)** | Volcengine ARK Responses API + `web_search` | `ARK_API_KEY` | No |
+| **ARK (Recommended)** | Doubao Search | `ARK_API_KEY` | No |
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
 | **Gemini** | Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | xAI web search and X Search | `XAI_API_KEY` | No |

@@ -65,7 +65,7 @@ Agent ──┬── MCP 客户端 ───── web_search ──┐
 | **DDGS** | DuckDuckGo 搜索 | **免费 · 无需 Key** | 是 |
 | **Exa** | 付费 Search API 或免费 MCP 后备 | **无 Key 免费** · 可选 `EXA_API_KEY` | 是 |
 | **Parallel** | 免费 MCP 或面向 LLM 优化的付费搜索 | **无 Key 免费** · 可选 `PARALLEL_API_KEY` | 是 |
-| **ARK（推荐）** | 火山引擎 ARK Responses API + `web_search` | `ARK_API_KEY` | 否 |
+| **ARK（推荐）** | 豆包搜索 | `ARK_API_KEY` | 否 |
 | **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | 否 |
 | **Gemini** | Google Search grounding | `GEMINI_API_KEY` | 否 |
 | **Grok** | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
