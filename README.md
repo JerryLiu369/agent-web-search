@@ -35,8 +35,9 @@ shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 
 Agent Web Search gives an agent two ways to reach the same provider-neutral
 search core: a native MCP tool, or a CLI taught through a standard Agent Skill.
-Both dispatch enabled providers concurrently, normalize them into one schema,
-and isolate provider failures.
+It is not a crawler-result aggregator. It is a natural-language search interface
+for agent-native backends — including LLM web grounding, neural/semantic search,
+and conventional search APIs — with one normalized contract.
 
 ```text
 Agent ──┬── MCP client ────── web_search ──┐
@@ -53,6 +54,10 @@ Agent ──┬── MCP client ────── web_search ──┐
 
 - **Concurrent, independent providers.** All selected providers run at the same
   time, and one provider's failure never discards another provider's results.
+- **Agent-native natural-language search.** This project aggregates search
+  interfaces designed for agents, not scraped pages: Doubao Search, Gemini
+  Google Search grounding, Grok web/X search, neural search, and conventional
+  result APIs all fit the same request surface.
 - **Zero-key start.** The default providers — DDGS, Exa, and Parallel — work
   without any API key.
 - **Two clean agent integrations.** Use MCP for a protocol-native tool, or pair

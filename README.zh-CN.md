@@ -32,8 +32,9 @@
 ---
 
 Agent Web Search 为 Agent 提供两种接入同一个搜索核心的方式：原生 MCP
-工具，或者由标准 Agent Skill 教会 Agent 调用 CLI。两种方式都会并发调用
-已启用的 Provider、归一化响应，并隔离单个 Provider 的失败。
+工具，或者由标准 Agent Skill 教会 Agent 调用 CLI。它不是爬虫结果聚合器，
+而是面向 Agent-native 后端的自然语言搜索接口：统一接入 LLM 联网搜索、
+神经/语义搜索和传统搜索 API，并提供统一的结果契约。
 
 ```text
 Agent ──┬── MCP 客户端 ───── web_search ──┐
@@ -49,6 +50,7 @@ Agent ──┬── MCP 客户端 ───── web_search ──┐
 ## 为什么选择 Agent Web Search
 
 - **并发且相互独立。** 所有选中的 Provider 同时发起请求，单个 Provider 失败不会丢弃其他 Provider 的成功结果。
+- **面向 Agent 的自然语言搜索。** 项目聚合的是为 Agent 设计的搜索接口，而不是拼接爬虫页面：豆包搜索、Gemini Google Search grounding、Grok 网页/X 搜索、神经搜索和传统结果 API 都能使用同一套请求接口。
 - **零 Key 即可上手。** 默认 Provider（DDGS、Exa、Parallel）无需任何 API Key。
 - **两种清晰的 Agent 接入。** 需要协议原生工具时用 MCP；已有 Shell 能力的 Agent 则使用 CLI + Skill。
 - **响应聚焦。** 每个 Provider 响应仅包含可用时的文本 `answer` 和统一的 `results`。
