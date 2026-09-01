@@ -68,18 +68,18 @@ Agent ──┬── MCP client ────── web_search ──┐
 > key. Exa and Parallel automatically use their free MCP transports until a
 > paid API key is provided.
 
-| Provider | Search backend | API key | Enabled by default |
-| --- | --- | --- | :---: |
-| **DDGS** | DuckDuckGo search | **Free · no key required** | Yes |
-| **Exa** | Paid Search API or free MCP fallback | **Free without key** · optional `EXA_API_KEY` | Yes |
-| **Parallel** | Free MCP or paid LLM-optimized search | **Free without key** · optional `PARALLEL_API_KEY` | Yes |
-| **ARK (Recommended)** | Doubao Search | `ARK_API_KEY` | No |
-| **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
-| **Gemini** | Google Search grounding | `GEMINI_API_KEY` | No |
-| **Grok** | xAI web search and X Search | `XAI_API_KEY` | No |
-| **Perplexity** | Native structured Search API | `PERPLEXITY_API_KEY` | No |
-| **Tavily** | Tavily Search API | `TAVILY_API_KEY` | No |
-| **You.com** | Unified web and news search | `YDC_API_KEY` | No |
+| Provider | Website | Search backend | API key | Enabled by default |
+| --- | --- | --- | --- | :---: |
+| **DDGS** | [DuckDuckGo](https://duckduckgo.com) | DuckDuckGo search | **Free · no key required** | Yes |
+| **Exa** | [Exa](https://exa.ai) | Paid Search API or free MCP fallback | **Free without key** · optional `EXA_API_KEY` | Yes |
+| **Parallel** | [Parallel](https://parallel.ai) | Free MCP or paid LLM-optimized search | **Free without key** · optional `PARALLEL_API_KEY` | Yes |
+| **ARK (Recommended)** | [Volcengine Ark](https://www.volcengine.com/product/ark) | Doubao Search | `ARK_API_KEY` | No |
+| **Brave** | [Brave Search](https://brave.com/search/api/) | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
+| **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Google Search grounding | `GEMINI_API_KEY` | No |
+| **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI web search and X Search | `XAI_API_KEY` | No |
+| **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | Native structured Search API | `PERPLEXITY_API_KEY` | No |
+| **Tavily** | [Tavily](https://tavily.com) | Tavily Search API | `TAVILY_API_KEY` | No |
+| **You.com** | [You.com API](https://you.com/platform/api) | Unified web and news search | `YDC_API_KEY` | No |
 
 The provider architecture is intentionally open: another search-capable
 backend can be added without changing the MCP, Hermes, CLI, or Python-facing

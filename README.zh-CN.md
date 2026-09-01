@@ -60,18 +60,18 @@ Agent ──┬── MCP 客户端 ───── web_search ──┐
 > 直接使用。Exa 和 Parallel 只有在提供付费 API Key 后才会切换到付费接口，
 > 否则自动使用免费 MCP。
 
-| Provider | 搜索后端 | API Key | 默认启用 |
-| --- | --- | --- | :---: |
-| **DDGS** | DuckDuckGo 搜索 | **免费 · 无需 Key** | 是 |
-| **Exa** | 付费 Search API 或免费 MCP 后备 | **无 Key 免费** · 可选 `EXA_API_KEY` | 是 |
-| **Parallel** | 免费 MCP 或面向 LLM 优化的付费搜索 | **无 Key 免费** · 可选 `PARALLEL_API_KEY` | 是 |
-| **ARK（推荐）** | 豆包搜索 | `ARK_API_KEY` | 否 |
-| **Brave** | Brave Search API | `BRAVE_SEARCH_API_KEY` | 否 |
-| **Gemini** | Google Search grounding | `GEMINI_API_KEY` | 否 |
-| **Grok** | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
-| **Perplexity** | 原生结构化 Search API | `PERPLEXITY_API_KEY` | 否 |
-| **Tavily** | Tavily Search API | `TAVILY_API_KEY` | 否 |
-| **You.com** | 统一网页与新闻搜索 | `YDC_API_KEY` | 否 |
+| Provider | 官网 | 搜索后端 | API Key | 默认启用 |
+| --- | --- | --- | --- | :---: |
+| **DDGS** | [DuckDuckGo](https://duckduckgo.com) | DuckDuckGo 搜索 | **免费 · 无需 Key** | 是 |
+| **Exa** | [Exa](https://exa.ai) | 付费 Search API 或免费 MCP 后备 | **无 Key 免费** · 可选 `EXA_API_KEY` | 是 |
+| **Parallel** | [Parallel](https://parallel.ai) | 免费 MCP 或面向 LLM 优化的付费搜索 | **无 Key 免费** · 可选 `PARALLEL_API_KEY` | 是 |
+| **ARK（推荐）** | [火山引擎 Ark](https://www.volcengine.com/product/ark) | 豆包搜索 | `ARK_API_KEY` | 否 |
+| **Brave** | [Brave Search](https://brave.com/search/api/) | Brave Search API | `BRAVE_SEARCH_API_KEY` | 否 |
+| **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Google Search grounding | `GEMINI_API_KEY` | 否 |
+| **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
+| **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | 原生结构化 Search API | `PERPLEXITY_API_KEY` | 否 |
+| **Tavily** | [Tavily](https://tavily.com) | Tavily Search API | `TAVILY_API_KEY` | 否 |
+| **You.com** | [You.com API](https://you.com/platform/api) | 统一网页与新闻搜索 | `YDC_API_KEY` | 否 |
 
 Provider 架构是开放的：添加新的搜索后端时，不需要修改 MCP、Hermes、CLI 或 Python 接口。
 
