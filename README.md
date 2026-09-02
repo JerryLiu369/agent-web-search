@@ -47,7 +47,7 @@ Agent ──┬── MCP client ────── web_search ──┐
                                       SearchEngine
                                            │
                      DDGS · Exa · Parallel · ARK · Brave
-                     Gemini · Grok · Perplexity · Tavily · You.com
+                     Gemini · Grok · Codex Alpha · Perplexity · Tavily · You.com
 ```
 
 ## Why Agent Web Search
@@ -82,6 +82,7 @@ Agent ──┬── MCP client ────── web_search ──┐
 | **Brave** | [Brave Search](https://brave.com/search/api/) | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
 | **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI web search and X Search | `XAI_API_KEY` | No |
+| **Codex Alpha** (experimental) | Alpha Search-compatible gateway | `/v1/alpha/search` | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | No |
 | **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | Native structured Search API | `PERPLEXITY_API_KEY` | No |
 | **Tavily** | [Tavily](https://tavily.com) | Tavily Search API | `TAVILY_API_KEY` | No |
 | **You.com** | [You.com API](https://you.com/platform/api) | Unified web and news search | `YDC_API_KEY` | No |
@@ -482,7 +483,23 @@ When Grok is enabled, the public tool schema adds `grok_search_mode`:
 - `both` exposes both server-side tools in one request and lets Grok choose; it
   does not issue two independent model requests.
 
-#### 8. Perplexity
+#### 8. Codex Alpha (experimental)
+
+The `codex_alpha` provider uses only a gateway API key and a complete endpoint
+implementing `/v1/alpha/search`; it does not handle Codex OAuth tokens. Set the
+endpoint, key, and optional model, then add `codex_alpha` to
+`AGENT_WEB_SEARCH_PROVIDERS`:
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `AGENT_WEB_SEARCH_CODEX_ALPHA_ENDPOINT` | Yes | Complete Alpha Search endpoint URL |
+| `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | Yes | Gateway Bearer API key |
+| `AGENT_WEB_SEARCH_CODEX_ALPHA_MODEL` | No | Model ID, default `gpt-5.6-luna` |
+
+The provider sends a normal `search_query` command and returns standard web
+search results.
+
+#### 9. Perplexity
 
 This provider uses Perplexity's native structured Search API. It returns result
 rows rather than a Sonar-generated prose answer; OpenRouter compatibility is
@@ -494,7 +511,7 @@ intentionally outside this provider's scope.
 
 Add `perplexity` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
-#### 9. Tavily
+#### 10. Tavily
 
 | Variable | Required | Purpose |
 | --- | :---: | --- |
@@ -502,7 +519,7 @@ Add `perplexity` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
 Add `tavily` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
-#### 10. You.com
+#### 11. You.com
 
 You.com returns unified web and news sections. Agent Web Search merges both,
 deduplicates URLs, and applies `max_results` to the combined result list.
@@ -527,6 +544,7 @@ ignores unsupported controls.
 | Brave | Native `count` | Native `freshness` |
 | Gemini | Prompt constraint | Prompt constraint |
 | Grok | Prompt constraint | Prompt; X Search also uses native dates |
+| Codex Alpha | Local result truncation | Ignored |
 | Perplexity | Native `max_results` | Native recency filter |
 | Tavily | Native `max_results` | Native `time_range` |
 | You.com | Native `count`, combined cap | Native `freshness` |

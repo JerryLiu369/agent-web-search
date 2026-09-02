@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from .providers import (
     ArkProvider,
     BraveProvider,
+    CodexAlphaProvider,
     DDGSProvider,
     ExaProvider,
     GeminiProvider,
@@ -35,6 +36,11 @@ PROVIDER_SPECS = {
         BraveProvider,
         "Brave Search API",
         "BRAVE_SEARCH_API_KEY",
+    ),
+    "codex_alpha": ProviderSpec(
+        CodexAlphaProvider,
+        "Experimental Codex Alpha Search gateway",
+        "AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY",
     ),
     "ddgs": ProviderSpec(DDGSProvider, "DuckDuckGo web search"),
     "exa": ProviderSpec(ExaProvider, "Exa web search", "EXA_API_KEY"),

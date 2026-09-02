@@ -44,7 +44,7 @@ Agent ──┬── MCP 客户端 ───── web_search ──┐
                                      SearchEngine
                                           │
                     DDGS · Exa · Parallel · ARK · Brave
-                    Gemini · Grok · Perplexity · Tavily · You.com
+                    Gemini · Grok · Codex Alpha · Perplexity · Tavily · You.com
 ```
 
 ## 为什么选择 Agent Web Search
@@ -71,6 +71,7 @@ Agent ──┬── MCP 客户端 ───── web_search ──┐
 | **Brave** | [Brave Search](https://brave.com/search/api/) | Brave Search API | `BRAVE_SEARCH_API_KEY` | 否 |
 | **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Google Search grounding | `GEMINI_API_KEY` | 否 |
 | **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
+| **Codex Alpha**（实验性） | 兼容 Alpha Search 的反代网关 | `/v1/alpha/search` | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | 否 |
 | **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | 原生结构化 Search API | `PERPLEXITY_API_KEY` | 否 |
 | **Tavily** | [Tavily](https://tavily.com) | Tavily Search API | `TAVILY_API_KEY` | 否 |
 | **You.com** | [You.com API](https://you.com/platform/api) | 统一网页与新闻搜索 | `YDC_API_KEY` | 否 |
@@ -442,7 +443,21 @@ Gemini 会把通用的结果数量和时间控制尽力转换为 Prompt 约束�
 - `x_search` 搜索 X，并在可用时采用原生日期过滤器。
 - `both` 在一次请求中同时向服务端暴露这两种工具并让 Grok 选择；它不会发起两个独立的模型请求。
 
-#### 8. Perplexity
+#### 8. Codex Alpha（实验性）
+
+该 Provider 只通过 API key 调用实现 `/v1/alpha/search` 的兼容网关；网关内部使用的
+OAuth 不属于本项目的认证方式。配置完整 endpoint（Provider 不会自动拼接路径）、key
+和可选模型后，将 `codex_alpha` 加入 `AGENT_WEB_SEARCH_PROVIDERS`：
+
+| 变量 | 必填 | 用途 |
+| --- | :---: | --- |
+| `AGENT_WEB_SEARCH_CODEX_ALPHA_ENDPOINT` | 是 | 完整 Alpha Search endpoint URL |
+| `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | 是 | 网关 Bearer API key |
+| `AGENT_WEB_SEARCH_CODEX_ALPHA_MODEL` | 否 | 模型 ID，默认 `gpt-5.6-luna` |
+
+该 Provider 只发送普通的 `search_query` 命令并返回标准网页搜索结果。
+
+#### 9. Perplexity
 
 该 Provider 使用 Perplexity 原生的结构化 Search API，返回搜索结果行，而不是由 Sonar 生成的文本回答。该 Provider 不包含 OpenRouter 兼容逻辑。
 
@@ -452,7 +467,7 @@ Gemini 会把通用的结果数量和时间控制尽力转换为 Prompt 约束�
 
 配置 Key 后，将 `perplexity` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
 
-#### 9. Tavily
+#### 10. Tavily
 
 | 变量 | 必填 | 用途 |
 | --- | :---: | --- |
@@ -460,7 +475,7 @@ Gemini 会把通用的结果数量和时间控制尽力转换为 Prompt 约束�
 
 配置 Key 后，将 `tavily` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
 
-#### 10. You.com
+#### 11. You.com
 
 You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部分、按 URL 去重，并将 `max_results` 应用于合并后的结果列表。
 
@@ -483,6 +498,7 @@ You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部�
 | Brave | 原生 `count` | 原生 `freshness` |
 | Gemini | Prompt 约束 | Prompt 约束 |
 | Grok | Prompt 约束 | Prompt；X Search 还会使用原生日期参数 |
+| Codex Alpha | 本地结果截断 | 忽略 |
 | Perplexity | 原生 `max_results` | 原生时间范围过滤 |
 | Tavily | 原生 `max_results` | 原生 `time_range` |
 | You.com | 原生 `count`，合并后截断 | 原生 `freshness` |
