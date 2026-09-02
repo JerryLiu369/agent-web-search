@@ -33,9 +33,7 @@ def test_unknown_fields_are_rejected():
 
 
 def test_removed_max_keyword_field_is_rejected():
-    details = validate_web_search_arguments(
-        {"query": "hi", "max_keyword": 2}, ENABLED
-    )
+    details = validate_web_search_arguments({"query": "hi", "max_keyword": 2}, ENABLED)
     assert len(details) == 1
     assert "max_keyword" in details[0]
 
@@ -61,10 +59,7 @@ def test_out_of_range_or_non_integer_counts_are_rejected(value):
 
 def test_integer_bounds_are_accepted():
     assert (
-        validate_web_search_arguments(
-            {"query": "hi", "max_results": 20}, ENABLED
-        )
-        == []
+        validate_web_search_arguments({"query": "hi", "max_results": 20}, ENABLED) == []
     )
 
 
