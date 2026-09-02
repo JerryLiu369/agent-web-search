@@ -1,6 +1,6 @@
 name: agent-web-search
-version: 0.6.0
-description: Multi-provider web search for Hermes — ten independent search and grounding backends.
+version: 0.7.0
+description: Multi-provider web search for Hermes — eleven independent search and grounding backends.
 author: Jerry Liu
 license: MIT
 homepage: https://github.com/JerryLiu369/agent-web-search
@@ -8,6 +8,9 @@ kind: standalone
 optional_env:
   - ARK_API_KEY
   - BRAVE_SEARCH_API_KEY
+  - AGENT_WEB_SEARCH_CODEX_ALPHA_ENDPOINT
+  - AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY
+  - AGENT_WEB_SEARCH_CODEX_ALPHA_MODEL
   - EXA_API_KEY
   - GEMINI_API_KEY
   - XAI_API_KEY

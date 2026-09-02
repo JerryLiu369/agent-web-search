@@ -2,7 +2,7 @@
 
 # Defined before subpackage imports so modules reachable from `engine`
 # (e.g. providers/parallel.py) can fall back to it without a circular import.
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 from .engine import SearchEngine
 from .models import SearchRequest, SearchResponse, SearchResult

@@ -14,7 +14,7 @@ DEFAULT_MODEL = "gpt-5.6-luna"
 ENDPOINT_ENV = "AGENT_WEB_SEARCH_CODEX_ALPHA_ENDPOINT"
 API_KEY_ENV = "AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY"
 MODEL_ENV = "AGENT_WEB_SEARCH_CODEX_ALPHA_MODEL"
-USER_AGENT = "agent-web-search/0.6.0"
+USER_AGENT = "agent-web-search/0.7.0"
 
 
 def _text(value: Any) -> str:
@@ -45,9 +45,7 @@ def parse_results(data: dict[str, Any], max_results: int = 10) -> ProviderRespon
 
     output = data.get("output")
     answer = (
-        _text(output)
-        if isinstance(output, str)
-        else _text(data.get("output_text"))
+        _text(output) if isinstance(output, str) else _text(data.get("output_text"))
     )
     unique: list[SearchResult] = []
     seen: set[str] = set()
@@ -96,9 +94,7 @@ class CodexAlphaProvider(Provider):
         self.endpoint = (
             endpoint if endpoint is not None else os.getenv(ENDPOINT_ENV, "")
         )
-        self.model = (
-            model if model is not None else os.getenv(MODEL_ENV, DEFAULT_MODEL)
-        )
+        self.model = model if model is not None else os.getenv(MODEL_ENV, DEFAULT_MODEL)
         self.timeout = timeout
 
     def search(self, request: SearchRequest) -> ProviderResponse:
