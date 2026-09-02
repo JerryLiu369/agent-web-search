@@ -29,6 +29,8 @@ def format_invalid_arguments(details: list[str]) -> str:
 def create_mcp_server(engine: SearchEngine | None = None) -> Server:
     """Create the shared MCP server used by every transport."""
     engine = engine or SearchEngine()
+    if not engine.enabled_provider_names:
+        raise ValueError("no search providers are enabled")
     schema = build_tool_schema(engine.enabled_provider_names)
 
     async def list_tools(_ctx, _params) -> types.ListToolsResult:

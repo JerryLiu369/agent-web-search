@@ -64,3 +64,31 @@ jobs:
 
       - name: Build image
         run: docker build --tag agent-web-search:ci .
+
+  package:
+    name: Verify wheel installation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Build distributions
+        run: python -m pip install --upgrade build && python -m build
+
+      - name: Install the wheel into a clean environment
+        run: |
+          python -m venv .package-venv
+          .package-venv/bin/python -m pip install dist/*.whl
+
+      - name: Smoke-test installed entry points and HTTP app
+        env:
+          AGENT_WEB_SEARCH_AUTH_TOKEN: ci-token-with-at-least-32-characters
+        run: |
+          .package-venv/bin/agent-web-search --version
+          .package-venv/bin/python -c "from agent_web_search.mcp import create_mcp_server; from agent_web_search.mcp_http import create_http_app; from starlette.testclient import TestClient; app = create_http_app(server=create_mcp_server()); client = TestClient(app); assert client.get('/healthz').json()['stateless'] is True"

@@ -9,6 +9,7 @@ from . import __version__
 from .engine import SearchEngine
 from .models import SearchRequest
 from .output import search_result_payload
+from .validation import validate_web_search_arguments
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -24,7 +25,7 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--grok-search-mode",
         choices=["web_search", "x_search", "both"],
-        default="web_search",
+        default=None,
     )
     return p
 
@@ -32,20 +33,25 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     p = _parser()
     args = p.parse_args(argv)
-    engine = SearchEngine()
+    try:
+        engine = SearchEngine()
+    except ValueError as exc:
+        p.error(str(exc))
     enabled = engine.enabled_provider_names
     if not enabled:
         p.error("no search providers are enabled")
-    unavailable = [
-        name for name in dict.fromkeys(args.providers or []) if name not in enabled
-    ]
-    if unavailable:
-        p.error(
-            "providers are not enabled: "
-            + ", ".join(unavailable)
-            + "; enabled providers: "
-            + ", ".join(enabled)
-        )
+    arguments = {
+        "query": args.query,
+        "max_results": args.max_results,
+        "max_keyword": args.max_keyword,
+        "time_range": args.time_range,
+        "providers": args.providers,
+    }
+    if args.grok_search_mode is not None:
+        arguments["grok_search_mode"] = args.grok_search_mode
+    problems = validate_web_search_arguments(arguments, enabled)
+    if problems:
+        p.error("; ".join(problems))
     try:
         response = engine.search(
             SearchRequest(
@@ -54,7 +60,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 max_keyword=args.max_keyword,
                 time_range=args.time_range,
                 providers=args.providers,
-                grok_search_mode=args.grok_search_mode,
+                grok_search_mode=args.grok_search_mode or "web_search",
             )
         )
     except ValueError as exc:

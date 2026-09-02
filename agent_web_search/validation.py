@@ -3,6 +3,10 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
+from .models import SearchRequest
+
+MAX_QUERY_LENGTH = 4_000
+
 _KNOWN_FIELDS = frozenset(
     {
         "query",
@@ -27,6 +31,7 @@ def validate_web_search_arguments(
     identically and the declared inputSchema is actually enforced.
     """
     details: list[str] = []
+    enabled = list(dict.fromkeys(enabled_providers))
 
     unknown = sorted(set(arguments) - _KNOWN_FIELDS)
     if unknown:
@@ -42,6 +47,10 @@ def validate_web_search_arguments(
         details.append(
             "query must be a non-empty string"
             + (f", got {type(query).__name__}" if query is not None else "")
+        )
+    elif len(query) > MAX_QUERY_LENGTH:
+        details.append(
+            f"query must be at most {MAX_QUERY_LENGTH} characters, got {len(query)}"
         )
 
     for name, upper in (("max_results", 20), ("max_keyword", 10)):
@@ -71,7 +80,7 @@ def validate_web_search_arguments(
         elif not providers:
             details.append("providers must contain at least one name")
         else:
-            enabled = set(enabled_providers)
+            enabled_set = set(enabled)
             names: list[str] = []
             for item in providers:
                 if not isinstance(item, str):
@@ -80,7 +89,9 @@ def validate_web_search_arguments(
                     )
                 else:
                     names.append(item)
-            unavailable = [n for n in names if n not in enabled]
+            if len(names) != len(dict.fromkeys(names)):
+                details.append("providers must not contain duplicate names")
+            unavailable = [n for n in names if n not in enabled_set]
             if unavailable:
                 details.append(
                     "providers are not enabled: "
@@ -90,9 +101,35 @@ def validate_web_search_arguments(
                 )
 
     mode = arguments.get("grok_search_mode")
-    if mode is not None and mode not in {"web_search", "x_search", "both"}:
-        details.append(
-            f"grok_search_mode must be one of web_search/x_search/both, got {mode!r}"
-        )
+    if mode is not None:
+        if "grok" not in enabled:
+            details.append("grok_search_mode is only available when grok is enabled")
+        elif mode not in {"web_search", "x_search", "both"}:
+            details.append(
+                "grok_search_mode must be one of web_search/x_search/both, "
+                f"got {mode!r}"
+            )
 
     return details
+
+
+def validate_search_request(
+    request: SearchRequest,
+    enabled_providers: Any,
+) -> list[str]:
+    """Validate the public Python request before provider dispatch.
+
+    ``SearchRequest`` has no unknown fields by construction. Its default Grok
+    mode is omitted here unless a caller selected a non-default value, matching
+    the dynamically generated schema when Grok is disabled.
+    """
+    arguments: dict[str, Any] = {
+        "query": request.query,
+        "max_results": request.max_results,
+        "max_keyword": request.max_keyword,
+        "time_range": request.time_range,
+        "providers": request.providers,
+    }
+    if request.grok_search_mode != "web_search":
+        arguments["grok_search_mode"] = request.grok_search_mode
+    return validate_web_search_arguments(arguments, enabled_providers)

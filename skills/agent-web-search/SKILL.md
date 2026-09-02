@@ -39,7 +39,8 @@ agent-web-search "recent discussion of MCP on X" --provider grok --grok-search-m
   `AGENT_WEB_SEARCH_PROVIDERS`. Omit it when the enabled set is unknown. The
   CLI rejects unavailable names as a usage error instead of returning an
   ambiguous empty result.
-- `--max-results` accepts 1-20; `--max-keyword` accepts 1-10.
+- Queries are limited to 4,000 characters. `--max-results` accepts 1-20;
+  `--max-keyword` accepts 1-10.
 - `--time-range` accepts `d`, `w`, `m`, or `y`.
 - Prefer the default provider set for general research. DDGS, Exa, and Parallel
   work without keys by default. Use a named paid provider only when the user

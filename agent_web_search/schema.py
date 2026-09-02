@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 from .registry import PROVIDER_SPECS
+from .validation import MAX_QUERY_LENGTH
 
 
 def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
@@ -12,6 +13,7 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
         "query": {
             "type": "string",
             "minLength": 1,
+            "maxLength": MAX_QUERY_LENGTH,
             "description": "A complete natural-language search question.",
         },
         "max_results": {

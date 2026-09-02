@@ -225,7 +225,7 @@ it writes the shared `all_providers_failed` JSON to stderr and exits with status
 
 | CLI option | MCP argument | Values | Default |
 | --- | --- | --- | --- |
-| positional `QUERY` | `query` | natural-language question | required |
+| positional `QUERY` | `query` | 1–4,000 character natural-language question | required |
 | `--provider` (repeatable) | `providers` | enabled provider names | all enabled |
 | `--max-results` | `max_results` | 1–20 | `10` |
 | `--max-keyword` | `max_keyword` | 1–10 | `3` |
@@ -252,7 +252,7 @@ MCP exposes one tool named `web_search`; the CLI maps to the same inputs.
 
 | Argument | Type | Required | Default | Description |
 | --- | --- | :---: | --- | --- |
-| `query` | string | Yes | — | Complete natural-language search question |
+| `query` | string, 1–4,000 characters | Yes | — | Complete natural-language search question |
 | `max_results` | integer, 1–20 | No | `10` | Desired maximum number of results |
 | `max_keyword` | integer, 1–10 | No | `3` | Desired maximum number of search queries or keywords |
 | `time_range` | `d`, `w`, `m`, `y` | No | — | Past day, week, month, or year |

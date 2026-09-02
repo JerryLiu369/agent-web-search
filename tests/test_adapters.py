@@ -78,3 +78,26 @@ def test_hermes_adapter_uses_shared_all_provider_failure_payload(monkeypatch):
 
     assert payload["error"]["code"] == "all_providers_failed"
     assert payload["error"]["provider_errors"] == {"ddgs": "timed out"}
+
+
+def test_hermes_adapter_reuses_core_argument_validation(monkeypatch):
+    module = _load_hermes_adapter()
+
+    class Engine:
+        enabled_provider_names: ClassVar[list[str]] = ["ddgs"]
+
+        def search(self, _request):
+            raise AssertionError("invalid arguments must not reach the engine")
+
+    monkeypatch.setattr(module, "SearchEngine", Engine)
+    context = _HermesContext()
+    module.register(context)
+
+    payload = json.loads(
+        context.tool["handler"](
+            {"query": "latest news", "grok_search_mode": "x_search"}
+        )
+    )
+
+    assert payload["error"]["code"] == "invalid_arguments"
+    assert "only available when grok is enabled" in payload["error"]["details"][0]

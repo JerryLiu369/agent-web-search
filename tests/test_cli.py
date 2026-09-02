@@ -80,3 +80,17 @@ def test_cli_rejects_a_provider_that_is_not_enabled(monkeypatch, capsys):
 
     assert exc_info.value.code == 2
     assert "providers are not enabled: ark" in capsys.readouterr().err
+
+
+def test_cli_rejects_grok_mode_when_grok_is_not_enabled(monkeypatch, capsys):
+    response = SearchResponse(
+        query="latest news",
+        providers={"ddgs": ProviderResponse(provider="ddgs", searched=True)},
+    )
+    monkeypatch.setattr(cli, "SearchEngine", lambda: _Engine(response))
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.main(["latest news", "--grok-search-mode", "x_search"])
+
+    assert exc_info.value.code == 2
+    assert "only available when grok is enabled" in capsys.readouterr().err

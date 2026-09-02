@@ -291,3 +291,16 @@ def test_http_empty_query_is_a_tool_error_not_a_protocol_error():
         assert "error" not in body
         assert body["result"]["isError"] is True
         assert '"code": "invalid_arguments"' in body["result"]["content"][0]["text"]
+
+
+def test_http_rejects_grok_mode_when_grok_is_not_enabled():
+    with TestClient(_app(_settings())) as client:
+        response = client.post(
+            "/mcp",
+            headers={**MCP_HEADERS, "Authorization": f"Bearer {TOKEN}"},
+            json=_tool_call({"query": "hi", "grok_search_mode": "web_search"}),
+        )
+
+    result = response.json()["result"]
+    assert result["isError"] is True
+    assert "only available when grok is enabled" in result["content"][0]["text"]

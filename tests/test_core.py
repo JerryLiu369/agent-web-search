@@ -74,6 +74,11 @@ def test_empty_query_rejected():
     assert "empty" in str(exc_info.value)
 
 
+def test_empty_explicit_provider_mapping_cannot_return_empty_success():
+    with pytest.raises(ValueError, match="no search providers are enabled"):
+        SearchEngine(providers={}).search(SearchRequest("hello"))
+
+
 def test_default_provider_set_requires_no_api_keys(monkeypatch):
     monkeypatch.delenv("AGENT_WEB_SEARCH_PROVIDERS", raising=False)
     engine = SearchEngine()
@@ -121,8 +126,22 @@ def test_public_provider_response_omits_empty_answer_and_redundant_provider():
 def test_disabled_provider_cannot_be_selected_at_request_time(monkeypatch):
     monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ddgs,exa")
     engine = SearchEngine()
-    result = engine.search(SearchRequest("hello", providers=["gemini"]))
-    assert list(result.providers) == []
+    with pytest.raises(ValueError, match="providers are not enabled: gemini"):
+        engine.search(SearchRequest("hello", providers=["gemini"]))
+
+
+def test_unknown_startup_provider_is_a_configuration_error(monkeypatch):
+    monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", "ddgs,bogus")
+
+    with pytest.raises(ValueError, match=r"unknown provider name\(s\): bogus"):
+        SearchEngine()
+
+
+def test_empty_startup_provider_set_is_a_configuration_error(monkeypatch):
+    monkeypatch.setenv("AGENT_WEB_SEARCH_PROVIDERS", " , ")
+
+    with pytest.raises(ValueError, match="no search providers are enabled"):
+        SearchEngine()
 
 
 def test_common_controls_are_normalized_before_provider_dispatch():
@@ -135,17 +154,27 @@ def test_common_controls_are_normalized_before_provider_dispatch():
     SearchEngine(providers={"capture": provider}).search(
         SearchRequest(
             "  hello  ",
-            max_results=100,
-            max_keyword=0,
-            time_range="invalid",
-            providers=["capture", "capture"],
+            max_results=20,
+            max_keyword=1,
+            time_range="m",
+            providers=["capture"],
         )
     )
     assert provider.request.query == "hello"
     assert provider.request.max_results == 20
     assert provider.request.max_keyword == 1
-    assert provider.request.time_range is None
+    assert provider.request.time_range == "m"
     assert provider.request.providers == ["capture"]
+
+
+def test_python_api_rejects_schema_invalid_request_fields():
+    engine = SearchEngine(providers={"ddgs": Fake("ddgs")})
+
+    with pytest.raises(ValueError, match="max_results must be between 1 and 20"):
+        engine.search(SearchRequest("hello", max_results=100))
+
+    with pytest.raises(ValueError, match="grok_search_mode is only available"):
+        engine.search(SearchRequest("hello", grok_search_mode="x_search"))
 
 
 def test_disabled_provider_bad_configuration_does_not_block_startup(monkeypatch):

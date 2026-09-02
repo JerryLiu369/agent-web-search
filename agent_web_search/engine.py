@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .models import ProviderResponse, SearchRequest, SearchResponse
 from .registry import DEFAULT_PROVIDER_NAMES, create_provider_pool
+from .validation import validate_search_request
 
 
 class SearchEngine:
@@ -35,20 +36,24 @@ class SearchEngine:
                 if item.strip()
             ]
             self.providers = create_provider_pool(timeout, configured)
+            if not self.providers:
+                raise ValueError("no search providers are enabled")
 
     @property
     def enabled_provider_names(self) -> list[str]:
         return list(self.providers)
 
     def search(self, request: SearchRequest) -> SearchResponse:
+        problems = validate_search_request(request, self.enabled_provider_names)
+        if problems:
+            raise ValueError("; ".join(problems))
+        if not self.providers:
+            raise ValueError("no search providers are enabled")
         request = request.normalized()
         query = request.query
-        if not query:
-            raise ValueError("query must not be empty")
         selected = request.providers or list(self.providers)
         # A request may narrow the startup-enabled set, but cannot enable a
         # provider after registration/schema construction.
-        selected = [x for x in selected if x in self.providers]
         output = {}
         with ThreadPoolExecutor(max_workers=max(1, len(selected))) as pool:
             futures = {

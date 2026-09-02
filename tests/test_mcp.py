@@ -167,3 +167,24 @@ def test_stdio_valid_arguments_still_succeed():
     assert result.is_error is False
     assert '"query": "latest news"' in result.content[0].text
     assert list(payload["providers"]) == ["ddgs"]
+
+
+def test_stdio_rejects_grok_mode_when_grok_is_not_enabled():
+    server = mcp.create_mcp_server(_StubEngine())
+
+    result = _call_web_search(
+        server, {"query": "latest news", "grok_search_mode": "web_search"}
+    )
+    payload = json.loads(result.content[0].text)
+
+    assert result.is_error is True
+    assert payload["error"]["code"] == "invalid_arguments"
+    assert "only available when grok is enabled" in payload["error"]["details"][0]
+
+
+def test_mcp_server_rejects_an_empty_enabled_provider_set():
+    class EmptyEngine:
+        enabled_provider_names: ClassVar[list[str]] = []
+
+    with pytest.raises(ValueError, match="no search providers are enabled"):
+        mcp.create_mcp_server(EmptyEngine())

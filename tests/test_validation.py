@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from agent_web_search.validation import validate_web_search_arguments
+from agent_web_search.validation import MAX_QUERY_LENGTH, validate_web_search_arguments
 
 ENABLED = ["ddgs", "exa", "parallel"]
 
@@ -95,9 +95,33 @@ def test_unknown_provider_is_rejected_with_enabled_list():
 
 def test_invalid_grok_mode_is_rejected():
     details = validate_web_search_arguments(
-        {"query": "hi", "grok_search_mode": "turbo"}, ENABLED
+        {"query": "hi", "grok_search_mode": "turbo"}, [*ENABLED, "grok"]
     )
     assert any("grok_search_mode" in d for d in details)
+
+
+def test_grok_mode_is_rejected_when_grok_is_not_enabled():
+    details = validate_web_search_arguments(
+        {"query": "hi", "grok_search_mode": "web_search"}, ENABLED
+    )
+
+    assert details == ["grok_search_mode is only available when grok is enabled"]
+
+
+def test_query_length_is_bounded():
+    details = validate_web_search_arguments(
+        {"query": "x" * (MAX_QUERY_LENGTH + 1)}, ENABLED
+    )
+
+    assert any(f"at most {MAX_QUERY_LENGTH}" in d for d in details)
+
+
+def test_duplicate_provider_names_are_rejected():
+    details = validate_web_search_arguments(
+        {"query": "hi", "providers": ["ddgs", "ddgs"]}, ENABLED
+    )
+
+    assert "providers must not contain duplicate names" in details
 
 
 def test_multiple_problems_are_all_reported():
