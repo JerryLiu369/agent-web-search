@@ -155,14 +155,12 @@ def test_common_controls_are_normalized_before_provider_dispatch():
         SearchRequest(
             "  hello  ",
             max_results=20,
-            max_keyword=1,
             time_range="m",
             providers=["capture"],
         )
     )
     assert provider.request.query == "hello"
     assert provider.request.max_results == 20
-    assert provider.request.max_keyword == 1
     assert provider.request.time_range == "m"
     assert provider.request.providers == ["capture"]
 

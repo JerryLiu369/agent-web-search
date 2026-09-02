@@ -98,7 +98,6 @@ class ArkProvider(Provider):
             request.query,
             time_range=request.time_range,
             max_results=request.max_results,
-            max_keyword=request.max_keyword,
         )
         model = self._model_pool.next()
         payload = {
@@ -109,7 +108,6 @@ class ArkProvider(Provider):
             "tools": [
                 {
                     "type": "web_search",
-                    "max_keyword": max(1, min(10, request.max_keyword)),
                     "limit": max(1, min(20, request.max_results)),
                 }
             ],

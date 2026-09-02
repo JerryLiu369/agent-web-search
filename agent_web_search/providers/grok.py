@@ -103,7 +103,6 @@ class GrokProvider(Provider):
                         request.query,
                         time_range=request.time_range,
                         max_results=request.max_results,
-                        max_keyword=request.max_keyword,
                         search_scope={
                             "web_search": "web",
                             "x_search": "x",

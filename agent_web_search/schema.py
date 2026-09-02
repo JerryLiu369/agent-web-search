@@ -26,16 +26,6 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
                 "enforce this natively or as a best-effort prompt constraint."
             ),
         },
-        "max_keyword": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 10,
-            "default": 3,
-            "description": (
-                "Desired maximum number of distinct search queries or keywords. "
-                "Providers without an equivalent control ignore it."
-            ),
-        },
         "time_range": {
             "type": "string",
             "enum": ["d", "w", "m", "y"],

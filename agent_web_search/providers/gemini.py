@@ -84,7 +84,6 @@ class GeminiProvider(Provider):
             request.query,
             time_range=request.time_range,
             max_results=request.max_results,
-            max_keyword=request.max_keyword,
         )
         payload = {
             "model": model,

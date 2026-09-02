@@ -20,7 +20,6 @@ def _parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--provider", action="append", dest="providers")
     p.add_argument("--max-results", type=int, default=10)
-    p.add_argument("--max-keyword", type=int, default=3)
     p.add_argument("--time-range", choices=["d", "w", "m", "y"])
     p.add_argument(
         "--grok-search-mode",
@@ -43,7 +42,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     arguments = {
         "query": args.query,
         "max_results": args.max_results,
-        "max_keyword": args.max_keyword,
         "time_range": args.time_range,
         "providers": args.providers,
     }
@@ -57,7 +55,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             SearchRequest(
                 query=args.query,
                 max_results=args.max_results,
-                max_keyword=args.max_keyword,
                 time_range=args.time_range,
                 providers=args.providers,
                 grok_search_mode=args.grok_search_mode or "web_search",

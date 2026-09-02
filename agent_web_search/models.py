@@ -9,7 +9,6 @@ from typing import Any
 class SearchRequest:
     query: str
     max_results: int = 10
-    max_keyword: int = 3
     time_range: str | None = None
     providers: list[str] | None = None
     grok_search_mode: str = "web_search"
@@ -20,7 +19,6 @@ class SearchRequest:
         return cls(
             query=values.get("query", ""),
             max_results=values.get("max_results", 10),
-            max_keyword=values.get("max_keyword", 3),
             time_range=values.get("time_range"),
             providers=values.get("providers"),
             grok_search_mode=values.get("grok_search_mode", "web_search"),
@@ -48,7 +46,6 @@ class SearchRequest:
         return SearchRequest(
             query=str(self.query).strip(),
             max_results=bounded(self.max_results, 10, 20),
-            max_keyword=bounded(self.max_keyword, 3, 10),
             time_range=(
                 self.time_range if self.time_range in {"d", "w", "m", "y"} else None
             ),

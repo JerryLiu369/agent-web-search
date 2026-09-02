@@ -42,14 +42,12 @@ def test_tavily_adapts_common_controls(monkeypatch):
         SearchRequest(
             query="latest AI news",
             max_results=7,
-            max_keyword=2,
             time_range="w",
         )
     )
 
     assert captured["payload"]["max_results"] == 7
     assert captured["payload"]["time_range"] == "week"
-    assert "max_keyword" not in captured["payload"]
     assert captured["timeout"] == 12
     assert response.searched is True
     assert response.results[0].url == "https://example.com"

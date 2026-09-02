@@ -208,11 +208,10 @@ stderr 写入统一的 `all_providers_failed` JSON，并以状态码 1 退出，
 可以区分真正的失败和空结果。
 
 | CLI 选项 | MCP 参数 | 取值 | 默认值 |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | 位置参数 `QUERY` | `query` | 1–4,000 个字符的自然语言问题 | 必填 |
 | `--provider`（可重复） | `providers` | 已启用的 Provider 名 | 所有已启用 |
 | `--max-results` | `max_results` | 1–20 | `10` |
-| `--max-keyword` | `max_keyword` | 1–10 | `3` |
 | `--time-range` | `time_range` | `d`、`w`、`m`、`y` | — |
 | `--grok-search-mode` | `grok_search_mode` | `web_search`、`x_search`、`both` | `web_search` |
 
@@ -237,7 +236,6 @@ MCP 对外注册一个名为 `web_search` 的工具；CLI 映射到同一组输�
 | --- | --- | :---: | --- | --- |
 | `query` | string，1–4,000 个字符 | 是 | — | 完整的自然语言搜索问题 |
 | `max_results` | integer，1–20 | 否 | `10` | 期望返回的最大结果数量 |
-| `max_keyword` | integer，1–10 | 否 | `3` | 期望使用的最大搜索查询词或关键词数量 |
 | `time_range` | `d`、`w`、`m`、`y` | 否 | — | 过去一天、一周、一月或一年 |
 | `providers` | string 数组 | 否 | 所有已启用 Provider | 将本次请求限制在指定的已启用 Provider 中 |
 | `grok_search_mode` | `web_search`、`x_search`、`both` | 否 | `web_search` | 仅在启用 Grok 时可用 |
@@ -476,18 +474,18 @@ You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部�
 
 每个 Provider 会尽可能将公共控制参数映射到原生 API，不支持的参数会被忽略。
 
-| Provider | `max_results` | `max_keyword` | `time_range` |
-| --- | --- | --- | --- |
-| DDGS | 原生 `max_results` | 忽略 | 原生 `timelimit` |
-| Exa | 原生结果数量 | 忽略 | 原生发布日期 |
-| Parallel | REST：原生 `max_results`；keyless MCP：客户端截断（`results[:max_results]`） | 忽略 | 忽略 |
-| ARK | 原生 `limit` | 原生支持 | Prompt 约束 |
-| Brave | 原生 `count` | 忽略 | 原生 `freshness` |
-| Gemini | Prompt 约束 | Prompt 约束 | Prompt 约束 |
-| Grok | Prompt 约束 | Prompt 约束 | Prompt；X Search 还会使用原生日期参数 |
-| Perplexity | 原生 `max_results` | 忽略 | 原生时间范围过滤 |
-| Tavily | 原生 `max_results` | 忽略 | 原生 `time_range` |
-| You.com | 原生 `count`，合并后截断 | 忽略 | 原生 `freshness` |
+| Provider | `max_results` | `time_range` |
+| --- | --- | --- |
+| DDGS | 原生 `max_results` | 原生 `timelimit` |
+| Exa | 原生结果数量 | 原生发布日期 |
+| Parallel | REST：原生 `max_results`；keyless MCP：客户端截断（`results[:max_results]`） | 忽略 |
+| ARK | 原生 `limit` | Prompt 约束 |
+| Brave | 原生 `count` | 原生 `freshness` |
+| Gemini | Prompt 约束 | Prompt 约束 |
+| Grok | Prompt 约束 | Prompt；X Search 还会使用原生日期参数 |
+| Perplexity | 原生 `max_results` | 原生时间范围过滤 |
+| Tavily | 原生 `max_results` | 原生 `time_range` |
+| You.com | 原生 `count`，合并后截断 | 原生 `freshness` |
 
 基于 Prompt 的控制属于尽力而为，不是严格保证。
 

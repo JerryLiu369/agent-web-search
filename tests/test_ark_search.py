@@ -36,8 +36,14 @@ class _Response:
 
 
 def test_ark_continuation_merges_initial_and_followup_results(monkeypatch):
+    captured = {}
+
+    def fake_urlopen(request, **_kwargs):
+        captured["payload"] = json.loads(request.data)
+        return _Response()
+
     provider = ArkProvider(api_key="test-key", models=["m"])
-    monkeypatch.setattr("urllib.request.urlopen", lambda *_args, **_kwargs: _Response())
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
     monkeypatch.setattr(
         provider,
         "_continue",
@@ -55,6 +61,7 @@ def test_ark_continuation_merges_initial_and_followup_results(monkeypatch):
 
     assert result.searched is True
     assert result.answer == "A complete answer"
+    assert captured["payload"]["tools"] == [{"type": "web_search", "limit": 10}]
     assert [item.url for item in result.results] == [
         "https://initial",
         "https://followup",

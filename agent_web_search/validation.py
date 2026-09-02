@@ -11,7 +11,6 @@ _KNOWN_FIELDS = frozenset(
     {
         "query",
         "max_results",
-        "max_keyword",
         "time_range",
         "providers",
         "grok_search_mode",
@@ -53,7 +52,7 @@ def validate_web_search_arguments(
             f"query must be at most {MAX_QUERY_LENGTH} characters, got {len(query)}"
         )
 
-    for name, upper in (("max_results", 20), ("max_keyword", 10)):
+    for name, upper in (("max_results", 20),):
         value = arguments.get(name)
         if value is None:
             continue
@@ -126,7 +125,6 @@ def validate_search_request(
     arguments: dict[str, Any] = {
         "query": request.query,
         "max_results": request.max_results,
-        "max_keyword": request.max_keyword,
         "time_range": request.time_range,
         "providers": request.providers,
     }

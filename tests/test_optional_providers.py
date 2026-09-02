@@ -27,11 +27,10 @@ def test_new_search_providers_appear_in_dynamic_schema():
 
 def test_model_provider_prompt_adapts_common_search_controls():
     prompt = search_prompt(
-        "latest AI news", time_range="w", max_results=5, max_keyword=2
+        "latest AI news", time_range="w", max_results=5
     )
     assert "the past week" in prompt
     assert "no more than 5 sources" in prompt
-    assert "up to 2 distinct search queries" in prompt
 
 
 def test_model_provider_prompt_tracks_search_scope():

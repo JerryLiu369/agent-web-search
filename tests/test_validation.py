@@ -16,7 +16,6 @@ def test_valid_arguments_produce_no_details():
             {
                 "query": "hello",
                 "max_results": 5,
-                "max_keyword": 2,
                 "time_range": "w",
                 "providers": ["ddgs"],
             },
@@ -33,6 +32,14 @@ def test_unknown_fields_are_rejected():
     assert "bogus" in details[0]
 
 
+def test_removed_max_keyword_field_is_rejected():
+    details = validate_web_search_arguments(
+        {"query": "hi", "max_keyword": 2}, ENABLED
+    )
+    assert len(details) == 1
+    assert "max_keyword" in details[0]
+
+
 @pytest.mark.parametrize("query", ["", "   ", None, 42])
 def test_empty_or_non_string_query_is_rejected(query):
     details = validate_web_search_arguments({"query": query}, ENABLED)
@@ -46,15 +53,16 @@ def test_missing_query_is_rejected():
 
 @pytest.mark.parametrize("value", ["ten", 1.5, True, 0, 21, -3])
 def test_out_of_range_or_non_integer_counts_are_rejected(value):
-    for field in ("max_results", "max_keyword"):
-        details = validate_web_search_arguments({"query": "hi", field: value}, ENABLED)
-        assert details, f"{field}={value!r} should be rejected"
+    details = validate_web_search_arguments(
+        {"query": "hi", "max_results": value}, ENABLED
+    )
+    assert details, f"max_results={value!r} should be rejected"
 
 
 def test_integer_bounds_are_accepted():
     assert (
         validate_web_search_arguments(
-            {"query": "hi", "max_results": 20, "max_keyword": 10}, ENABLED
+            {"query": "hi", "max_results": 20}, ENABLED
         )
         == []
     )

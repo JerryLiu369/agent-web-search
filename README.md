@@ -224,11 +224,10 @@ it writes the shared `all_providers_failed` JSON to stderr and exits with status
 1, so shell-capable agents can distinguish a real failure from empty results.
 
 | CLI option | MCP argument | Values | Default |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | positional `QUERY` | `query` | 1–4,000 character natural-language question | required |
 | `--provider` (repeatable) | `providers` | enabled provider names | all enabled |
 | `--max-results` | `max_results` | 1–20 | `10` |
-| `--max-keyword` | `max_keyword` | 1–10 | `3` |
 | `--time-range` | `time_range` | `d`, `w`, `m`, `y` | — |
 | `--grok-search-mode` | `grok_search_mode` | `web_search`, `x_search`, `both` | `web_search` |
 
@@ -254,7 +253,6 @@ MCP exposes one tool named `web_search`; the CLI maps to the same inputs.
 | --- | --- | :---: | --- | --- |
 | `query` | string, 1–4,000 characters | Yes | — | Complete natural-language search question |
 | `max_results` | integer, 1–20 | No | `10` | Desired maximum number of results |
-| `max_keyword` | integer, 1–10 | No | `3` | Desired maximum number of search queries or keywords |
 | `time_range` | `d`, `w`, `m`, `y` | No | — | Past day, week, month, or year |
 | `providers` | string array | No | All enabled | Narrow the request to enabled providers |
 | `grok_search_mode` | `web_search`, `x_search`, `both` | No | `web_search` | Available only when Grok is enabled |
@@ -520,18 +518,18 @@ Add `you` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 Each provider maps the shared controls to its native API when possible and
 ignores unsupported controls.
 
-| Provider | `max_results` | `max_keyword` | `time_range` |
-| --- | --- | --- | --- |
-| DDGS | Native `max_results` | Ignored | Native `timelimit` |
-| Exa | Native result count | Ignored | Native publish date |
-| Parallel | REST: native `max_results`; keyless MCP: client-side truncation (`results[:max_results]`) | Ignored | Ignored |
-| ARK | Native `limit` | Native | Prompt constraint |
-| Brave | Native `count` | Ignored | Native `freshness` |
-| Gemini | Prompt constraint | Prompt constraint | Prompt constraint |
-| Grok | Prompt constraint | Prompt constraint | Prompt; X Search also uses native dates |
-| Perplexity | Native `max_results` | Ignored | Native recency filter |
-| Tavily | Native `max_results` | Ignored | Native `time_range` |
-| You.com | Native `count`, combined cap | Ignored | Native `freshness` |
+| Provider | `max_results` | `time_range` |
+| --- | --- | --- |
+| DDGS | Native `max_results` | Native `timelimit` |
+| Exa | Native result count | Native publish date |
+| Parallel | REST: native `max_results`; keyless MCP: client-side truncation (`results[:max_results]`) | Ignored |
+| ARK | Native `limit` | Prompt constraint |
+| Brave | Native `count` | Native `freshness` |
+| Gemini | Prompt constraint | Prompt constraint |
+| Grok | Prompt constraint | Prompt; X Search also uses native dates |
+| Perplexity | Native `max_results` | Native recency filter |
+| Tavily | Native `max_results` | Native `time_range` |
+| You.com | Native `count`, combined cap | Native `freshness` |
 
 Prompt-based controls are best-effort and are not strict guarantees.
 

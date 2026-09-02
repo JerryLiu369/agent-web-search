@@ -17,7 +17,6 @@ def test_agent_web_search_skill_has_valid_frontmatter_and_current_cli_contract()
     for option in (
         "--provider",
         "--max-results",
-        "--max-keyword",
         "--time-range",
         "--grok-search-mode",
     ):

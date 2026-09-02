@@ -15,7 +15,6 @@ def search_prompt(
     query: str,
     time_range: str | None = None,
     max_results: int | None = None,
-    max_keyword: int | None = None,
     search_scope: str = "web",
 ) -> str:
     """Build an English soft constraint prompt for model-backed search providers."""
@@ -41,11 +40,6 @@ def search_prompt(
         constraints.append(
             f"Use no more than {max_results} sources in the final answer "
             f"when practical."
-        )
-    if max_keyword is not None:
-        constraints.append(
-            f"Use up to {max_keyword} distinct search queries "
-            f"if additional searches are needed."
         )
     return " ".join(constraints) + f"\nQuestion: {query}"
 
