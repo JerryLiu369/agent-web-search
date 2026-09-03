@@ -2,7 +2,7 @@
 
 # Agent Web Search
 
-**One web-search core for AI agents, backed by multiple independent providers.**
+**Agent-native web search for AI agents — aggregating model-native search and agent search providers, not traditional search engines.**
 
 **English** | [简体中文](https://github.com/JerryLiu369/agent-web-search/blob/main/README.zh-CN.md)
 
@@ -35,58 +35,96 @@ shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 
 Agent Web Search gives an agent two ways to reach the same provider-neutral
 search core: a native MCP tool, or a CLI taught through a standard Agent Skill.
-It is not a crawler-result aggregator. It is a natural-language search interface
-for agent-native backends — including LLM web grounding, neural/semantic search,
-and conventional search APIs — with one normalized contract.
+
+This is not a Google/Bing/Baidu metasearch wrapper. Traditional search
+aggregation fans a keyword query out to conventional engines and merges their
+result pages. Agent Web Search instead aggregates search capabilities built for
+agents: model-native web grounding, agent-oriented search APIs, and context-ready
+sources that accept natural-language questions and return answers, citations, or
+structured evidence in forms an agent can use directly. DDGS is the only
+conventional search backend in the current provider set.
 
 ```text
-Agent ──┬── MCP client ────── web_search ──┐
-        │                                  │
-        └── Shell + Skill ── CLI command ──┤
-                                           ▼
-                                      SearchEngine
-                                           │
-                     DDGS · Exa · Parallel · ARK · Brave
-                     Gemini · Grok · Codex Alpha · DeepSeek · Perplexity · Tavily · You.com
+Natural-language question
+             │
+             ▼
+        SearchEngine
+       ┌─────┼──────────────┐
+       ▼     ▼              ▼
+     DDGS  Model providers  Agent search providers
+           ARK · Gemini     Exa · Parallel · Brave
+           Grok · DeepSeek  Perplexity · Tavily · You.com
+           Codex Alpha      Zhipu Web Search
+           Zhipu Chat
 ```
 
 ## Why Agent Web Search
 
-- **Concurrent, independent providers.** All selected providers run at the same
-  time, and one provider's failure never discards another provider's results.
-- **Agent-native natural-language search.** This project aggregates search
-  interfaces designed for agents, not scraped pages: Doubao Search, Gemini
-  Google Search grounding, Grok web/X search, neural search, and conventional
-  result APIs all fit the same request surface.
-- **Zero-key start.** The default providers — DDGS, Exa, and Parallel — work
-  without any API key.
-- **Two clean agent integrations.** Use MCP for a protocol-native tool, or pair
-  the CLI with the included Skill for agents that already have shell access.
-- **Focused responses.** Every provider response contains only a generated
-  `answer` when available and normalized `results`.
+- **Agent-native by design.** The primary interface is a complete natural-language
+  question, not a thin keyword fan-out to Google, Bing, or Baidu.
+- **Model-native search backends.** ARK, Gemini, Grok, DeepSeek, Zhipu Chat
+  Search, and Codex Alpha can combine web retrieval with model-generated
+  synthesis and explicit citations.
+- **Agent search providers.** Exa, Parallel, Brave, Perplexity, Tavily, You.com,
+  and Zhipu Web Search expose search APIs intended to provide structured,
+  citation-friendly, or context-ready evidence to downstream agents.
+- **One provider-neutral contract.** Every backend is available through the same
+  MCP tool, CLI, Python API, and normalized `results`; model-backed providers may
+  also return an `answer`.
+- **Independent providers.** Selected providers run concurrently, and one
+  provider's failure never discards another provider's successful result.
+- **DDGS remains a simple fallback.** DDGS is the only conventional search
+  backend; it requires no API key and keeps the project usable without paid
+  provider credentials. Exa and Parallel are also keyless by default.
 - **No telemetry, no shared secrets.** Provider keys stay in runtime
   environment variables; there is no shared API-key service.
 
 ## Providers
 
+The provider list is intentionally split by the kind of search capability it
+provides. Only DDGS is a conventional search backend; the other two groups are
+built around model-native grounding or agent-facing search services.
+
 > **Free, keyless defaults:** DDGS, Exa, and Parallel all work without an API
 > key. Exa and Parallel automatically use their free MCP transports until a
 > paid API key is provided.
 
+### Traditional search backend
+
 | Provider | Website | Search backend | API key | Enabled by default |
 | --- | --- | --- | --- | :---: |
-| **DDGS** | [DuckDuckGo](https://duckduckgo.com) | DuckDuckGo search | **Free · no key required** | Yes |
-| **Exa** | [Exa](https://exa.ai) | Paid Search API or free MCP fallback | **Free without key** · optional `EXA_API_KEY` | Yes |
-| **Parallel** | [Parallel](https://parallel.ai) | Free MCP or paid LLM-optimized search | **Free without key** · optional `PARALLEL_API_KEY` | Yes |
-| **ARK (Recommended)** | [Volcengine Ark](https://www.volcengine.com/product/ark) | Doubao Search | `ARK_API_KEY` | No |
-| **Brave** | [Brave Search](https://brave.com/search/api/) | Brave Search API | `BRAVE_SEARCH_API_KEY` | No |
-| **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Google Search grounding | `GEMINI_API_KEY` | No |
-| **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI web search and X Search | `XAI_API_KEY` | No |
-| **Codex Alpha** (experimental) | Alpha Search-compatible gateway | `/v1/alpha/search` | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | No |
+| **DDGS** | [DuckDuckGo](https://duckduckgo.com) | Conventional DuckDuckGo search | **Free · no key required** | Yes |
+
+### Model providers
+
+These providers use a model-native search or grounding surface. Their responses
+can include a model-generated answer together with citations or other explicit
+search evidence.
+
+| Provider | Website | Model-native search surface | API key | Enabled by default |
+| --- | --- | --- | --- | :---: |
+| **ARK** | [Volcengine Ark](https://www.volcengine.com/product/ark) | Responses API with Doubao web-search grounding | `ARK_API_KEY` | No |
+| **Codex Alpha** (experimental) | Alpha Search-compatible gateway | Model-backed Alpha Search surface | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | No |
 | **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Anthropic Messages API with native web search | `DEEPSEEK_API_KEY` | No |
+| **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Gemini Google Search grounding | `GEMINI_API_KEY` | No |
+| **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI web search and X Search | `XAI_API_KEY` | No |
+| **Zhipu Chat Search** | [Zhipu AI](https://open.bigmodel.cn/) | GLM Chat Completions with native web search | `ZHIPU_CHAT_SEARCH_API_KEY` | No |
+
+### Agent search providers
+
+These providers expose search services for agent consumption: natural-language
+queries, structured source rows, high-signal excerpts, or citation-friendly
+metadata rather than a conventional search-page experience.
+
+| Provider | Website | Agent-facing search surface | API key | Enabled by default |
+| --- | --- | --- | --- | :---: |
+| **Exa** | [Exa](https://exa.ai) | Semantic Search API or free MCP fallback | **Free without key** · optional `EXA_API_KEY` | Yes |
+| **Parallel** | [Parallel](https://parallel.ai) | Context-oriented search API or free MCP | **Free without key** · optional `PARALLEL_API_KEY` | Yes |
+| **Brave** | [Brave Search](https://brave.com/search/api/) | Structured Web Search API | `BRAVE_SEARCH_API_KEY` | No |
 | **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | Native structured Search API | `PERPLEXITY_API_KEY` | No |
-| **Tavily** | [Tavily](https://tavily.com) | Tavily Search API | `TAVILY_API_KEY` | No |
-| **You.com** | [You.com API](https://you.com/platform/api) | Unified web and news search | `YDC_API_KEY` | No |
+| **Tavily** | [Tavily](https://tavily.com) | Agent-oriented Search API | `TAVILY_API_KEY` | No |
+| **You.com** | [You.com API](https://you.com/platform/api) | Unified web and news Search API | `YDC_API_KEY` | No |
+| **Zhipu Web Search** | [Zhipu AI](https://open.bigmodel.cn/) | Standalone structured Web Search API | `ZHIPU_WEB_SEARCH_API_KEY` | No |
 
 The provider architecture is intentionally open: another search-capable
 backend can be added without changing the MCP, Hermes, CLI, or Python-facing
@@ -386,8 +424,9 @@ a second application configuration format.
 
 ### Provider settings
 
-Default providers are listed first; optional providers then follow alphabetical
-order.
+Provider-specific settings below include the credential and model controls for
+all providers. The supported-provider overview above is grouped by capability;
+this section is the detailed configuration reference.
 
 #### 1. DDGS
 
@@ -529,7 +568,7 @@ intentionally outside this provider's scope.
 
 Add `perplexity` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
-#### 10. Tavily
+#### 11. Tavily
 
 | Variable | Required | Purpose |
 | --- | :---: | --- |
@@ -537,7 +576,7 @@ Add `perplexity` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
 Add `tavily` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 
-#### 11. You.com
+#### 12. You.com
 
 You.com returns unified web and news sections. Agent Web Search merges both,
 deduplicates URLs, and applies `max_results` to the combined result list.
@@ -547,6 +586,37 @@ deduplicates URLs, and applies `max_results` to the combined result list.
 | `YDC_API_KEY` | Yes | You.com Search API credential |
 
 Add `you` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+
+#### 13. Zhipu Web Search
+
+Zhipu Web Search uses the China standalone Web Search API and returns
+structured search rows. It is a separate Provider from Zhipu Chat Search; the
+implementation does not fall back between the two surfaces.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `ZHIPU_WEB_SEARCH_API_KEY` | Yes | Zhipu Web Search API credential |
+| `AGENT_WEB_SEARCH_ZHIPU_WEB_SEARCH_BASE_URL` | No | China API base URL; defaults to `https://open.bigmodel.cn` |
+
+Add `zhipu_web_search` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+The Provider appends `/api/paas/v4/web_search` to the configured base URL.
+
+#### 14. Zhipu Chat Search
+
+Zhipu Chat Search uses the China GLM Chat Completions API with native web
+search. It returns the model answer plus only explicit top-level search rows;
+URLs mentioned in answer prose are not treated as citations. It is a separate
+Provider from Zhipu Web Search and has no API/Chat fallback.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `ZHIPU_CHAT_SEARCH_API_KEY` | Yes | Zhipu Chat Search API credential |
+| `AGENT_WEB_SEARCH_ZHIPU_CHAT_BASE_URL` | No | China API base URL; defaults to `https://open.bigmodel.cn` |
+| `AGENT_WEB_SEARCH_ZHIPU_CHAT_MODELS` | No | Comma/newline-separated GLM model IDs; defaults to `glm-5.3-flash` |
+
+Add `zhipu_chat_search` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+The Provider appends `/api/paas/v4/chat/completions` to the configured base URL.
+Multiple configured models are selected round-robin for successive requests.
 
 ### Common search controls
 
@@ -567,6 +637,8 @@ ignores unsupported controls.
 | Perplexity | Native `max_results` | Native recency filter |
 | Tavily | Native `max_results` | Native `time_range` |
 | You.com | Native `count`, combined cap | Native `freshness` |
+| Zhipu Web Search | Native `count`, local deduplication and cap | Native recency filter |
+| Zhipu Chat Search | Native `count`, local deduplication and cap | Native recency filter |
 
 Prompt-based controls are best-effort and are not strict guarantees.
 

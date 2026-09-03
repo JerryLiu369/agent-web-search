@@ -2,7 +2,7 @@
 
 # Agent Web Search
 
-**面向 AI Agent 的统一联网搜索核心，由多个相互独立的 Provider 提供支持。**
+**面向 AI Agent 的原生搜索层：聚合模型原生搜索与 Agent 搜索服务，而不是传统搜索引擎聚合器。**
 
 [English](https://github.com/JerryLiu369/agent-web-search/blob/main/README.md) | **简体中文**
 
@@ -32,50 +32,82 @@
 ---
 
 Agent Web Search 为 Agent 提供两种接入同一个搜索核心的方式：原生 MCP
-工具，或者由标准 Agent Skill 教会 Agent 调用 CLI。它不是爬虫结果聚合器，
-而是面向 Agent-native 后端的自然语言搜索接口：统一接入 LLM 联网搜索、
-神经/语义搜索和传统搜索 API，并提供统一的结果契约。
+工具，或者由标准 Agent Skill 教会 Agent 调用 CLI。
+
+它不是 Google、Bing、百度那种传统搜索引擎聚合器。传统聚合器通常把一个
+关键词请求分发给多个搜索引擎，再合并搜索结果页；Agent Web Search 聚合的是
+专门面向 Agent 的搜索能力：模型原生联网搜索、面向 Agent 的搜索 API，以及
+适合直接放入上下文的高信号来源。它们接受自然语言问题，返回模型回答、引用
+或结构化证据，Agent 可以直接使用。当前 Provider 集合中，只有 DDGS 属于
+传统搜索后端。
 
 ```text
-Agent ──┬── MCP 客户端 ───── web_search ──┐
-        │                                 │
-        └── Shell + Skill ── CLI 命令 ────┤
-                                          ▼
-                                     SearchEngine
-                                          │
-                    DDGS · Exa · Parallel · ARK · Brave
-                    Gemini · Grok · Codex Alpha · DeepSeek · Perplexity · Tavily · You.com
+自然语言问题
+       │
+       ▼
+  SearchEngine
+ ┌─────┼──────────────┐
+ ▼     ▼              ▼
+DDGS  大模型提供商    Agent 搜索提供商
+      ARK · Gemini    Exa · Parallel · Brave
+      Grok · DeepSeek Perplexity · Tavily · You.com
+      Codex Alpha     智谱 Web Search
+      智谱 Chat
 ```
 
 ## 为什么选择 Agent Web Search
 
-- **并发且相互独立。** 所有选中的 Provider 同时发起请求，单个 Provider 失败不会丢弃其他 Provider 的成功结果。
-- **面向 Agent 的自然语言搜索。** 项目聚合的是为 Agent 设计的搜索接口，而不是拼接爬虫页面：豆包搜索、Gemini Google Search grounding、Grok 网页/X 搜索、神经搜索和传统结果 API 都能使用同一套请求接口。
-- **零 Key 即可上手。** 默认 Provider（DDGS、Exa、Parallel）无需任何 API Key。
-- **两种清晰的 Agent 接入。** 需要协议原生工具时用 MCP；已有 Shell 能力的 Agent 则使用 CLI + Skill。
-- **响应聚焦。** 每个 Provider 响应仅包含可用时的文本 `answer` 和统一的 `results`。
-- **无遥测、不共享密钥。** Provider Key 只存在于运行环境变量中，项目不提供任何共享 API Key 服务。
+- **从设计上就是 Agent-native。** 主要输入是完整的自然语言问题，而不是把关键词简单分发给 Google、Bing 或百度。
+- **模型原生搜索后端。** ARK、Gemini、Grok、DeepSeek、智谱 Chat Search 和 Codex Alpha 可以把联网检索、模型综合回答与明确引用结合起来。
+- **Agent 搜索提供商。** Exa、Parallel、Brave、Perplexity、Tavily、You.com 和智谱 Web Search 提供面向 Agent 的搜索 API，输出结构化、适合引用或适合放入上下文的证据。
+- **统一的 Provider-neutral 契约。** 所有后端都通过同一个 MCP 工具、CLI、Python API 和统一的 `results` 返回；模型后端还可以返回 `answer`。
+- **Provider 相互独立。** 选中的 Provider 会并发执行，一个 Provider 失败不会丢弃其他 Provider 的成功结果。
+- **保留一个简单的 DDGS 后端。** DDGS 是唯一的传统搜索后端，不需要 API Key；Exa 和 Parallel 默认也可以免 Key 使用。
+- **无遥测、不共享密钥。** Provider Key 只存在于运行环境变量中，项目不提供共享 API Key 服务。
 
 ## 搜索服务
+
+下面按搜索能力类型划分 Provider。DDGS 是唯一的传统搜索后端；其余 Provider
+分别属于模型原生搜索或面向 Agent 的搜索服务。
 
 > **默认免费、无需 Key：** DDGS、Exa 和 Parallel 都可以不配置 API Key
 > 直接使用。Exa 和 Parallel 只有在提供付费 API Key 后才会切换到付费接口，
 > 否则自动使用免费 MCP。
 
+### 传统搜索后端
+
 | Provider | 官网 | 搜索后端 | API Key | 默认启用 |
 | --- | --- | --- | --- | :---: |
-| **DDGS** | [DuckDuckGo](https://duckduckgo.com) | DuckDuckGo 搜索 | **免费 · 无需 Key** | 是 |
-| **Exa** | [Exa](https://exa.ai) | 付费 Search API 或免费 MCP 后备 | **无 Key 免费** · 可选 `EXA_API_KEY` | 是 |
-| **Parallel** | [Parallel](https://parallel.ai) | 免费 MCP 或面向 LLM 优化的付费搜索 | **无 Key 免费** · 可选 `PARALLEL_API_KEY` | 是 |
-| **ARK（推荐）** | [火山引擎 Ark](https://www.volcengine.com/product/ark) | 豆包搜索 | `ARK_API_KEY` | 否 |
-| **Brave** | [Brave Search](https://brave.com/search/api/) | Brave Search API | `BRAVE_SEARCH_API_KEY` | 否 |
-| **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Google Search grounding | `GEMINI_API_KEY` | 否 |
-| **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
-| **Codex Alpha**（实验性） | 兼容 Alpha Search 的反代网关 | `/v1/alpha/search` | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | 否 |
+| **DDGS** | [DuckDuckGo](https://duckduckgo.com) | 传统 DuckDuckGo 搜索 | **免费 · 无需 Key** | 是 |
+
+### 大模型提供商
+
+这类 Provider 使用模型原生联网搜索或 grounding 能力。响应可以同时包含模型
+生成的回答，以及明确的引用或其他搜索证据。
+
+| Provider | 官网 | 模型原生搜索能力 | API Key | 默认启用 |
+| --- | --- | --- | --- | :---: |
+| **ARK** | [火山引擎 Ark](https://www.volcengine.com/product/ark) | Responses API + 豆包联网搜索 | `ARK_API_KEY` | 否 |
+| **Codex Alpha**（实验性） | 兼容 Alpha Search 的反代网关 | 模型驱动的 Alpha Search | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | 否 |
 | **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Anthropic Messages API 原生网页搜索 | `DEEPSEEK_API_KEY` | 否 |
+| **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Gemini Google Search grounding | `GEMINI_API_KEY` | 否 |
+| **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
+| **智谱 Chat Search** | [智谱 AI](https://open.bigmodel.cn/) | GLM Chat Completions 原生联网搜索 | `ZHIPU_CHAT_SEARCH_API_KEY` | 否 |
+
+### Agent 搜索提供商
+
+这类 Provider 面向 Agent 提供搜索服务：支持自然语言查询，并返回结构化来源、
+高信号摘录或适合引用的元数据，而不是传统搜索页面式体验。
+
+| Provider | 官网 | 面向 Agent 的搜索能力 | API Key | 默认启用 |
+| --- | --- | --- | --- | :---: |
+| **Exa** | [Exa](https://exa.ai) | 语义 Search API 或免费 MCP 后端 | **无 Key 免费** · 可选 `EXA_API_KEY` | 是 |
+| **Parallel** | [Parallel](https://parallel.ai) | 面向上下文的搜索 API 或免费 MCP | **无 Key 免费** · 可选 `PARALLEL_API_KEY` | 是 |
+| **Brave** | [Brave Search](https://brave.com/search/api/) | 结构化 Web Search API | `BRAVE_SEARCH_API_KEY` | 否 |
 | **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | 原生结构化 Search API | `PERPLEXITY_API_KEY` | 否 |
-| **Tavily** | [Tavily](https://tavily.com) | Tavily Search API | `TAVILY_API_KEY` | 否 |
-| **You.com** | [You.com API](https://you.com/platform/api) | 统一网页与新闻搜索 | `YDC_API_KEY` | 否 |
+| **Tavily** | [Tavily](https://tavily.com) | 面向 Agent 的 Search API | `TAVILY_API_KEY` | 否 |
+| **You.com** | [You.com API](https://you.com/platform/api) | 统一网页与新闻 Search API | `YDC_API_KEY` | 否 |
+| **智谱 Web Search** | [智谱 AI](https://open.bigmodel.cn/) | 独立的结构化 Web Search API | `ZHIPU_WEB_SEARCH_API_KEY` | 否 |
 
 Provider 架构是开放的：添加新的搜索后端时，不需要修改 MCP、Hermes、CLI 或 Python 接口。
 
@@ -362,7 +394,8 @@ HTTP 设置仍然全部来自环境变量；部署文件不会引入第二套应
 
 ### Provider 设置
 
-下面先列出默认 Provider，其余可选 Provider 按字母顺序排列。
+Provider 的专用设置如下，包含全部 Provider 的凭据和模型参数。上面的支持列表按
+搜索能力分组；本节是具体配置参考。
 
 #### 1. DDGS
 
@@ -482,7 +515,7 @@ DeepSeek 使用官方 Anthropic 兼容 Messages API 和原生
 
 配置 Key 后，将 `perplexity` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
 
-#### 10. Tavily
+#### 11. Tavily
 
 | 变量 | 必填 | 用途 |
 | --- | :---: | --- |
@@ -490,7 +523,7 @@ DeepSeek 使用官方 Anthropic 兼容 Messages API 和原生
 
 配置 Key 后，将 `tavily` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
 
-#### 11. You.com
+#### 12. You.com
 
 You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部分、按 URL 去重，并将 `max_results` 应用于合并后的结果列表。
 
@@ -499,6 +532,34 @@ You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部�
 | `YDC_API_KEY` | 是 | You.com Search API 凭据 |
 
 配置 Key 后，将 `you` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
+
+#### 13. 智谱 Web Search
+
+智谱 Web Search 使用中国区独立的 Web Search API，返回结构化搜索结果。它与智谱
+Chat Search 是两个独立 Provider，二者之间不会互相 fallback。
+
+| 变量 | 必填 | 用途 |
+| --- | :---: | --- |
+| `ZHIPU_WEB_SEARCH_API_KEY` | 是 | 智谱 Web Search API 凭据 |
+| `AGENT_WEB_SEARCH_ZHIPU_WEB_SEARCH_BASE_URL` | 否 | 中国区 API 基础地址，默认 `https://open.bigmodel.cn` |
+
+配置 Key 后，将 `zhipu_web_search` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。Provider 会在
+基础地址后追加 `/api/paas/v4/web_search`。
+
+#### 14. 智谱 Chat Search
+
+智谱 Chat Search 使用中国区 GLM Chat Completions API 的原生联网搜索能力。它返回
+模型回答和明确的顶层搜索结果；回答正文中提到的 URL 不会被猜测成引用。它与智谱
+Web Search 是两个独立 Provider，不存在 API/Chat fallback。
+
+| 变量 | 必填 | 用途 |
+| --- | :---: | --- |
+| `ZHIPU_CHAT_SEARCH_API_KEY` | 是 | 智谱 Chat Search API 凭据 |
+| `AGENT_WEB_SEARCH_ZHIPU_CHAT_BASE_URL` | 否 | 中国区 API 基础地址，默认 `https://open.bigmodel.cn` |
+| `AGENT_WEB_SEARCH_ZHIPU_CHAT_MODELS` | 否 | 用逗号/换行分隔的 GLM 模型 ID，默认 `glm-5.3-flash` |
+
+配置 Key 后，将 `zhipu_chat_search` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。Provider 会在
+基础地址后追加 `/api/paas/v4/chat/completions`。配置多个模型时，连续请求会轮询选择模型。
 
 ### 通用搜索控制
 
@@ -518,6 +579,8 @@ You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部�
 | Perplexity | 原生 `max_results` | 原生时间范围过滤 |
 | Tavily | 原生 `max_results` | 原生 `time_range` |
 | You.com | 原生 `count`，合并后截断 | 原生 `freshness` |
+| 智谱 Web Search | 原生 `count`，本地去重并截断 | 原生时间范围过滤 |
+| 智谱 Chat Search | 原生 `count`，本地去重并截断 | 原生时间范围过滤 |
 
 基于 Prompt 的控制属于尽力而为，不是严格保证。
 
