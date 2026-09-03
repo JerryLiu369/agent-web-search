@@ -4,6 +4,7 @@ import math
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from .errors import exception_error
 from .models import ProviderResponse, SearchRequest, SearchResponse
 from .registry import DEFAULT_PROVIDER_NAMES, create_provider_pool
 from .validation import validate_search_request
@@ -66,7 +67,7 @@ class SearchEngine:
                     output[name] = future.result()
                 except Exception as exc:  # noqa: BLE001 - providers must be isolated
                     output[name] = ProviderResponse(
-                        provider=name, error=f"{type(exc).__name__}: {exc}"
+                        provider=name, error=exception_error(name, exc)
                     )
         ordered = {
             name: output.get(

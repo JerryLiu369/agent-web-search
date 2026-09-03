@@ -86,9 +86,18 @@ def test_parse_maps_deduplicates_valid_urls_and_truncates_locally():
     ] == [("A", "https://a.test", "content A", "2026-09-03")]
 
 
-def test_parse_without_a_search_result_array_is_not_marked_searched():
+def test_parse_without_a_search_result_array_is_an_error():
     response = parse({"answer": "not part of this API"})
 
+    assert response.error == "Zhipu Web Search response missing search_result"
+    assert response.searched is False
+    assert response.results == []
+
+
+def test_parse_http_200_error_envelope_is_an_error():
+    response = parse({"error": {"code": "1214", "message": "bad"}})
+
+    assert response.error == "Zhipu Web Search upstream error"
     assert response.searched is False
     assert response.results == []
 

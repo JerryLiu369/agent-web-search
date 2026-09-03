@@ -16,8 +16,44 @@ engine, providers, inputs, response shape, and all-provider failure payload.
 - If it is missing, follow the project's installation instructions. Do not
   perform a persistent package installation unless the user requested setup or
   has otherwise authorized it.
+- When setup is authorized, install the published package with either
+  `python -m pip install agent-web-search-mcp` or
+  `pipx install agent-web-search-mcp`; both install the `agent-web-search`
+  and `agent-web-search-mcp` entry points.
 - Provider configuration and credentials come from environment variables.
   Never put provider API keys in command arguments, output, or chat messages.
+
+## Provider selection and configuration
+
+Set `AGENT_WEB_SEARCH_PROVIDERS` to the comma-separated startup set. A repeated
+`--provider` can only narrow that set; it cannot enable a provider that was not
+registered at startup. The current Provider IDs are:
+
+- **Traditional search:** `ddgs` (no key).
+- **Model-native search:** `ark` (`ARK_API_KEY`), `codex_alpha`
+  (`AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` plus its endpoint), `deepseek`
+  (`DEEPSEEK_API_KEY`), `gemini` (`GEMINI_API_KEY`), `grok` (`XAI_API_KEY`),
+  and `zhipu_chat_search` (`ZHIPU_CHAT_SEARCH_API_KEY`).
+- **Agent search:** `brave` (`BRAVE_SEARCH_API_KEY`), `exa` (`EXA_API_KEY`
+  or its configured free MCP endpoint), `parallel` (`PARALLEL_API_KEY` or
+  its configured free MCP endpoint), `perplexity` (`PERPLEXITY_API_KEY`),
+  `tavily` (`TAVILY_API_KEY`), `you` (`YDC_API_KEY`), and
+  `zhipu_web_search` (`ZHIPU_WEB_SEARCH_API_KEY`).
+
+Provider-specific model and endpoint overrides, HTTP settings, and the complete
+placeholder environment template are in `.env.example`. For the two Zhipu
+surfaces, configure them independently, for example:
+
+```bash
+AGENT_WEB_SEARCH_PROVIDERS=zhipu_web_search
+ZHIPU_WEB_SEARCH_API_KEY=<server-side-key>
+agent-web-search "最近的 AI 新闻" --provider zhipu_web_search
+```
+
+Use `zhipu_chat_search` instead when a model-generated answer is wanted; it uses
+`ZHIPU_CHAT_SEARCH_API_KEY` and optionally
+`AGENT_WEB_SEARCH_ZHIPU_CHAT_MODELS`. Never use a shared `ZHIPU_API_KEY`
+fallback or pass either credential as a CLI/MCP argument.
 
 ## Run a search
 

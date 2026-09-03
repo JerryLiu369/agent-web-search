@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ..errors import exception_error
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from .base import Provider
 
@@ -39,5 +40,5 @@ class DDGSProvider(Provider):
             return ProviderResponse(provider=self.name, results=results, searched=True)
         except Exception as exc:  # noqa: BLE001 - third-party backends vary
             return ProviderResponse(
-                provider=self.name, error=f"DDGS {type(exc).__name__}: {exc}"
+                provider=self.name, error=exception_error(self.name, exc)
             )

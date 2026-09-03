@@ -6,6 +6,7 @@ import urllib.error
 import urllib.request
 from urllib.parse import urlencode
 
+from ..errors import exception_error, http_error
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from .base import Provider
 
@@ -65,12 +66,9 @@ class BraveProvider(Provider):
         except urllib.error.HTTPError as exc:
             return ProviderResponse(
                 provider=self.name,
-                error=(
-                    f"Brave HTTP {exc.code}: "
-                    f"{exc.read().decode(errors='replace')[:500]}"
-                ),
+                error=http_error(self.name, exc.code),
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
             return ProviderResponse(
-                provider=self.name, error=f"Brave {type(exc).__name__}: {exc}"
+                provider=self.name, error=exception_error(self.name, exc)
             )

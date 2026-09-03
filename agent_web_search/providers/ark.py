@@ -6,6 +6,7 @@ import random
 import urllib.error
 import urllib.request
 
+from ..errors import exception_error, http_error
 from ..model_pool import RoundRobinModels, configured_models
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from ..prompting import search_prompt
@@ -145,17 +146,16 @@ class ArkProvider(Provider):
                     parsed.searched = parsed.searched or continued.searched
                 return parsed
         except urllib.error.HTTPError as exc:
-            body = exc.read().decode(errors="replace")[:500]
             return ProviderResponse(
                 provider=self.name,
                 model=payload["model"],
-                error=f"ARK HTTP {exc.code}: {body}",
+                error=http_error(self.name, exc.code),
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
             return ProviderResponse(
                 provider=self.name,
                 model=payload["model"],
-                error=f"ARK {type(exc).__name__}: {exc}",
+                error=exception_error(self.name, exc),
             )
 
     def _continue(self, key: str, response_id: str) -> ProviderResponse:
@@ -180,5 +180,5 @@ class ArkProvider(Provider):
         except Exception as exc:  # noqa: BLE001 - fallback must never fail the search
             return ProviderResponse(
                 provider=self.name,
-                error=f"ARK continuation {type(exc).__name__}: {exc}",
+                error=exception_error(self.name, exc, "continuation"),
             )

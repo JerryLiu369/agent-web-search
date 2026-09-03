@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from agent_web_search.registry import PROVIDER_SPECS
+
 
 def test_agent_web_search_skill_has_valid_frontmatter_and_current_cli_contract():
     skill = Path(__file__).parents[1] / "skills" / "agent-web-search" / "SKILL.md"
@@ -25,3 +27,8 @@ def test_agent_web_search_skill_has_valid_frontmatter_and_current_cli_contract()
     assert "exit status is `0`" in body
     assert "exits with status `1`" in body
     assert "exit with status `2`" in body
+    assert "agent-web-search-mcp" in body
+    for provider_name, spec in PROVIDER_SPECS.items():
+        assert provider_name in body
+        if spec.credential_env:
+            assert spec.credential_env in body

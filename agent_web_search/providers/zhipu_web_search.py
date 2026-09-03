@@ -39,13 +39,21 @@ def build_payload(
 
 
 def parse(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
+    if "error" in data:
+        return ProviderResponse(
+            provider="zhipu_web_search",
+            error="Zhipu Web Search upstream error",
+        )
     rows = data.get("search_result")
+    if not isinstance(rows, list):
+        return ProviderResponse(
+            provider="zhipu_web_search",
+            error="Zhipu Web Search response missing search_result",
+        )
     return ProviderResponse(
         provider="zhipu_web_search",
-        results=map_search_results(
-            rows if isinstance(rows, list) else [], "zhipu_web_search", max_results
-        ),
-        searched=isinstance(rows, list),
+        results=map_search_results(rows, "zhipu_web_search", max_results),
+        searched=True,
     )
 
 

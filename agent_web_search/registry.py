@@ -48,7 +48,7 @@ PROVIDER_SPECS = {
     "ddgs": ProviderSpec(DDGSProvider, "DuckDuckGo web search"),
     "deepseek": ProviderSpec(
         DeepSeekProvider,
-        "DeepSeek Responses API web search",
+        "DeepSeek Anthropic Messages API web search",
         "DEEPSEEK_API_KEY",
     ),
     "exa": ProviderSpec(ExaProvider, "Exa web search", "EXA_API_KEY"),

@@ -9,6 +9,7 @@ from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 from uuid import uuid4
 
+from ..errors import exception_error, http_error
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from .base import Provider
 
@@ -250,11 +251,11 @@ class ParallelProvider(Provider):
             transport = "API" if self.api_key else "Free MCP"
             return ProviderResponse(
                 provider=self.name,
-                error=f"Parallel {transport} HTTP {exc.code}: {exc.reason}",
+                error=http_error(self.name, exc.code, transport),
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
             transport = "API" if self.api_key else "Free MCP"
             return ProviderResponse(
                 provider=self.name,
-                error=f"Parallel {transport} {type(exc).__name__}: {exc}",
+                error=exception_error(self.name, exc, transport),
             )

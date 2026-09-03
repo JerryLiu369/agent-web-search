@@ -61,6 +61,11 @@ def build_payload(
 
 
 def parse(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
+    if "error" in data:
+        return ProviderResponse(
+            provider="zhipu_chat_search",
+            error="Zhipu Chat Search upstream error",
+        )
     answer = ""
     choices = data.get("choices")
     if isinstance(choices, list) and choices and isinstance(choices[0], dict):

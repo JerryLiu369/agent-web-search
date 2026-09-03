@@ -132,6 +132,14 @@ def test_parse_preserves_answer_with_empty_results_and_does_not_guess_from_answe
     assert response.results == []
 
 
+def test_parse_http_200_error_envelope_is_an_error():
+    response = parse({"error": {"code": "1214", "message": "bad"}})
+
+    assert response.error == "Zhipu Chat Search upstream error"
+    assert response.searched is False
+    assert response.results == []
+
+
 def test_parse_requires_a_top_level_web_search_array_for_searched():
     response = parse(
         {

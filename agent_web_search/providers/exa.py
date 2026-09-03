@@ -6,6 +6,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
+from ..errors import exception_error, http_error
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from .base import Provider
 
@@ -195,11 +196,9 @@ class ExaProvider(Provider):
         except urllib.error.HTTPError as exc:
             return ProviderResponse(
                 provider=self.name,
-                error=(
-                    f"Exa HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}"
-                ),
+                error=http_error(self.name, exc.code),
             )
         except Exception as exc:  # noqa: BLE001 - remote errors vary
             return ProviderResponse(
-                provider=self.name, error=f"Exa {type(exc).__name__}: {exc}"
+                provider=self.name, error=exception_error(self.name, exc)
             )

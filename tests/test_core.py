@@ -42,6 +42,19 @@ def test_engine_runs_selected_providers():
     assert out.providers["a"].results[0].url == "https://a.test"
 
 
+def test_engine_sanitizes_unexpected_provider_exception():
+    class Exploding:
+        def search(self, request):
+            raise RuntimeError("Bearer test-secret must not escape")
+
+    out = SearchEngine(providers={"exploding": Exploding()}).search(
+        SearchRequest("hello")
+    )
+
+    assert out.failed_provider_errors == {"exploding": "exploding RuntimeError"}
+    assert "test-secret" not in out.failed_provider_errors["exploding"]
+
+
 def test_engine_omits_failed_providers_from_successful_results():
     out = SearchEngine(
         providers={"ok": Fake("ok"), "failed": Failing("failed", "boom")}

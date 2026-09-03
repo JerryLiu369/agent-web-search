@@ -7,6 +7,7 @@ import urllib.request
 import uuid
 from typing import Any
 
+from ..errors import exception_error
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from .base import Provider
 
@@ -146,5 +147,5 @@ class CodexAlphaProvider(Provider):
             return ProviderResponse(
                 provider=self.name,
                 model=model,
-                error=f"Codex Alpha {type(exc).__name__}: {exc}",
+                error=exception_error("Codex Alpha", exc),
             )

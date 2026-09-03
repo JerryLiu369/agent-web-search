@@ -5,6 +5,7 @@ import os
 import urllib.error
 import urllib.request
 
+from ..errors import exception_error, http_error
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from .base import Provider
 
@@ -64,10 +65,10 @@ class PerplexityProvider(Provider):
         except urllib.error.HTTPError as exc:
             return ProviderResponse(
                 provider=self.name,
-                error=f"Perplexity HTTP {exc.code}: {exc.reason}",
+                error=http_error(self.name, exc.code),
             )
         except Exception as exc:  # noqa: BLE001 - provider/network errors vary
             return ProviderResponse(
                 provider=self.name,
-                error=f"Perplexity {type(exc).__name__}: {exc}",
+                error=exception_error(self.name, exc),
             )
