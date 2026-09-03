@@ -72,7 +72,7 @@ Agent ──┬── MCP 客户端 ───── web_search ──┐
 | **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Google Search grounding | `GEMINI_API_KEY` | 否 |
 | **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
 | **Codex Alpha**（实验性） | 兼容 Alpha Search 的反代网关 | `/v1/alpha/search` | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | 否 |
-| **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Responses API 网页搜索 | `DEEPSEEK_API_KEY` | 否 |
+| **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Anthropic Messages API 原生网页搜索 | `DEEPSEEK_API_KEY` | 否 |
 | **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | 原生结构化 Search API | `PERPLEXITY_API_KEY` | 否 |
 | **Tavily** | [Tavily](https://tavily.com) | Tavily Search API | `TAVILY_API_KEY` | 否 |
 | **You.com** | [You.com API](https://you.com/platform/api) | 统一网页与新闻搜索 | `YDC_API_KEY` | 否 |
@@ -460,19 +460,17 @@ OAuth 不属于本项目的认证方式。配置完整 endpoint（Provider 不�
 
 #### 9. DeepSeek
 
-DeepSeek 使用官方 Responses API，并在每次搜索请求中强制使用原生
-`web_search` 工具。Provider 会保留模型生成的回答，只把明确出现的
-`url_citation` 注释映射为统一结果。因此，响应可以只有 `answer`，而
-`results` 为空。
+DeepSeek 使用官方 Anthropic 兼容 Messages API 和原生
+`web_search_20250305` 服务端工具。Provider 会保留模型最终生成的文本，只把明确出现的
+`web_search_result` 结果块映射为统一结果。因此，响应可以只有 `answer`，而 `results` 为空。
 
 | 变量 | 必填 | 用途 |
 | --- | :---: | --- |
 | `DEEPSEEK_API_KEY` | 是 | DeepSeek API 凭据 |
-| `AGENT_WEB_SEARCH_DEEPSEEK_BASE_URL` | 否 | API 基础地址，默认 `https://api.deepseek.com` |
+| `AGENT_WEB_SEARCH_DEEPSEEK_BASE_URL` | 否 | Anthropic API 基础地址，默认 `https://api.deepseek.com/anthropic` |
 | `AGENT_WEB_SEARCH_DEEPSEEK_MODELS` | 否 | 用逗号或换行分隔的模型 ID，默认 `deepseek-v4-flash` |
 
-配置 Key 后，将 `deepseek` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。Provider
-会在配置的基础地址后追加 `/responses`。配置多个模型时，连续请求会轮询选择模型。
+配置 Key 后，将 `deepseek` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。Provider 会在配置的基础地址后追加 `/v1/messages`。配置多个模型时，连续请求会轮询选择模型。
 
 #### 10. Perplexity
 
@@ -516,7 +514,7 @@ You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部�
 | Gemini | Prompt 约束 | Prompt 约束 |
 | Grok | Prompt 约束 | Prompt；X Search 还会使用原生日期参数 |
 | Codex Alpha | 本地结果截断 | 忽略 |
-| DeepSeek | 本地 citation 截断 | Prompt 约束 |
+| DeepSeek | 本地搜索结果截断 | Prompt 约束 |
 | Perplexity | 原生 `max_results` | 原生时间范围过滤 |
 | Tavily | 原生 `max_results` | 原生 `time_range` |
 | You.com | 原生 `count`，合并后截断 | 原生 `freshness` |

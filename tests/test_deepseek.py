@@ -33,7 +33,7 @@ class _Response:
 
 def _http_error(code: int) -> urllib.error.HTTPError:
     return urllib.error.HTTPError(
-        "https://api.deepseek.com/responses",
+        "https://api.deepseek.com/anthropic/v1/messages",
         code,
         "error",
         hdrs={},  # type: ignore[arg-type]
@@ -41,15 +41,14 @@ def _http_error(code: int) -> urllib.error.HTTPError:
     )
 
 
-def test_build_payload_forces_deepseek_web_search():
+def test_build_payload_uses_anthropic_web_search_tool():
     payload = build_payload("search prompt", "deepseek-test")
 
     assert payload == {
         "model": "deepseek-test",
-        "input": "search prompt",
-        "tools": [{"type": "web_search"}],
-        "tool_choice": {"type": "web_search"},
-        "max_output_tokens": 4096,
+        "max_tokens": 4096,
+        "messages": [{"role": "user", "content": "search prompt"}],
+        "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
     }
 
 
@@ -60,45 +59,38 @@ def test_provider_is_registered_with_its_credential_env():
     assert spec.credential_env == "DEEPSEEK_API_KEY"
 
 
-def test_parse_extracts_answer_and_deduplicated_citations_with_limit():
+def test_parse_extracts_answer_and_deduplicated_search_results_with_limit():
     response = parse(
         {
             "model": "deepseek-test",
-            "output": [
+            "content": [
+                {"type": "thinking", "thinking": "ignore"},
                 {
-                    "type": "reasoning",
-                    "content": [{"type": "reasoning_text", "text": "ignore"}],
+                    "type": "server_tool_use",
+                    "name": "web_search",
+                    "input": {"query": "question"},
                 },
-                {"type": "web_search_call", "status": "completed"},
                 {
-                    "type": "message",
+                    "type": "web_search_tool_result",
+                    "tool_use_id": "tool-1",
                     "content": [
                         {
-                            "type": "output_text",
-                            "text": "first answer",
-                            "annotations": [
-                                {
-                                    "type": "url_citation",
-                                    "url": "https://a.test",
-                                    "title": "A",
-                                },
-                                {
-                                    "type": "url_citation",
-                                    "url": "https://a.test",
-                                    "title": "duplicate",
-                                },
-                            ],
+                            "type": "web_search_result",
+                            "title": "A",
+                            "url": "https://a.test",
+                            "page_age": "2026-09-03",
                         },
                         {
-                            "type": "text",
-                            "text": "second answer",
-                            "annotations": [
-                                {"type": "url_citation", "url": "https://b.test"},
-                                {"type": "url_citation", "url": ""},
-                                {"type": "other", "url": "https://ignored.test"},
-                            ],
+                            "type": "web_search_result",
+                            "title": "duplicate",
+                            "url": "https://a.test",
                         },
+                        {"type": "web_search_result", "url": "https://b.test"},
                     ],
+                },
+                {
+                    "type": "text",
+                    "text": "final answer",
                 },
             ],
         },
@@ -108,43 +100,67 @@ def test_parse_extracts_answer_and_deduplicated_citations_with_limit():
     assert response.provider == "deepseek"
     assert response.model == "deepseek-test"
     assert response.searched is True
-    assert response.answer == "second answer"
+    assert response.answer == "final answer"
     assert [(row.title, row.url, row.description) for row in response.results] == [
         ("A", "https://a.test", "")
     ]
+    assert response.results[0].published_at is None
+    assert response.results[0].author is None
 
 
-def test_parse_uses_top_level_output_text_without_citations():
+def test_parse_preserves_answer_without_search_results():
     response = parse(
         {
             "model": "deepseek-test",
-            "output": [{"type": "web_search_call", "status": "completed"}],
-            "output_text": "answer without mapped citations",
+            "content": [
+                {"type": "server_tool_use", "name": "web_search"},
+                {"type": "web_search_tool_result", "content": []},
+                {"type": "text", "text": "answer without results"},
+            ],
         }
     )
 
     assert response.searched is True
-    assert response.answer == "answer without mapped citations"
+    assert response.answer == "answer without results"
     assert response.results == []
 
 
-def test_parse_handles_empty_and_malformed_output():
-    assert parse({"output": None}).results == []
+def test_parse_does_not_turn_plain_answer_urls_into_results():
+    response = parse(
+        {"content": [{"type": "text", "text": "See https://example.test"}]}
+    )
+
+    assert response.answer == "See https://example.test"
+    assert response.results == []
+
+
+def test_parse_handles_empty_and_malformed_content():
+    assert parse({"content": None}).results == []
+    assert parse({"content": [{"type": "text", "text": ""}, "bad"]}).results == []
     assert (
-        parse({"output": [{"type": "message", "content": "not-a-list"}, "bad"]}).results
+        parse(
+            {"content": [{"type": "web_search_tool_result", "content": "bad"}]}
+        ).results
         == []
     )
-    assert parse({"output": {"type": "message"}}).answer == ""
+    assert (
+        parse({"content": [{"type": "web_search_result", "url": "https://a.test"}]})
+        .results[0]
+        .url
+        == "https://a.test"
+    )
 
 
 def test_provider_reads_env_base_url_and_models(monkeypatch):
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
-    monkeypatch.setenv("AGENT_WEB_SEARCH_DEEPSEEK_BASE_URL", "https://gateway.test/v1/")
+    monkeypatch.setenv(
+        "AGENT_WEB_SEARCH_DEEPSEEK_BASE_URL", "https://gateway.test/anthropic/"
+    )
     monkeypatch.setenv("AGENT_WEB_SEARCH_DEEPSEEK_MODELS", "model-a,model-b\nmodel-a")
 
     provider = DeepSeekProvider()
 
-    assert provider.endpoint == "https://gateway.test/v1/responses"
+    assert provider.endpoint == "https://gateway.test/anthropic/v1/messages"
     assert provider.models == ["model-a", "model-b"]
 
 
@@ -154,32 +170,27 @@ def test_provider_requires_server_side_credentials():
     assert response.error == "DEEPSEEK_API_KEY is not set"
 
 
-def test_provider_posts_to_responses_and_parses_response():
+def test_provider_posts_anthropic_messages_and_parses_response():
     provider = DeepSeekProvider(
         api_key="test-key",
-        base_url="https://gateway.test/v1",
+        base_url="https://gateway.test/anthropic",
         models=["model"],
     )
     body = {
         "model": "model",
-        "output": [
-            {"type": "web_search_call", "status": "completed"},
+        "content": [
+            {"type": "server_tool_use", "name": "web_search"},
             {
-                "type": "message",
+                "type": "web_search_tool_result",
                 "content": [
                     {
-                        "type": "output_text",
-                        "text": "answer",
-                        "annotations": [
-                            {
-                                "type": "url_citation",
-                                "url": "https://a.test",
-                                "title": "A",
-                            }
-                        ],
+                        "type": "web_search_result",
+                        "title": "A",
+                        "url": "https://a.test",
                     }
                 ],
             },
+            {"type": "text", "text": "answer"},
         ],
     }
 
@@ -191,11 +202,13 @@ def test_provider_posts_to_responses_and_parses_response():
 
     request = opened.call_args.args[0]
     payload = json.loads(request.data)
-    assert request.full_url == "https://gateway.test/v1/responses"
-    assert request.headers["Authorization"] == "Bearer test-key"
-    assert payload["tools"] == [{"type": "web_search"}]
-    assert payload["tool_choice"] == {"type": "web_search"}
-    assert "question" in payload["input"]
+    assert request.full_url == "https://gateway.test/anthropic/v1/messages"
+    assert request.headers["X-api-key"] == "test-key"
+    assert request.headers["Anthropic-version"] == "2023-06-01"
+    assert payload["messages"][0]["content"].startswith("Search")
+    assert payload["tools"] == [
+        {"type": "web_search_20250305", "name": "web_search", "max_uses": 5}
+    ]
     assert response.answer == "answer"
     assert response.results[0].url == "https://a.test"
 

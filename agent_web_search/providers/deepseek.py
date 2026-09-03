@@ -12,42 +12,43 @@ from ..prompting import search_prompt
 from .base import Provider
 
 DEFAULT_MODEL = "deepseek-v4-flash"
-DEFAULT_BASE_URL = "https://api.deepseek.com"
+DEFAULT_BASE_URL = "https://api.deepseek.com/anthropic"
 API_KEY_ENV = "DEEPSEEK_API_KEY"
 BASE_URL_ENV = "AGENT_WEB_SEARCH_DEEPSEEK_BASE_URL"
 MODEL_ENV = "AGENT_WEB_SEARCH_DEEPSEEK_MODELS"
+TOOL_TYPE = "web_search_20250305"
+TOOL_NAME = "web_search"
 
 
 def _text(value: Any) -> str:
     return value.strip() if isinstance(value, str) else ""
 
 
-def _content_blocks(item: dict[str, Any]) -> list[dict[str, Any]]:
-    content = item.get("content")
-    if isinstance(content, dict):
-        return [content]
-    if isinstance(content, list):
-        return [block for block in content if isinstance(block, dict)]
-    return []
-
-
 def _endpoint(base_url: str) -> str:
     base = base_url.rstrip("/")
-    return base if base.endswith("/responses") else f"{base}/responses"
+    return base if base.endswith("/v1/messages") else f"{base}/v1/messages"
+
+
+def _content_blocks(block: dict[str, Any]) -> list[dict[str, Any]]:
+    content = block.get("content")
+    if isinstance(content, list):
+        return [item for item in content if isinstance(item, dict)]
+    if isinstance(content, dict):
+        return [content]
+    return []
 
 
 def build_payload(prompt: str, model: str) -> dict[str, Any]:
     return {
         "model": model,
-        "input": prompt,
-        "tools": [{"type": "web_search"}],
-        "tool_choice": {"type": "web_search"},
-        "max_output_tokens": 4096,
+        "max_tokens": 4096,
+        "messages": [{"role": "user", "content": prompt}],
+        "tools": [{"type": TOOL_TYPE, "name": TOOL_NAME, "max_uses": 5}],
     }
 
 
 def parse(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
-    """Parse a DeepSeek Responses API object into the shared provider shape."""
+    """Parse an Anthropic Messages response from DeepSeek."""
     try:
         limit = max(1, int(max_results))
     except (TypeError, ValueError):
@@ -57,43 +58,42 @@ def parse(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
     results: list[SearchResult] = []
     seen_urls: set[str] = set()
     searched = False
-    output = data.get("output") if isinstance(data, dict) else []
-    if not isinstance(output, list):
-        output = []
+    content = data.get("content") if isinstance(data, dict) else []
+    if not isinstance(content, list):
+        content = []
 
-    for item in output:
-        if not isinstance(item, dict):
+    for block in content:
+        if not isinstance(block, dict):
             continue
-        item_type = item.get("type")
-        searched |= item_type == "web_search_call"
-        blocks = _content_blocks(item)
-        if item_type in {"output_text", "text"}:
-            blocks.append(item)
-        for block in blocks:
-            if block.get("type") in {"output_text", "text"}:
-                text = _text(block.get("text"))
-                if text:
-                    answer = text
-            for annotation in block.get("annotations") or []:
-                if not isinstance(annotation, dict):
-                    continue
-                if annotation.get("type") != "url_citation":
-                    continue
-                url = _text(annotation.get("url"))
-                if not url or url in seen_urls:
-                    continue
-                seen_urls.add(url)
-                results.append(
-                    SearchResult(
-                        title=_text(annotation.get("title")),
-                        url=url,
-                        description="",
-                        provider="deepseek",
-                    )
+        block_type = block.get("type")
+        searched |= block_type in {"server_tool_use", "web_search_tool_result"}
+        if block_type == "text":
+            text = _text(block.get("text"))
+            if text:
+                answer = text
+        result_blocks = (
+            _content_blocks(block) if block_type == "web_search_tool_result" else []
+        )
+        if block_type == "web_search_result":
+            result_blocks.append(block)
+        for result in result_blocks:
+            if result.get("type") != "web_search_result":
+                continue
+            url = _text(result.get("url"))
+            if not url or url in seen_urls:
+                continue
+            seen_urls.add(url)
+            results.append(
+                SearchResult(
+                    title=_text(result.get("title")),
+                    url=url,
+                    description=_text(
+                        result.get("description") or result.get("snippet")
+                    ),
+                    provider="deepseek",
                 )
+            )
 
-    if not answer:
-        answer = _text(data.get("output_text"))
     return ProviderResponse(
         provider="deepseek",
         answer=answer,
@@ -104,7 +104,7 @@ def parse(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
 
 
 class DeepSeekProvider(Provider):
-    """DeepSeek Responses API with the native web_search tool."""
+    """DeepSeek Anthropic Messages API with native web search."""
 
     name = "deepseek"
     parse = staticmethod(parse)
@@ -151,8 +151,9 @@ class DeepSeekProvider(Provider):
             data=json.dumps(payload).encode(),
             headers={
                 "Accept": "application/json",
-                "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
+                "anthropic-version": "2023-06-01",
+                "x-api-key": self.api_key,
             },
             method="POST",
         )

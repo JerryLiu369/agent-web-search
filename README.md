@@ -83,7 +83,7 @@ Agent ──┬── MCP client ────── web_search ──┐
 | **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI web search and X Search | `XAI_API_KEY` | No |
 | **Codex Alpha** (experimental) | Alpha Search-compatible gateway | `/v1/alpha/search` | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | No |
-| **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Responses API web search | `DEEPSEEK_API_KEY` | No |
+| **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Anthropic Messages API with native web search | `DEEPSEEK_API_KEY` | No |
 | **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | Native structured Search API | `PERPLEXITY_API_KEY` | No |
 | **Tavily** | [Tavily](https://tavily.com) | Tavily Search API | `TAVILY_API_KEY` | No |
 | **You.com** | [You.com API](https://you.com/platform/api) | Unified web and news search | `YDC_API_KEY` | No |
@@ -502,19 +502,19 @@ search results.
 
 #### 9. DeepSeek
 
-DeepSeek uses the official Responses API and forces the native `web_search` tool
-for each search request. It preserves the model-generated answer when available
-and maps only explicit `url_citation` annotations into normalized results. A
+DeepSeek uses the official Anthropic-compatible Messages API and the native
+`web_search_20250305` server tool. It preserves the final model-generated text
+and maps only explicit `web_search_result` blocks into normalized results. A
 valid response may therefore have an `answer` with an empty `results` list.
 
 | Variable | Required | Purpose |
 | --- | :---: | --- |
 | `DEEPSEEK_API_KEY` | Yes | DeepSeek API credential |
-| `AGENT_WEB_SEARCH_DEEPSEEK_BASE_URL` | No | API base URL; defaults to `https://api.deepseek.com` |
+| `AGENT_WEB_SEARCH_DEEPSEEK_BASE_URL` | No | Anthropic API base URL; defaults to `https://api.deepseek.com/anthropic` |
 | `AGENT_WEB_SEARCH_DEEPSEEK_MODELS` | No | Comma/newline-separated model IDs; defaults to `deepseek-v4-flash` |
 
 Add `deepseek` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key. The
-provider appends `/responses` to the configured base URL. Multiple models are
+provider appends `/v1/messages` to the configured base URL. Multiple models are
 selected round-robin for successive requests.
 
 #### 10. Perplexity
@@ -563,7 +563,7 @@ ignores unsupported controls.
 | Gemini | Prompt constraint | Prompt constraint |
 | Grok | Prompt constraint | Prompt; X Search also uses native dates |
 | Codex Alpha | Local result truncation | Ignored |
-| DeepSeek | Local citation truncation | Prompt constraint |
+| DeepSeek | Local search-result truncation | Prompt constraint |
 | Perplexity | Native `max_results` | Native recency filter |
 | Tavily | Native `max_results` | Native `time_range` |
 | You.com | Native `count`, combined cap | Native `freshness` |
