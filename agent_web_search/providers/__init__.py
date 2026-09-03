@@ -2,6 +2,7 @@ from .ark import ArkProvider
 from .brave import BraveProvider
 from .codex_alpha import CodexAlphaProvider
 from .ddgs import DDGSProvider
+from .deepseek import DeepSeekProvider
 from .exa import ExaProvider
 from .gemini import GeminiProvider
 from .grok import GrokProvider
@@ -15,6 +16,7 @@ __all__ = [
     "BraveProvider",
     "CodexAlphaProvider",
     "DDGSProvider",
+    "DeepSeekProvider",
     "ExaProvider",
     "GeminiProvider",
     "GrokProvider",

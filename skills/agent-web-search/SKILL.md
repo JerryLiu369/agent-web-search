@@ -45,7 +45,9 @@ agent-web-search "recent discussion of MCP on X" --provider grok --grok-search-m
   work without keys by default. Use a named paid provider only when the user
   requested it or the environment is known to enable it.
 - ARK is the recommended model-backed provider when a generated synthesis is
-  useful. Grok's `x_search` is appropriate for X-specific requests.
+  useful. DeepSeek also provides model-native web search and can be selected
+  explicitly with `--provider deepseek` when its API key is configured. Grok's
+  `x_search` is appropriate for X-specific requests.
 
 Keep the query a single shell argument. Use the shell's normal quoting rules;
 do not interpolate untrusted query text into a larger executable command.

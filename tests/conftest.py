@@ -19,6 +19,7 @@ import pytest
 _CREDENTIAL_VARS = (
     "ARK_API_KEY",
     "BRAVE_SEARCH_API_KEY",
+    "DEEPSEEK_API_KEY",
     "EXA_API_KEY",
     "EXA_MCP_URL",
     "GEMINI_API_KEY",

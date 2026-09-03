@@ -8,6 +8,7 @@ from .providers import (
     BraveProvider,
     CodexAlphaProvider,
     DDGSProvider,
+    DeepSeekProvider,
     ExaProvider,
     GeminiProvider,
     GrokProvider,
@@ -43,6 +44,11 @@ PROVIDER_SPECS = {
         "AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY",
     ),
     "ddgs": ProviderSpec(DDGSProvider, "DuckDuckGo web search"),
+    "deepseek": ProviderSpec(
+        DeepSeekProvider,
+        "DeepSeek Responses API web search",
+        "DEEPSEEK_API_KEY",
+    ),
     "exa": ProviderSpec(ExaProvider, "Exa web search", "EXA_API_KEY"),
     "gemini": ProviderSpec(
         GeminiProvider,
