@@ -1,5 +1,5 @@
 name: agent-web-search
-version: 0.7.2
+version: 0.7.3
 description: Multi-provider web search for Hermes — independent search and grounding backends.
 author: Jerry Liu
 license: MIT
