@@ -16,6 +16,8 @@ from .providers import (
     PerplexityProvider,
     TavilyProvider,
     YouProvider,
+    ZhipuChatSearchProvider,
+    ZhipuWebSearchProvider,
 )
 from .providers.base import Provider
 
@@ -79,6 +81,16 @@ PROVIDER_SPECS = {
         YouProvider,
         "You.com Search API",
         "YDC_API_KEY",
+    ),
+    "zhipu_web_search": ProviderSpec(
+        ZhipuWebSearchProvider,
+        "Zhipu standalone Web Search API",
+        "ZHIPU_WEB_SEARCH_API_KEY",
+    ),
+    "zhipu_chat_search": ProviderSpec(
+        ZhipuChatSearchProvider,
+        "Zhipu Chat Completions Web Search",
+        "ZHIPU_CHAT_SEARCH_API_KEY",
     ),
 }
 

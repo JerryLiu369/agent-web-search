@@ -10,6 +10,8 @@ from .parallel import ParallelProvider
 from .perplexity import PerplexityProvider
 from .tavily import TavilyProvider
 from .you import YouProvider
+from .zhipu_chat_search import ZhipuChatSearchProvider
+from .zhipu_web_search import ZhipuWebSearchProvider
 
 __all__ = [
     "ArkProvider",
@@ -24,4 +26,6 @@ __all__ = [
     "PerplexityProvider",
     "TavilyProvider",
     "YouProvider",
+    "ZhipuChatSearchProvider",
+    "ZhipuWebSearchProvider",
 ]
