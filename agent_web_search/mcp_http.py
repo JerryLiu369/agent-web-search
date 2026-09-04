@@ -174,8 +174,8 @@ def create_http_app(
     server: Server | None = None,
 ) -> Starlette:
     """Create the authenticated stateless Streamable HTTP ASGI app."""
-    settings = settings or HTTPSettings.from_env()
-    server = server or create_mcp_server()
+    settings = HTTPSettings.from_env() if settings is None else settings
+    server = create_mcp_server() if server is None else server
     auth_token = _auth_token(settings)
     app = server.streamable_http_app(
         streamable_http_path="/mcp",

@@ -55,6 +55,31 @@ def test_engine_sanitizes_unexpected_provider_exception():
     assert "test-secret" not in out.failed_provider_errors["exploding"]
 
 
+@pytest.mark.parametrize(
+    ("provider", "error"),
+    [
+        (object(), "bad AttributeError"),
+        (type("BadReturn", (), {"search": lambda *_: {}})(), "bad TypeError"),
+    ],
+)
+def test_engine_isolates_invalid_provider_implementations(provider, error):
+    out = SearchEngine(providers={"bad": provider}).search(SearchRequest("hello"))
+
+    assert out.providers == {}
+    assert out.failed_provider_errors == {"bad": error}
+
+
+def test_engine_isolates_malformed_provider_response_before_serialization():
+    class BadResponse:
+        def search(self, _request):
+            return ProviderResponse(provider="bad", results=[object()])
+
+    out = SearchEngine(providers={"bad": BadResponse()}).search(SearchRequest("hello"))
+
+    assert out.providers == {}
+    assert out.failed_provider_errors == {"bad": "bad TypeError"}
+
+
 def test_engine_omits_failed_providers_from_successful_results():
     out = SearchEngine(
         providers={"ok": Fake("ok"), "failed": Failing("failed", "boom")}

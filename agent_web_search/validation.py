@@ -19,7 +19,7 @@ _KNOWN_FIELDS = frozenset(
 
 
 def validate_web_search_arguments(
-    arguments: Mapping[str, Any],
+    arguments: Any,
     enabled_providers: Any,
 ) -> list[str]:
     """Validate raw web_search arguments against the tool schema.
@@ -31,6 +31,9 @@ def validate_web_search_arguments(
     """
     details: list[str] = []
     enabled = list(dict.fromkeys(enabled_providers))
+
+    if not isinstance(arguments, Mapping):
+        return [f"arguments must be an object, got {type(arguments).__name__}"]
 
     unknown = sorted(set(arguments) - _KNOWN_FIELDS)
     if unknown:
@@ -65,7 +68,9 @@ def validate_web_search_arguments(
             details.append(f"{name} must be between 1 and {upper}, got {value}")
 
     time_range = arguments.get("time_range")
-    if time_range is not None and time_range not in {"d", "w", "m", "y"}:
+    if time_range is not None and (
+        not isinstance(time_range, str) or time_range not in {"d", "w", "m", "y"}
+    ):
         details.append(f"time_range must be one of d/w/m/y, got {time_range!r}")
 
     providers = arguments.get("providers")
@@ -103,7 +108,11 @@ def validate_web_search_arguments(
     if mode is not None:
         if "grok" not in enabled:
             details.append("grok_search_mode is only available when grok is enabled")
-        elif mode not in {"web_search", "x_search", "both"}:
+        elif not isinstance(mode, str) or mode not in {
+            "web_search",
+            "x_search",
+            "both",
+        }:
             details.append(
                 "grok_search_mode must be one of web_search/x_search/both, "
                 f"got {mode!r}"

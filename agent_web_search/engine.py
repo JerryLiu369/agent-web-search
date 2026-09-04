@@ -5,7 +5,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .errors import exception_error
-from .models import ProviderResponse, SearchRequest, SearchResponse
+from .models import ProviderResponse, SearchRequest, SearchResponse, SearchResult
 from .registry import DEFAULT_PROVIDER_NAMES, create_provider_pool
 from .validation import validate_search_request
 
@@ -44,6 +44,30 @@ class SearchEngine:
     def enabled_provider_names(self) -> list[str]:
         return list(self.providers)
 
+    @staticmethod
+    def _validate_provider_response(response: object) -> ProviderResponse:
+        """Reject malformed provider output before it reaches public serialization."""
+        if not isinstance(response, ProviderResponse):
+            raise TypeError("provider returned an invalid response")
+        if not isinstance(response.answer, str) or (
+            response.error is not None and not isinstance(response.error, str)
+        ):
+            raise TypeError("provider returned invalid response fields")
+        if not isinstance(response.results, list) or not all(
+            isinstance(item, SearchResult) for item in response.results
+        ):
+            raise TypeError("provider returned invalid results")
+        for item in response.results:
+            if not (
+                isinstance(item.title, str)
+                and isinstance(item.url, str)
+                and isinstance(item.description, str)
+                and (item.published_at is None or isinstance(item.published_at, str))
+                and (item.author is None or isinstance(item.author, str))
+            ):
+                raise TypeError("provider returned invalid result fields")
+        return response
+
     def search(self, request: SearchRequest) -> SearchResponse:
         problems = validate_search_request(request, self.enabled_provider_names)
         if problems:
@@ -57,14 +81,18 @@ class SearchEngine:
         # provider after registration/schema construction.
         output = {}
         with ThreadPoolExecutor(max_workers=max(1, len(selected))) as pool:
-            futures = {
-                pool.submit(self.providers[name].search, request): name
-                for name in selected
-            }
+            futures = {}
+            for name in selected:
+                try:
+                    futures[pool.submit(self.providers[name].search, request)] = name
+                except Exception as exc:  # noqa: BLE001 - provider access is isolated
+                    output[name] = ProviderResponse(
+                        provider=name, error=exception_error(name, exc)
+                    )
             for future in as_completed(futures):
                 name = futures[future]
                 try:
-                    output[name] = future.result()
+                    output[name] = self._validate_provider_response(future.result())
                 except Exception as exc:  # noqa: BLE001 - providers must be isolated
                     output[name] = ProviderResponse(
                         provider=name, error=exception_error(name, exc)

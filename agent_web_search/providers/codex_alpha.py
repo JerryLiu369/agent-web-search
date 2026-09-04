@@ -7,6 +7,7 @@ import urllib.request
 import uuid
 from typing import Any
 
+from .. import __version__
 from ..errors import exception_error
 from ..models import ProviderResponse, SearchRequest, SearchResult
 from .base import Provider
@@ -15,7 +16,7 @@ DEFAULT_MODEL = "gpt-5.6-luna"
 ENDPOINT_ENV = "AGENT_WEB_SEARCH_CODEX_ALPHA_ENDPOINT"
 API_KEY_ENV = "AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY"
 MODEL_ENV = "AGENT_WEB_SEARCH_CODEX_ALPHA_MODEL"
-USER_AGENT = "agent-web-search/0.7.0"
+USER_AGENT = f"agent-web-search/{__version__}"
 
 
 def _text(value: Any) -> str:
@@ -24,7 +25,10 @@ def _text(value: Any) -> str:
 
 def parse_results(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
     """Normalize the opaque Alpha ``results`` array into public result rows."""
-    limit = max(1, int(max_results))
+    try:
+        limit = max(1, int(max_results))
+    except (OverflowError, TypeError, ValueError):
+        limit = 10
     results: list[SearchResult] = []
     for raw in data.get("results") or []:
         if not isinstance(raw, dict):

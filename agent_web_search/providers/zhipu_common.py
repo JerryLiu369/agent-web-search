@@ -25,7 +25,7 @@ def recency_filter(time_range: str | None) -> str | None:
 def result_limit(value: Any, default: int = 10) -> int:
     try:
         return max(1, min(20, int(value)))
-    except (TypeError, ValueError):
+    except (OverflowError, TypeError, ValueError):
         return default
 
 

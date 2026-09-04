@@ -49,6 +49,13 @@ def test_missing_query_is_rejected():
     assert validate_web_search_arguments({}, ENABLED)
 
 
+@pytest.mark.parametrize("arguments", [None, [], "not-an-object"])
+def test_non_object_arguments_are_rejected_without_raising(arguments):
+    assert validate_web_search_arguments(arguments, ENABLED) == [
+        f"arguments must be an object, got {type(arguments).__name__}"
+    ]
+
+
 @pytest.mark.parametrize("value", ["ten", 1.5, True, 0, 21, -3])
 def test_out_of_range_or_non_integer_counts_are_rejected(value):
     details = validate_web_search_arguments(
@@ -68,6 +75,14 @@ def test_invalid_time_range_is_rejected():
         {"query": "hi", "time_range": "hour"}, ENABLED
     )
     assert any("time_range" in d for d in details)
+
+
+@pytest.mark.parametrize("field", ["time_range", "grok_search_mode"])
+def test_unhashable_enum_values_are_rejected_without_raising(field):
+    enabled = [*ENABLED, "grok"] if field == "grok_search_mode" else ENABLED
+    details = validate_web_search_arguments({"query": "hi", field: []}, enabled)
+
+    assert any(field in detail for detail in details)
 
 
 def test_string_providers_is_rejected_with_a_hint():

@@ -28,7 +28,7 @@ def format_invalid_arguments(details: list[str]) -> str:
 
 def create_mcp_server(engine: SearchEngine | None = None) -> Server:
     """Create the shared MCP server used by every transport."""
-    engine = engine or SearchEngine()
+    engine = SearchEngine() if engine is None else engine
     if not engine.enabled_provider_names:
         raise ValueError("no search providers are enabled")
     schema = build_tool_schema(engine.enabled_provider_names)
@@ -50,7 +50,7 @@ def create_mcp_server(engine: SearchEngine | None = None) -> Server:
                 content=[types.TextContent(text=f"Unknown tool: {params.name}")],
                 isError=True,
             )
-        args = params.arguments or {}
+        args = params.arguments if params.arguments is not None else {}
         # Enforce the declared inputSchema before building a SearchRequest:
         # the MCP SDK does not validate arguments itself, and from_mapping
         # silently coerces some malformed values (e.g. a string providers
@@ -91,7 +91,7 @@ async def run_stdio(server: Server | None = None) -> None:
     """Run the shared MCP server over stdin/stdout."""
     from mcp.server.stdio import stdio_server
 
-    server = server or create_mcp_server()
+    server = create_mcp_server() if server is None else server
     async with stdio_server() as (read_stream, write_stream):
         await server.run(
             read_stream,

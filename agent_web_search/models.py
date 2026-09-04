@@ -30,7 +30,7 @@ class SearchRequest:
         def bounded(value: Any, default: int, upper: int) -> int:
             try:
                 return max(1, min(upper, int(value)))
-            except (TypeError, ValueError):
+            except (OverflowError, TypeError, ValueError):
                 return default
 
         if self.providers is not None and not isinstance(self.providers, (list, tuple)):
@@ -47,7 +47,10 @@ class SearchRequest:
             query=str(self.query).strip(),
             max_results=bounded(self.max_results, 10, 20),
             time_range=(
-                self.time_range if self.time_range in {"d", "w", "m", "y"} else None
+                self.time_range
+                if isinstance(self.time_range, str)
+                and self.time_range in {"d", "w", "m", "y"}
+                else None
             ),
             providers=providers,
             grok_search_mode=str(self.grok_search_mode or "web_search"),

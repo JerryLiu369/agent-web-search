@@ -51,7 +51,7 @@ def parse(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
     """Parse an Anthropic Messages response from DeepSeek."""
     try:
         limit = max(1, int(max_results))
-    except (TypeError, ValueError):
+    except (OverflowError, TypeError, ValueError):
         limit = 10
 
     answer = ""

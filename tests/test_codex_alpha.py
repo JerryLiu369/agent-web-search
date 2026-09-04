@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 from unittest.mock import patch
 
+from agent_web_search import __version__
 from agent_web_search.models import SearchRequest
 from agent_web_search.providers.codex_alpha import (
+    USER_AGENT,
     CodexAlphaProvider,
     build_payload,
     parse_results,
@@ -19,6 +21,10 @@ def test_payload_is_normal_web_search_only():
         "search_context_size": "low",
     }
     assert not {"input", "response_length", "allowed_callers"}.intersection(payload)
+
+
+def test_user_agent_tracks_package_version():
+    assert f"agent-web-search/{__version__}" == USER_AGENT
 
 
 def test_parse_text_results_ignores_unknown_items():
