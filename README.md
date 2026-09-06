@@ -2,7 +2,7 @@
 
 # Agent Web Search
 
-<!-- mcp-name: io.github.jerryliu369/agent-web-search -->
+<!-- mcp-name: io.github.JerryLiu369/agent-web-search -->
 
 **Agent-native web search for AI agents — aggregating model-native search and agent search providers, not traditional search engines.**
 
