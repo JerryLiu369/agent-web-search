@@ -1,0 +1,35 @@
+{
+  "query": "PyTorch 3.0 release date and major features",
+  "providers": {
+    "ark": {
+      "answer": "# PyTorch 3.0 发布时间与核心特性\n\n## 📅 发布时间\n\n根据多个来源报道，**PyTorch 3.0 由 Meta 主导于 2026 年 5 月 9 日正式发布**。\n\n---\n\n## 🔑 核心特性\n\n### 1. 动态图与静态图深度融合（核心突破）\nPyTorch 3.0 最大的架构升级是彻底打破了\"动态图 vs 静态图\"二选一的传统困境，实现了：\n- **动态开发、静态加速、一键互通**\n- 开发者无需手动切换图模式或改造代码，即可享受静态图性能加速\n- 前向、反向和优化器步骤被统一编译为单个 FX Graph\n\n> 来源：[CSDN 博客 - PyTorch 3.0发布：动态图与静态图的融合如何改变AI训练范式？](https://blog.csdn.net/2609_96580141/article/details/163482451)\n\n---\n\n### 2. 原生静态图编译能力（TorchDynamo + Inductor）\n- 通过 `torch.compile(model, backend=\"inductor\", fullgraph=True)` 触发静态图生成\n- 不再依赖 `torch.jit.trace` 或 `torch.compile(..., dynamic=False)` 的显式图捕获\n- 采用**运行时自动图提取（AOT）** 与**跨设备图分区** 实现零侵入式部署\n\n> 来源：[CSDN 博客 - 静态图加速×分布式扩展×显存压缩，PyTorch 3.0三重革命已落地](https://blog.csdn.net/CodePulse/article/details/159620962)\n\n---\n\n### 3. 分布式训练大幅增强（FSDPv2 + 可组合 API）\n- 引入 `torch.distributed._composable` API 与 **FSDPv2**（Fully Sharded Data Parallel v2）\n- 构建了统一、可组合、高性能的静态图分布式训练范式\n- 支持张量并行 / 流水线并行 / 数据并行的统一抽象\n- 适配 NVIDIA A100/H100/H200/B100 及 AMD MI300X 等芯片，支持 NCCL 2.18+ 通信后端\n\n> 来源：[CSDN 博客 - PyTorch 3.0静态图分布式训练黄金配置矩阵](https://blog.csdn.net/CodeWhim/article/details/159954105)\n\n---\n\n### 4. 吸收 Google JAX 核心函数式变换（torch.func 模块正式化）\n- 将 JAX 的核心函数式变换 —— **vmap、pmap、jit、grad** —— 以 PyTorch 原生方式引入\n- `torch.func` 模块正式化（前身为 `functorch`）\n- 业界评价认为这使得\"PyTorch 事实上统一了 ML 框架市场\"\n\n> 来源：[PyTorch 3.0 正式发布报道](https://youngsam.net/news/pytorch-3-0-jax-features-absorbed-meta)\n\n---\n\n### 5. 分布式训练安全范式\n- 引入基于编译期的图级静态安全分析\n- 通信加密、拓扑验证、梯度裁剪、审计日志、WASM 沙箱隔离等多层防护\n- 敏感操作（如未授权 AllReduce 调用）在编译期即被阻断\n\n> 来源：[CSDN 博客 - PyTorch 3.0安全训练闭环](https://blog.csdn.net/CodeTrick/article/details/159620296)\n\n---\n\n## 📝 总结\n\n| 维度 | 要点 |\n|------|------|\n| **发布日期** | 2026 年 5 月 9 日 |\n| **主导方** | Meta |\n| **版本号** | PyTorch 3.0.0 |\n| **核心突破** | 动态图与静态图深度融合 |\n| **编译后端** | TorchDynamo + Inductor |\n| **分布式** | FSDPv2 + 可组合 API |\n| **函数式变换** | torch.func 正式化（吸收 JAX 核心功能） |\n| **硬件适配** | NVIDIA H200/B100、AMD MI300X 等 |\n\nPyTorch 3.0 被业界视为一次**颠覆性架构升级**，核心目标是消除\"科研用动态图、部署转静态图\"的长期割裂，真正做到开发即加速、一键即部署。",
+      "results": [
+        {
+          "title": "PyTorch 3.0 정식 발표 — JAX 핵심 기능 흡수, \"1년 안 JAX 의미 없어진다\" 평가",
+          "url": "https://youngsam.net/news/pytorch-3-0-jax-features-absorbed-meta",
+          "description": ""
+        },
+        {
+          "title": "静态图加速×分布式扩展×显存压缩，PyTorch 3.0三重革命已落地，你还在用动态图训GPT-2？",
+          "url": "https://blog.csdn.net/CodePulse/article/details/159620962",
+          "description": ""
+        },
+        {
+          "title": "PyTorch 3.0安全训练闭环：从IR验证→通信加密→梯度裁剪→审计日志→WASM沙箱隔离（87%企业尚未启用的第5层防护）",
+          "url": "https://blog.csdn.net/CodeTrick/article/details/159620296",
+          "description": ""
+        },
+        {
+          "title": "PyTorch 3.0发布：动态图与静态图的融合如何改变AI训练范式？",
+          "url": "https://blog.csdn.net/2609_96580141/article/details/163482451",
+          "description": ""
+        },
+        {
+          "title": "【独家首发】PyTorch 3.0静态图分布式训练黄金配置矩阵（覆盖A100/H100/MI300X芯片+NCCL 2.18+Linux内核5.15）",
+          "url": "https://blog.csdn.net/CodeWhim/article/details/159954105",
+          "description": ""
+        }
+      ]
+    }
+  }
+}

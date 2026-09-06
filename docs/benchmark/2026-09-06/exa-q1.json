@@ -1,0 +1,36 @@
+{
+  "query": "What changed in the latest OpenAI Codex CLI release?",
+  "providers": {
+    "exa": {
+      "results": [
+        {
+          "title": "Releases · openai/codex - GitHub",
+          "url": "https://github.com/openai/codex/releases",
+          "description": "- 0.153.2\n- 0.153.1\n- 0.153.0\n- 0.154.0-alpha.3\n- 0.154.0-alpha.2\n- 0.154.0-alpha.1\n- 0.153.0-alpha.6\n- 0.153.0-alpha.5.1\n- 0.153.0-alpha.5\n- 0.152.1\n...\n- Corrected the GPT-6-Astra Fast tier description to say “2x speed, increased usage” instead of “1.5x.” This changes only the displayed text, not how requests run. (#42632)\n...\n- #42632 Fix GPT-6-Astra Fast tier description for 0.153.2@anp-oai\n...\ngithub-actions released this 0\n...\nSep 21:02\n...\n## New Features\n...\n- Added support for configuri",
+          "author": "openai"
+        },
+        {
+          "title": "0.152.0",
+          "url": "https://github.com/openai/codex/releases/tag/rust-v0.152.0",
+          "description": "# 0.152.0\n...\n- Tag: rust-v0.152.0\n- Repository: openai/codex\n- Published: 2026-09-01T01:58:32Z\n- Author: github-actions[bot]\n...\n## New Features\n...\n- Vim mode supports `/` and `?` searches within drafts, highlighted matches, and repeat navigation with `n` and `N`. (#41586)\n...\n- Rate-limit banners offer actions for checking usage, managing credits, resetting limits, and managing plans. (#41742)\n...\n- The terminal UI and `codex exec` show credential-refresh progress, including Amazon Bedrock re"
+        },
+        {
+          "title": "0.149.0",
+          "url": "https://github.com/openai/codex/releases/tag/rust-v0.149.0",
+          "description": "# 0.149.0\n...\n- Tag: rust-v0.149.0\n- Repository: openai/codex\n- Published: 2026-08-20T21:04:55Z\n- Author: github-actions[bot]\n...\n## New Features\n...\n- Added an interactive `codex agents` dashboard for searching, starting, opening, renaming, and stopping tasks, with configurable shortcuts. (#39094, #39112, #39114, #39142)\n...\n- Added `/cd`, `/pwd`, and `/cwd` commands for managing the working directory in TUI sessions. (#38894)\n...\n- Added `codex queue` for sending messages to existing local or "
+        },
+        {
+          "title": "Codex CLI 0.153.0 Changes Explained (2026) | Get Claude Skills",
+          "url": "https://www.getclaudeskills.com/blog/codex-cli-0-153-0-explained",
+          "description": "Codex CLI's 0.153 line added Vim undo and redo, remote plugin marketplace management, a configurable auto-recap setting, and catalog support for GPT-6-Astra.\n...\nCodex CLI shipped 0.153.0, 0.153.1 and 0.153.2 in quick succession, all dated 3 September 2026 per OpenAI's own release notes on the `openai/codex` GitHub repository, the primary source this article draws from directly. `developers.openai.com`, which would carry fuller configuration reference for some of what's below, was not reachable ",
+          "published_at": "2026-09-05T00:00:00.000Z"
+        },
+        {
+          "title": "0.151.0",
+          "url": "https://github.com/openai/codex/releases/tag/rust-v0.151.0",
+          "description": "# 0.151.0\n...\n- Tag: rust-v0.151.0\n- Repository: openai/codex\n- Published: 2026-08-29T09:55:39Z\n- Author: github-actions[bot]\n...\n## New Features\n...\n- Added a configurable grace period for discovering tools from optional MCP servers. (#41199)\n- Extensions can now inspect or replace MCP tool results before they reach the model. (#41202)\n- Plugin catalogs now combine per-repository configuration and report invalid project marketplaces without hiding valid plugins. (#41208)\n...\n## Bug Fixes\n...\n- "
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "query": "PyTorch 3.0 release date and major features",
+  "providers": {
+    "exa": {
+      "results": [
+        {
+          "title": "Releases · pytorch/pytorch",
+          "url": "https://github.com/pytorch/pytorch/releases",
+          "description": "PyTorch 2.13\n...\n.13\n...\n| FlexAttention lands on Apple Silicon (MPS), with up to ~12x speedup over SDPA on sparse patterns, and gains a deterministic backward path on CUDA for reproducible gradient computation. |\n| --- |\n| CuTeDSL \"Native DSL\" backend gives Inductor a second high-performance code path (alongside Triton) for key GPU operations, with faster compilation. [Prototype] |\n| `nn.LinearCrossEntropyLoss` combines the final prediction and loss computation to cut peak GPU memory by up to 4",
+          "author": "pytorch"
+        },
+        {
+          "title": "RELEASE.md",
+          "url": "https://github.com/pytorch/pytorch/blob/3b7d6bbe8be3609fddc65998d83779642f6dd14c/RELEASE.md",
+          "description": "| PyTorch version | Python | C++ | Stable CUDA | Experimental CUDA | Stable ROCm |\n| --- | --- | --- | --- | --- | --- |\n| 2.7 | >=3.9, <=3.13, (3.13t experimental) | C++17 | CUDA 11.8 (CUDNN 9.1.0.70), CUDA 12.6 (CUDNN 9.5.1.17) | CUDA 12.8 (CUDNN 9.7.1.26) | ROCm 6.3 |\n...\n2.4 |\n...\n.2 |\n...\n<=3.\n...\nUDNN\n...\n7.0.84 | CUDA\n...\n7 |\n|\n...\nC++1\n...\n6 | CUDA\n...\n| CUDA 11.7, CUDNN 8.5.0.96 | ROCm 5.2 |\n|\n...\n| C++14 | CUDA\n...\n11.3, CUDNN 8.3.2.44 | CUDA 11.6, CUDNN 8.3.2.44 | ROCm 5.0 |\n...\n## Re"
+        },
+        {
+          "title": "RELEASE.md",
+          "url": "https://github.com/pytorch/pytorch/blob/3f197b36114f46a5a2e8abbcc493ce5eeba23498/RELEASE.md",
+          "description": "| PyTorch version | Python | C++ | Stable CUDA | Experimental CUDA | Stable ROCm |\n| --- | --- | --- | --- | --- | --- |\n| 2.10 | >=3.10, <=(3.14, 3.14t experimental) | C++17 | CUDA 12.6 (CUDNN 9.10.2.21), CUDA 12.8 (CUDNN 9.10.2.21) | CUDA 13.0 (CUDNN 9.13.0.50) | ROCm 7.1 |\n...\n| 2.9 | >=3.10, <=(3.14, 3.14t experimental) | C++17 | CUDA 12.6 (CUDNN 9.10.2.21), CUDA 12.8 (CUDNN 9.10.2.21) | CUDA 13.0 (CUDNN 9.13.0.50) | ROCm 6.4 |\n...\n<=3.13\n...\nROCm 6.4\n...\n| 2.7\n...\n, <=3\n...\n17 | CUDA\n...\n1."
+        },
+        {
+          "title": "PyTorch 3.0 Release: Native Integration with Python’s New JIT Compiler | TECH CHAMPION",
+          "url": "https://tech-champion.com/programming/python-programming/pytorch-3-0-release-native-integration-with-pythons-new-jit-compiler/",
+          "description": "PyTorch 3.0 Release: Native Integration with Python’s New JIT Compiler | TECH CHAMPION\n...\nPyTorch 3.0 Release: Native Integration with Python’s New JIT Compiler\n...\nThe release of PyTorch 3.0 native JIT integration marks a fundamental shift in how Python-based AI frameworks execute performance-critical workloads. By aligning deeply with Python 3.14’s Tier-2 and Tier-3 Just-In-Time compilation pipeline, PyTorch removes long-standing interpreter overheads while preserving Python’s expressive prog"
+        },
+        {
+          "title": "PyTorch 3.0 Archives - AI",
+          "url": "https://artintelly.com/tag/pytorch-3-0/",
+          "description": "Landmark Updates Reshape AI Frameworks In May 2025, the releases of PyTorch 3.0 and TensorFlow 4.0 mark a new chapter in the global AI development race, introducing key advances that reshape deep learning workflows. PyTorch 3.0: Performance First PyTorch 3.0 focuses on maximizing performance: faster inference, lower memory usage, improved distributed training, and stronger support […]\n...\nA Breakthrough in Open Source: Why the PyTorch 3.0 Release Matters In late May 2025, the PyTorch community a",
+          "author": "Yurii"
+        }
+      ]
+    }
+  }
+}

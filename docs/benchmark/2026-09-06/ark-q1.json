@@ -1,0 +1,45 @@
+{
+  "query": "What changed in the latest OpenAI Codex CLI release?",
+  "providers": {
+    "ark": {
+      "answer": "# Latest OpenAI Codex CLI Release — What Changed\n\nBased on current sources, the latest OpenAI Codex CLI release is **rust-v0.152.1**, released **September 2, 2026**. Below is a summary of the changes in the most recent releases.\n\n---\n\n## rust-v0.152.1 (September 2, 2026)\n\n**Bug Fix:**\n- Fixes a critical issue where **Node REPL policies weren't being properly recognized during Guardian approval reviews**. This ensures that policy checks for Node REPL environments now function correctly when the Guardian approval flow is invoked.\n\n---\n\n## rust-v0.152.0 (September 1, 2026)\n\nA substantial release with numerous improvements:\n\n**Key Changes:**\n- **Plugin cache instrumentation** — The loaded plugin cache is now instrumented for better observability.\n- **PowerShell version exposure** — PowerShell version is now surfaced in the environment context.\n- **History notes error sanitization** — Backend errors in history notes are now sanitized.\n- **Model provider auth recovery** — Authentication recovery progress for model providers is now surfaced.\n- **Configurable sleep tool gating** — The sleep tool can now be gated via configuration.\n- **Thread source in realtime metadata** — Thread source is included in realtime connection metadata.\n- **History backend tool output budgets** — The history backend can now enforce tool output budgets.\n- **Keymap conflict checks** — Driven by the action registry.\n- **Forward history note images to the model** — Images in history notes are now forwarded to the model.\n- **Subagent service tier** — Subagents now follow the root service tier.\n- **Guardian approval coverage** — Required reviews are now honored when reusing Guardian scores; required-model Guardian approval coverage is now isolated.\n- **Terminal input permission checks** — Terminal input is now reviewed against retained permissions.\n- **Clock tools classification** — Clock tools are now classified as built-in control tools.\n- **MCP tool cache improvements** — Cached MCP tools are now preserved and refreshed during binding capture, with stable IDs assigned to generated responses.\n\n---\n\n## v0.151.0 (Major Advancement)\n\nNotable recent features include:\n- **Configurable grace period** for discovering tools from optional MCP servers.\n- **Extensions can inspect or replace MCP tool results** before they reach the model.\n- **Plugin catalogs** now combine per-repository configuration and report invalid project marketplaces without hiding valid plugins.\n- **Bug fixes**: Restored permission profiles preserved across TUI turns; `/cd` prevented from weakening sandbox restrictions; tool availability and reasoning effort corrected.\n\n---\n\n**Sources:**\n1. [Havoptic — OpenAI Codex CLI Changelog](https://www.havoptic.com/tools/openai-codex) (updated September 2, 2026)\n2. [Havoptic — rust-v0.152.0 Release Page](https://www.havoptic.com/r/openai-codex-rust-v0.152.0)\n3. [AgentUpdate — OpenAI Codex CLI Releases](https://agentupdate.ai/releases/openai-codex)",
+      "results": [
+        {
+          "title": "OpenAI Codex CLI Changelog & Release Notes",
+          "url": "https://www.havoptic.com/tools/openai-codex#/compare?tools=openai-codex,claude-code",
+          "description": ""
+        },
+        {
+          "title": "OpenAI 研究 | OpenAI",
+          "url": "https://openai.com/zh-Hant/research/index/?tags=codex",
+          "description": ""
+        },
+        {
+          "title": "OpenAI Codex CLI Changelog & Release Notes",
+          "url": "https://www.havoptic.com/tools/openai-codex",
+          "description": ""
+        },
+        {
+          "title": "Codex Version History",
+          "url": "https://developertoolkit.ai/en/codex/version-management/changelog/",
+          "description": ""
+        },
+        {
+          "title": "Codex CLI",
+          "url": "https://agentupdate.ai/releases/openai-codex",
+          "description": ""
+        },
+        {
+          "title": "Codex CLI on Chocolatey | Release Alert",
+          "url": "https://releasealert.dev/chocolatey/codex?page=10",
+          "description": ""
+        },
+        {
+          "title": "OpenAI Codex CLI rust-v0.152.0",
+          "url": "https://www.havoptic.com/r/openai-codex-rust-v0.152.0",
+          "description": ""
+        }
+      ]
+    }
+  }
+}

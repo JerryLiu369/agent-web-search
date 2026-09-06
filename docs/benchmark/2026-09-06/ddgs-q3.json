@@ -1,0 +1,34 @@
+{
+  "query": "PyTorch 3.0 release date and major features",
+  "providers": {
+    "ddgs": {
+      "results": [
+        {
+          "title": "PyTorch - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/PyTorch",
+          "description": "Toggle the table of contents PyTorch"
+        },
+        {
+          "title": "PyTorch",
+          "url": "https://pytorch.org/",
+          "description": "4 days ago · We are excited to announce the release of PyTorch® 2.14 (release notes)! The PyTorch 2.14 release features the following changes: NVGEMM brings CuTeDSL-generated CUTLASS kernels to Inductor, with epilogue fusion,… Read More September 2, 2026in Announcements, Blog Agentic AI and Next-Gen Intelligence Sessions at PyTorch Conference North ..."
+        },
+        {
+          "title": "Releases · pytorch/pytorch · GitHub",
+          "url": "https://github.com/pytorch/pytorch/releases",
+          "description": "Release list PyTorch 2.14.0 Release PyTorch 2.13.0 Release PyTorch 2.12.1 Release, bug fix release PyTorch 2.12.0 Release PyTorch 2.11.0 Release PyTorch 2.10.0 Release"
+        },
+        {
+          "title": "PyTorch",
+          "url": "https://docs.pytorch.org/docs/versions",
+          "description": "PyTorch Documentation Pick a version"
+        },
+        {
+          "title": "PyTorch Release History: A Comprehensive Guide - codegenes.net",
+          "url": "https://www.codegenes.net/blog/pytorch-release-history/",
+          "description": "Jul 15, 2026 · PyTorch is an open-source deep learning library originally developed by Meta AI (formerly Facebook AI Research). Since its initial alpha release in September 2016, PyTorch has undergone numerous updates, each bringing new features, performance improvements, and enhanced stability. In September 2022, Meta transferred governance of PyTorch to the independent PyTorch Foundation, a subsidiary of ..."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "query": "What changed in the latest OpenAI Codex CLI release?",
+  "providers": {
+    "ddgs": {
+      "results": [
+        {
+          "title": "Releases · openai/codex · GitHub",
+          "url": "https://github.com/openai/codex/releases",
+          "description": "Lightweight coding agent that runs in your terminal - openai/codex"
+        },
+        {
+          "title": "Release Notes | OpenAI",
+          "url": "https://openai.com/products/release-notes/",
+          "description": "OpenAI release notes for ChatGPT, API Platform, and Codex. Explore the latest features, updates, and improvements across OpenAI products."
+        },
+        {
+          "title": "OpenAI Codex: Every August 2026 Update, Explained (September 2026)",
+          "url": "https://aitoolsreview.co.uk/insights/openai-codex-august-2026-updates",
+          "description": "Summary Codex - OpenAI's coding agent, available via CLI, web, IDE extension and the macOS app - is going through a compressed period of change. A model-deprecation notice, a browser product shutdown, and a feature release all landed within the same ten-day window at the end of July 2026, and they are easy to conflate if you only catch one AI YouTube video summarising \"what's new.\""
+        },
+        {
+          "title": "Codex CLI in 2026: What's New, What's Changed and What's Coming",
+          "url": "https://codex.danielvaughan.com/2026/03/27/codex-cli-in-2026-whats-new/",
+          "description": "A comprehensive guide to every major Codex CLI change in 2026 — new models, hooks, subagents, Codex Spark, enterprise features, and what's still on the roadmap."
+        },
+        {
+          "title": "Codex CLI Changelog (September 2026) - gradually.ai",
+          "url": "https://www.gradually.ai/en/changelogs/codex-cli/",
+          "description": "All updates, new features and bug fixes for Codex CLI at a glance, documented from January 2026 to September 2026 and updated regularly."
+        }
+      ]
+    }
+  }
+}
