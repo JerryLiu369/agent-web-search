@@ -2,7 +2,7 @@
 
 # Agent Web Search
 
-<!-- mcp-name: io.github.jerryliu369/agent-web-search -->
+<!-- mcp-name: io.github.JerryLiu369/agent-web-search -->
 
 **面向 AI Agent 的原生搜索层：聚合模型原生搜索与 Agent 搜索服务，而不是传统搜索引擎聚合器。**
 

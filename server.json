@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.jerryliu369/agent-web-search",
+  "name": "io.github.JerryLiu369/agent-web-search",
   "title": "Agent Web Search",
   "description": "Provider-neutral web_search for AI agents. Grounding + agent search APIs, keyless defaults.",
   "websiteUrl": "https://github.com/JerryLiu369/agent-web-search",
