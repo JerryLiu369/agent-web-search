@@ -1,0 +1,103 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.jerryliu369/agent-web-search",
+  "title": "Agent Web Search",
+  "description": "Provider-neutral web_search for AI agents. Grounding + agent search APIs, keyless defaults.",
+  "websiteUrl": "https://github.com/JerryLiu369/agent-web-search",
+  "repository": {
+    "url": "https://github.com/JerryLiu369/agent-web-search",
+    "source": "github"
+  },
+  "version": "0.7.4",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "agent-web-search-mcp",
+      "version": "0.7.4",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "AGENT_WEB_SEARCH_PROVIDERS",
+          "description": "Comma-separated startup-enabled provider set; defaults to ddgs,exa,parallel (all keyless)",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "ARK_API_KEY",
+          "description": "Volcengine Ark API key for Doubao grounding",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "description": "Google Gemini API key for Google Search grounding",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "XAI_API_KEY",
+          "description": "xAI API key for Grok web/X search",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "DEEPSEEK_API_KEY",
+          "description": "DeepSeek API key for native web search",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "TAVILY_API_KEY",
+          "description": "Tavily API key for agent-oriented search",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "BRAVE_SEARCH_API_KEY",
+          "description": "Brave Search API key",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "PERPLEXITY_API_KEY",
+          "description": "Perplexity API key for structured search",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "YDC_API_KEY",
+          "description": "You.com API key",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "EXA_API_KEY",
+          "description": "Optional Exa key; free MCP fallback without it",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "PARALLEL_API_KEY",
+          "description": "Optional Parallel key; free MCP fallback without it",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "ZHIPU_WEB_SEARCH_API_KEY",
+          "description": "Zhipu standalone Web Search API key",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "ZHIPU_CHAT_SEARCH_API_KEY",
+          "description": "Zhipu Chat Completions native web search key",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
