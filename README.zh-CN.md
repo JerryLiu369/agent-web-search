@@ -59,6 +59,8 @@ DDGS  大模型提供商    Agent 搜索提供商
 
 ## 为什么选择 Agent Web Search
 
+传统搜索聚合（Google/Bing/百度封装、抓取 SERP）把关键词查询发给传统搜索引擎再合并结果页。Agent Web Search 聚合的是**为 Agent 构建的搜索能力**：一次工具调用返回结构化、可直接引用的证据——或通过模型原生 grounding 提供商返回带明确引用的综合回答。[实测基准](benchmark-2026-09-06.md)显示了实际差异：在一个要求官方来源的中文自然语言查询上，传统 SERP 后端前 5 条结果没有任何政府域名，而 grounding 提供商返回了海关总署数据并附可用引用链接。
+
 - **从设计上就是 Agent-native。** 主要输入是完整的自然语言问题，而不是把关键词简单分发给 Google、Bing 或百度。
 - **模型原生搜索后端。** ARK、Gemini、Grok、DeepSeek、智谱 Chat Search 和 Codex Alpha 可以把联网检索、模型综合回答与明确引用结合起来。
 - **Agent 搜索提供商。** Exa、Parallel、Brave、Perplexity、Tavily、You.com 和智谱 Web Search 提供面向 Agent 的搜索 API，输出结构化、适合引用或适合放入上下文的证据。

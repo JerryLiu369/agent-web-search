@@ -62,6 +62,17 @@ Natural-language question
 
 ## Why Agent Web Search
 
+Traditional search aggregation (Google/Bing/Baidu wrappers, scraped SERPs)
+sends a keyword query to conventional engines and merges result pages. Agent
+Web Search instead aggregates **search capabilities built for agents**: one
+tool call returns structured, citation-ready evidence — or, through
+model-native grounding providers, a synthesized answer with explicit
+citations. A [measured benchmark](docs/benchmark-2026-09-06.md) shows the
+practical difference: on a natural-language Chinese query asking for official
+sources, conventional SERP backends returned no government-domain results in
+the top 5, while the grounding provider returned the 海关总署 figures with a
+working citation.
+
 - **Agent-native by design.** The primary interface is a complete natural-language
   question, not a thin keyword fan-out to Google, Bing, or Baidu.
 - **Model-native search backends.** ARK, Gemini, Grok, DeepSeek, Zhipu Chat
