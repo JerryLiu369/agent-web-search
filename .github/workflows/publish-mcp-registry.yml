@@ -1,0 +1,45 @@
+name: Publish to MCP Registry
+
+on:
+  workflow_run:
+    workflows: ["Publish to PyPI"]
+    types: [completed]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish server.json to MCP Registry
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Wait for PyPI CDN to serve the new version
+        run: |
+          VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          for i in $(seq 1 12); do
+            echo "attempt $i: checking agent-web-search-mcp $VERSION"
+            if curl -sf "https://pypi.org/pypi/agent-web-search-mcp/${VERSION}/json" | grep -q "mcp-name: io.github.JerryLiu369/agent-web-search"; then
+              echo "PyPI serves version $VERSION with mcp-name token"
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "PyPI did not serve the new version in time"
+          exit 1
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz
+          sudo mv mcp-publisher /usr/local/bin/
+
+      - name: Login with GitHub OIDC
+        run: mcp-publisher login github-oidc
+
+      - name: Publish
+        run: mcp-publisher publish
