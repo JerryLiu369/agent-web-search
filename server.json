@@ -8,13 +8,13 @@
     "url": "https://github.com/JerryLiu369/agent-web-search",
     "source": "github"
   },
-  "version": "0.7.4",
+  "version": "0.7.5",
   "packages": [
     {
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "agent-web-search-mcp",
-      "version": "0.7.4",
+      "version": "0.7.5",
       "transport": {
         "type": "stdio"
       },
