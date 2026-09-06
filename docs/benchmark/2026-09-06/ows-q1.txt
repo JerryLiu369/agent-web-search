@@ -1,0 +1,14 @@
+$ npx open-websearch@latest search "What changed in the latest OpenAI Codex CLI release?"
+
+--- stdout ---
+Search completed for "What changed in the latest OpenAI Codex CLI release?"
+Engines: duckduckgo, google, brave, exa, startpage, bing, ddgs
+Results: 1
+Partial failures: 4
+
+1. Releases · openai/codex · GitHub
+   https://github.com/openai/codex/releases
+   Lightweight coding agent that runs in your terminal - <b>openai/codex</b>
+
+--- stderr tail ---
+ter:title\",\"content\":\"Exa Search\"}],[\"$\",\"meta\",\"23\",{\"name\":\"twitter:description\",\"content\":\"Find exactly what you are looking for\"}],[\"$\",\"meta\",\"24\",{\"name\":\"twitter:image\",\"content\":\"https://exa.imgix.net/og-image.png/\"}],[\"$\",\"link\",\"25\",{\"rel\":\"icon\",\"href\":\"/search/images/favicon-32x32.png\",\"sizes\":\"32x32\",\"type\":\"image/png\"}],[\"$\",\"link\",\"26\",{\"rel\":\"icon\",\"href\":\"/search/images/favicon-16x16.png\",\"sizes\":\"16x16\",\"type\":\"image/png\"}],[\"$\",\"link\",\"27\",{\"rel\":\"apple-touch-icon\",\"href\":\"/search/icons/apple-touch-icon.png\",\"sizes\":\"180x180\",\"type\":\"image/png\"}],[\"$\",\"$L1d\",\"28\",{}]]\n"])</script><script>self.__next_f.push([1,"6:E{\"digest\":\"74714799\"}\n"])</script></body></html>

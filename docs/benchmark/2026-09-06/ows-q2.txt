@@ -1,0 +1,14 @@
+$ npx open-websearch@latest search "2026年中国新能源汽车出口数据 官方来源"
+
+--- stdout ---
+Search completed for "2026年中国新能源汽车出口数据 官方来源"
+Engines: duckduckgo, google, brave, exa, startpage, bing, ddgs
+Results: 1
+Partial failures: 4
+
+1. <span class="result__type">PDF</span> 中国新能源汽车贸易月度监测报告
+   https://delab.uibe.edu.cn/docs/2026-06/0cac6fbf222043258cbda8bab435214f.pdf
+   ( 一)新能源汽车出口结构 <b>2026</b> 年5 月,中国新能源汽车出口金额排名前三的产品为纯电动乘用车、插 电式混合动力乘用车和非插电式混合动力乘用车,分别出口45.3 亿美元、34.3 亿美元和13.4 亿美元,分别占新能源汽车贸易出口总额的47.4%、35.9% 和14.0%,同 比增速分别为 ...
+
+--- stderr tail ---
+ter:title\",\"content\":\"Exa Search\"}],[\"$\",\"meta\",\"23\",{\"name\":\"twitter:description\",\"content\":\"Find exactly what you are looking for\"}],[\"$\",\"meta\",\"24\",{\"name\":\"twitter:image\",\"content\":\"https://exa.imgix.net/og-image.png/\"}],[\"$\",\"link\",\"25\",{\"rel\":\"icon\",\"href\":\"/search/images/favicon-32x32.png\",\"sizes\":\"32x32\",\"type\":\"image/png\"}],[\"$\",\"link\",\"26\",{\"rel\":\"icon\",\"href\":\"/search/images/favicon-16x16.png\",\"sizes\":\"16x16\",\"type\":\"image/png\"}],[\"$\",\"link\",\"27\",{\"rel\":\"apple-touch-icon\",\"href\":\"/search/icons/apple-touch-icon.png\",\"sizes\":\"180x180\",\"type\":\"image/png\"}],[\"$\",\"$L1d\",\"28\",{}]]\n"])</script><script>self.__next_f.push([1,"6:E{\"digest\":\"74714799\"}\n"])</script></body></html>

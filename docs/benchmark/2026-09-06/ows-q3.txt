@@ -1,0 +1,15 @@
+$ npx open-websearch@latest search "PyTorch 3.0 release date and major features"
+
+--- stdout ---
+Search completed for "PyTorch 3.0 release date and major features"
+Engines: duckduckgo, google, brave, exa, startpage, bing, ddgs
+Results: 1
+Partial failures: 3
+
+1. PyTorch
+   https://pytorch.org/
+   We are excited to announce the <b>release</b> of <b>PyTorch</b>® 2.14 (<b>release</b> notes)! The <b>PyTorch</b> 2.14 <b>release</b> <b>features</b> the following changes: NVGEMM brings CuTeDSL-generated CUTLASS kernels to Inductor, with epilogue fusion,… Read More September 2, 2026in Announcements, Blog Agentic AI and Next-Gen Intelligence Sessions at <b>PyTorch</b> Conference North ...
+
+--- stderr tail ---
+"}],[\"$\",\"meta\",\"23\",{\"name\":\"twitter:description\",\"content\":\"Find exactly what you are looking for\"}],[\"$\",\"meta\",\"24\",{\"name\":\"twitter:image\",\"content\":\"https://exa.imgix.net/og-image.png/\"}],[\"$\",\"link\",\"25\",{\"rel\":\"icon\",\"href\":\"/search/images/favicon-32x32.png\",\"sizes\":\"32x32\",\"type\":\"image/png\"}],[\"$\",\"link\",\"26\",{\"rel\":\"icon\",\"href\":\"/search/images/favicon-16x16.png\",\"sizes\":\"16x16\",\"type\":\"image/png\"}],[\"$\",\"link\",\"27\",{\"rel\":\"apple-touch-icon\",\"href\":\"/search/icons/apple-touch-icon.png\",\"sizes\":\"180x180\",\"type\":\"image/png\"}],[\"$\",\"$L1d\",\"28\",{}]]\n"])</script><script>self.__next_f.push([1,"6:E{\"digest\":\"74714799\"}\n"])</script></body></html>
+⚠️ No more results, ending early....
