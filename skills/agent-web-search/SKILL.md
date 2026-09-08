@@ -1,6 +1,6 @@
 ---
 name: agent-web-search
-description: Search the live web through the agent-web-search CLI when current sources, online research, or cross-provider web results are needed and the agent is using shell tools instead of MCP.
+description: Search the live web through the agent-web-search CLI — powered by model-native search grounding and agent search backends. Optimized for complete natural-language questions rather than keyword fragments when online sources or cross-provider web research are needed.
 ---
 
 # Agent Web Search CLI
@@ -8,6 +8,19 @@ description: Search the live web through the agent-web-search CLI when current s
 Use the installed `agent-web-search` command as the search interface. This is
 the shell-native alternative to the project's MCP tool; it uses the same search
 engine, providers, inputs, response shape, and all-provider failure payload.
+
+## Core Characteristic: Model-Native Search & Natural-Language Queries
+
+**Agent Web Search is fundamentally built around model-native search grounding and agent-facing semantic search services, NOT traditional keyword SERP scrapers.**
+
+- **Always pass complete natural-language questions**: Formulate your query as a full sentence with explicit context, goals, and constraints.
+- **Do NOT use fragmented keyword queries**: Avoid short Google/Baidu-style keywords (e.g. do **NOT** search `"NVIDIA earnings Q3"` or `"DeepSeek V3 benchmark"`).
+- **Why this matters**: Upstream model providers (`ark`, `deepseek`, `gemini`, `grok`, `zhipu_chat_search`) and semantic search engines (`exa`, `parallel`) use neural models to read, reason, and ground citations. Feeding them fragmented keywords deprives the model of semantic context and severely degrades grounding and synthesis quality.
+
+| Query Style | Example | Result Quality |
+| :--- | :--- | :--- |
+| **Recommended (Natural Language)** | `agent-web-search "What were the key revenue highlights and datacenter guidance from NVIDIA's latest earnings report?"` | High-signal answer with precise URL citations |
+| **Avoid (Keyword Fragments)** | `agent-web-search "NVIDIA earnings report revenue"` | Degraded model grounding, generic SERP noise |
 
 ## Before searching
 
@@ -47,7 +60,7 @@ surfaces, configure them independently, for example:
 ```bash
 AGENT_WEB_SEARCH_PROVIDERS=zhipu_web_search
 ZHIPU_WEB_SEARCH_API_KEY=<server-side-key>
-agent-web-search "最近的 AI 新闻" --provider zhipu_web_search
+agent-web-search "智谱最近发布了哪些新的模型能力和开发工具？" --provider zhipu_web_search
 ```
 
 Use `zhipu_chat_search` instead when a model-generated answer is wanted; it uses
@@ -60,15 +73,15 @@ fallback or pass either credential as a CLI/MCP argument.
 Pass one complete natural-language question as the positional argument:
 
 ```bash
-agent-web-search "What changed in the latest MCP specification?"
+agent-web-search "What changes were introduced in the latest MCP protocol specification?"
 ```
 
 Use common controls only when the request benefits from them:
 
 ```bash
-agent-web-search "GPU kernel generation papers" --time-range m --max-results 5
-agent-web-search "latest AI news" --provider ddgs --provider exa
-agent-web-search "recent discussion of MCP on X" --provider grok --grok-search-mode x_search
+agent-web-search "What are the latest research papers and techniques on GPU kernel generation using Triton?" --time-range m --max-results 5
+agent-web-search "What major AI model announcements happened in the open-source community this week?" --provider ddgs --provider exa
+agent-web-search "What are developers currently discussing about MCP client implementations on X?" --provider grok --grok-search-mode x_search
 ```
 
 - `--provider` is repeatable and can only narrow providers enabled through

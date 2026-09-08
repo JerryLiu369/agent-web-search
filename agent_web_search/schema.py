@@ -14,7 +14,14 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
             "type": "string",
             "minLength": 1,
             "maxLength": MAX_QUERY_LENGTH,
-            "description": "A complete natural-language search question.",
+            "description": (
+                "A complete, detailed natural-language question or intent. "
+                "Do NOT use fragmented keyword queries (e.g. avoid 'NVDA earnings'); "
+                "instead pass the full question (e.g. 'What were the key highlights "
+                "and market reactions to NVIDIA latest earnings?'). "
+                "Model-native and semantic providers reason over full sentences "
+                "to retrieve, read, and synthesize grounded evidence."
+            ),
         },
         "max_results": {
             "type": "integer",
@@ -52,7 +59,9 @@ def build_tool_schema(enabled_providers: Iterable[str]) -> dict:
     return {
         "name": "web_search",
         "description": (
-            "Search the web through multiple providers. Enabled providers: "
+            "Search the web using agent-native semantic search and "
+            "LLM-grounding backends. Optimized for complete natural-language "
+            "questions rather than traditional keyword queries. Enabled providers: "
             + "; ".join(
                 PROVIDER_SPECS[name].description if name in PROVIDER_SPECS else name
                 for name in providers
