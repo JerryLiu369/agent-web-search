@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import os
 import sys
 from typing import ClassVar
 
@@ -11,7 +12,7 @@ from agent_web_search.mcp import create_mcp_server
 from agent_web_search.mcp_http import HTTPSettings, create_http_app
 from agent_web_search.models import ProviderResponse, SearchResponse
 
-TOKEN = "test-token-with-at-least-32-characters"
+TOKEN = os.environ.get("AWS_TEST_TOKEN", "not-a-real-credential-do-not-use")
 MCP_HEADERS = {
     "Accept": "application/json, text/event-stream",
     "MCP-Protocol-Version": "2025-06-18",

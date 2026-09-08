@@ -219,7 +219,7 @@ server yourself:
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"
-export AGENT_WEB_SEARCH_AUTH_TOKEN="replace-with-the-generated-token"
+export AGENT_WEB_SEARCH_AUTH_TOKEN="<your-generated-token>"
 agent-web-search-mcp --transport http
 ```
 
