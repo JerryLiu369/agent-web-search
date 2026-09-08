@@ -9,6 +9,7 @@ PROVIDER_FILES = (
     "brave.py",
     "codex_alpha.py",
     "ddgs.py",
+    "deepseek.py",
     "exa.py",
     "gemini.py",
     "grok.py",
@@ -16,6 +17,9 @@ PROVIDER_FILES = (
     "perplexity.py",
     "tavily.py",
     "you.py",
+    "zhipu_chat_search.py",
+    "zhipu_common.py",
+    "zhipu_web_search.py",
 )
 
 
