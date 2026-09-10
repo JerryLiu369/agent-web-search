@@ -34,7 +34,9 @@ class ParallelProvider(Provider):
     name = "parallel"
 
     def __init__(self, api_key: str | None = None, timeout: float = 60):
-        self.api_key = api_key or os.getenv("PARALLEL_API_KEY", "")
+        self.api_key = (
+            api_key if api_key is not None else os.getenv("PARALLEL_API_KEY", "")
+        )
         self.timeout = timeout
 
     @staticmethod

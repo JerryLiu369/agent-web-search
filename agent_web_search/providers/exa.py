@@ -28,7 +28,7 @@ class ExaProvider(Provider):
         endpoint: str | None = None,
         timeout: float = 60,
     ):
-        self.api_key = api_key or os.getenv("EXA_API_KEY", "")
+        self.api_key = api_key if api_key is not None else os.getenv("EXA_API_KEY", "")
         self.endpoint = endpoint or os.getenv("EXA_MCP_URL", "https://mcp.exa.ai/mcp")
         self.timeout = timeout
 

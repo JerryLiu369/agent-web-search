@@ -13,6 +13,8 @@ def configured_models(
 ) -> list[str]:
     """Resolve models from constructor values, environment, or defaults."""
     if models is not None:
+        if isinstance(models, str):
+            models = [models]
         values = models
     else:
         raw = os.getenv(env_name, "").strip()

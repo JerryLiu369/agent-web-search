@@ -1,6 +1,6 @@
 import json
 
-from agent_web_search.model_pool import RoundRobinModels
+from agent_web_search.model_pool import RoundRobinModels, configured_models
 from agent_web_search.models import SearchRequest
 from agent_web_search.providers.ark import ArkProvider
 from agent_web_search.providers.gemini import GeminiProvider
@@ -39,6 +39,12 @@ def test_plural_model_env_accepts_commas_newlines_and_duplicates(monkeypatch):
     provider = GeminiProvider(api_key="test-key")
 
     assert provider.models == ["gemini-a", "gemini-b"]
+
+
+def test_explicit_string_model_is_treated_as_one_model():
+    assert configured_models(
+        models="model-a", env_name="UNUSED_MODELS_ENV", defaults=["default"]
+    ) == ["model-a"]
 
 
 def test_ark_round_robins_models_between_requests(monkeypatch):

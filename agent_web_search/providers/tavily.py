@@ -19,7 +19,9 @@ class TavilyProvider(Provider):
     name = "tavily"
 
     def __init__(self, api_key: str | None = None, timeout: float = 60):
-        self.api_key = api_key or os.getenv("TAVILY_API_KEY", "")
+        self.api_key = (
+            api_key if api_key is not None else os.getenv("TAVILY_API_KEY", "")
+        )
         self.timeout = timeout
 
     @staticmethod

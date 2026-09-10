@@ -26,3 +26,11 @@ def test_publish_workflow_requires_a_main_based_release_tag():
     assert 'RELEASE_TARGET" = "main"' in workflow
     assert "git merge-base --is-ancestor" in workflow
     assert "origin/main" in workflow
+
+
+def test_registry_workflow_checks_out_the_triggering_release_commit():
+    workflow = (ROOT / ".github" / "workflows" / "publish-mcp-registry.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "ref: ${{ github.event.workflow_run.head_sha }}" in workflow

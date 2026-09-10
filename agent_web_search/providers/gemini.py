@@ -25,7 +25,9 @@ class GeminiProvider(Provider):
         models: list[str] | None = None,
         timeout: float = 60,
     ):
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY", "")
+        self.api_key = (
+            api_key if api_key is not None else os.getenv("GEMINI_API_KEY", "")
+        )
         self.models = configured_models(
             models=models,
             env_name="AGENT_WEB_SEARCH_GEMINI_MODELS",
