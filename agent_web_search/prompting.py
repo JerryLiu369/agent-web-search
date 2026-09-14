@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 TIME_RANGE_LABELS = {
     "d": "the past 24 hours",
@@ -9,6 +9,32 @@ TIME_RANGE_LABELS = {
     "y": "the past year",
 }
 TIME_RANGE_DAYS = {"d": 1, "w": 7, "m": 30, "y": 365}
+
+
+def time_range_window(
+    time_range: str | None, now: datetime | None = None
+) -> tuple[date, date] | None:
+    """Resolve a common range to the concrete (start, end) dates it covers."""
+    if time_range not in TIME_RANGE_DAYS:
+        return None
+    today = (now or datetime.now(timezone.utc)).astimezone(timezone.utc).date()
+    return today - timedelta(days=TIME_RANGE_DAYS[time_range]), today
+
+
+def time_range_label(time_range: str | None, now: datetime | None = None) -> str | None:
+    """Human label plus resolved window, e.g. 'the past week (2026-09-07 to 2026-09-14)'.
+
+    Model-backed providers only receive prompt text, so the window has to be
+    spelled out in dates — otherwise the model falls back to its own notion of
+    'now', which drifts toward its training cutoff.
+    """
+    if time_range not in TIME_RANGE_LABELS:
+        return None
+    window = time_range_window(time_range, now=now)
+    if window is None:  # pragma: no cover - TIME_RANGE_LABELS/TIME_RANGE_DAYS agree
+        return TIME_RANGE_LABELS[time_range]
+    start, end = window
+    return f"{TIME_RANGE_LABELS[time_range]} ({start.isoformat()} to {end.isoformat()})"
 
 
 def search_prompt(
@@ -32,10 +58,9 @@ def search_prompt(
         ),
     }
     constraints = [scope_instructions.get(search_scope, scope_instructions["web"])]
-    if time_range in TIME_RANGE_LABELS:
-        constraints.append(
-            f"Focus on information published within {TIME_RANGE_LABELS[time_range]}."
-        )
+    label = time_range_label(time_range)
+    if label is not None:
+        constraints.append(f"Focus on information published within {label}.")
     if max_results is not None:
         constraints.append(
             f"Use no more than {max_results} sources in the final answer "
@@ -46,8 +71,8 @@ def search_prompt(
 
 def x_search_date_filters(time_range: str | None) -> dict[str, str]:
     """Translate the common range to xAI X Search's native date filters."""
-    if time_range not in TIME_RANGE_DAYS:
+    window = time_range_window(time_range)
+    if window is None:
         return {}
-    today = datetime.now(timezone.utc).date()
-    start = today - timedelta(days=TIME_RANGE_DAYS[time_range])
-    return {"from_date": start.isoformat(), "to_date": today.isoformat()}
+    start, end = window
+    return {"from_date": start.isoformat(), "to_date": end.isoformat()}
