@@ -54,7 +54,7 @@ DDGS  大模型提供商    Agent 搜索提供商
       ARK · Gemini    Exa · Parallel · Brave
       Grok · DeepSeek Perplexity · Tavily · You.com
       Codex Alpha     智谱 Web Search
-      智谱 Chat
+      智谱 Chat · Responses · Messages
 ```
 
 ## 为什么选择 Agent Web Search
@@ -62,7 +62,7 @@ DDGS  大模型提供商    Agent 搜索提供商
 传统搜索聚合（Google/Bing/百度封装、抓取 SERP）把关键词查询发给传统搜索引擎再合并结果页。Agent Web Search 聚合的是**为 Agent 构建的搜索能力**：一次工具调用返回结构化、可直接引用的证据——或通过模型原生 grounding 提供商返回带明确引用的综合回答。[实测基准](docs/benchmark-2026-09-06.md)显示了实际差异：在一个要求官方来源的中文自然语言查询上，传统 SERP 后端前 5 条结果没有任何政府域名，而 grounding 提供商返回了海关总署数据并附可用引用链接。
 
 - **从设计上就是 Agent-native。** 主要输入是完整的自然语言问题，而不是把关键词简单分发给 Google、Bing 或百度。
-- **模型原生搜索后端。** ARK、Gemini、Grok、DeepSeek、智谱 Chat Search 和 Codex Alpha 可以把联网检索、模型综合回答与明确引用结合起来。
+- **模型原生搜索后端。** ARK、Gemini、Grok、DeepSeek、Messages、智谱 Chat Search 和 Codex Alpha 可以把联网检索、模型综合回答与明确引用结合起来。
 - **Agent 搜索提供商。** Exa、Parallel、Brave、Perplexity、Tavily、You.com 和智谱 Web Search 提供面向 Agent 的搜索 API，输出结构化、适合引用或适合放入上下文的证据。
 - **统一的 Provider-neutral 契约。** 所有后端都通过同一个 MCP 工具、CLI、Python API 和统一的 `results` 返回；模型后端还可以返回 `answer`。
 - **Provider 相互独立。** 选中的 Provider 会并发执行，一个 Provider 失败不会丢弃其他 Provider 的成功结果。
@@ -97,6 +97,7 @@ DDGS  大模型提供商    Agent 搜索提供商
 | **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Gemini Google Search grounding | `GEMINI_API_KEY` | 否 |
 | **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
 | **Responses** | 兼容 Responses API 的网关 | 通用 OpenAI Responses API 网页搜索 | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | 否 |
+| **Messages** | 兼容 Messages API 的网关 | 通用 Anthropic Messages API 网页搜索 | `AGENT_WEB_SEARCH_MESSAGES_API_KEY` | 否 |
 | **智谱 Chat Search** | [智谱 AI](https://open.bigmodel.cn/) | GLM Chat Completions 原生联网搜索 | `ZHIPU_CHAT_SEARCH_API_KEY` | 否 |
 
 ### Agent 搜索提供商
@@ -584,6 +585,26 @@ Responses 是通用 OpenAI Responses API 客户端，适用于在 `POST {base_ur
 
 配置 Key 后，将 `responses` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。配置多个模型时，连续请求会轮询选择模型。
 
+#### 16. Messages
+
+Messages 是通用 Anthropic Messages API 客户端，适用于在 `POST {base_url}/v1/messages`
+暴露服务端网页搜索工具的网关。它遍历 `content` 数组（不假设单个结果块即为结果），
+将 `web_search_tool_result` / `web_search_result` 结果块统一为标准结果，缺失标题时
+从引用或结果域名回填，并保留模型生成的回答。只有文本而没有任何 URL 的响应会保留
+回答、返回空 `results`，并将 `searched` 标记为 false。
+
+| 变量 | 必填 | 用途 |
+| --- | :---: | --- |
+| `AGENT_WEB_SEARCH_MESSAGES_BASE_URL` | 否 | 基础地址；默认 `https://api.anthropic.com`，会自动追加 `/v1/messages` |
+| `AGENT_WEB_SEARCH_MESSAGES_ENDPOINT` | 否 | 完整 endpoint 覆盖；优先级高于基础地址 |
+| `AGENT_WEB_SEARCH_MESSAGES_API_KEY` | 是 | `x-api-key` 凭据 |
+| `AGENT_WEB_SEARCH_MESSAGES_MODELS` | 否 | 用逗号/换行分隔的模型 ID，默认 `claude-3-7-sonnet-20250219,claude-3-5-haiku-20241022` |
+| `AGENT_WEB_SEARCH_MESSAGES_TOOL_TYPE` | 否 | 搜索工具类型，默认 `web_search_20250305` |
+| `AGENT_WEB_SEARCH_MESSAGES_TOOL_NAME` | 否 | 搜索工具名称，默认 `web_search` |
+| `AGENT_WEB_SEARCH_MESSAGES_TIMEOUT` | 否 | 单次请求超时（秒）；设置后覆盖 `AGENT_WEB_SEARCH_TIMEOUT` |
+
+配置 Key 后，将 `messages` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。配置多个模型时，连续请求会轮询选择模型。
+
 ### 通用搜索控制
 
 每个 Provider 会尽可能将公共控制参数映射到原生 API，不支持的参数会被忽略。
@@ -599,6 +620,7 @@ Responses 是通用 OpenAI Responses API 客户端，适用于在 `POST {base_ur
 | Grok | Prompt 约束 | Prompt；X Search 还会使用原生日期参数 |
 | Codex Alpha | 本地结果截断 | 忽略 |
 | DeepSeek | 本地搜索结果截断 | Prompt 约束 |
+| Messages | 本地去重并截断 | Prompt 约束 |
 | Perplexity | 原生 `max_results` | 原生时间范围过滤 |
 | Tavily | 原生 `max_results` | 原生 `time_range` |
 | You.com | 原生 `count`，合并后截断 | 原生 `freshness` |

@@ -16,7 +16,9 @@ def test_prompt_includes_resolved_window():
 
     assert time_range_label("w", now=now) == "the past week (2026-09-07 to 2026-09-14)"
     assert time_range_label("m", now=now) == "the past month (2026-08-15 to 2026-09-14)"
-    assert time_range_label("d", now=now) == "the past 24 hours (2026-09-13 to 2026-09-14)"
+    assert time_range_label("d", now=now) == (
+        "the past 24 hours (2026-09-13 to 2026-09-14)"
+    )
     assert time_range_label("y", now=now) == "the past year (2025-09-14 to 2026-09-14)"
     assert time_range_label(None) is None
     assert time_range_label("bogus") is None

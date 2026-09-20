@@ -46,6 +46,8 @@ registered at startup. The current Provider IDs are:
 - **Model-native search:** `ark` (`ARK_API_KEY`), `codex_alpha`
   (`AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` plus its endpoint), `deepseek`
   (`DEEPSEEK_API_KEY`), `gemini` (`GEMINI_API_KEY`), `grok` (`XAI_API_KEY`),
+  `messages` (`AGENT_WEB_SEARCH_MESSAGES_API_KEY` plus
+  `AGENT_WEB_SEARCH_MESSAGES_BASE_URL`),
   `responses` (`AGENT_WEB_SEARCH_RESPONSES_API_KEY` plus
   `AGENT_WEB_SEARCH_RESPONSES_BASE_URL`),
   and `zhipu_chat_search` (`ZHIPU_CHAT_SEARCH_API_KEY`).

@@ -57,7 +57,7 @@ Natural-language question
            ARK · Gemini     Exa · Parallel · Brave
            Grok · DeepSeek  Perplexity · Tavily · You.com
            Codex Alpha      Zhipu Web Search
-           Zhipu Chat
+           Zhipu Chat · Responses · Messages
 ```
 
 ## Why Agent Web Search
@@ -75,9 +75,9 @@ working citation.
 
 - **Agent-native by design.** The primary interface is a complete natural-language
   question, not a thin keyword fan-out to Google, Bing, or Baidu.
-- **Model-native search backends.** ARK, Gemini, Grok, DeepSeek, Zhipu Chat
-  Search, and Codex Alpha can combine web retrieval with model-generated
-  synthesis and explicit citations.
+- **Model-native search backends.** ARK, Gemini, Grok, DeepSeek, Messages,
+  Zhipu Chat Search, and Codex Alpha can combine web retrieval with
+  model-generated synthesis and explicit citations.
 - **Agent search providers.** Exa, Parallel, Brave, Perplexity, Tavily, You.com,
   and Zhipu Web Search expose search APIs intended to provide structured,
   citation-friendly, or context-ready evidence to downstream agents.
@@ -122,6 +122,7 @@ search evidence.
 | **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Gemini Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI web search and X Search | `XAI_API_KEY` | No |
 | **Responses** | Responses API-compatible gateway | Generic OpenAI Responses API with web search grounding | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | No |
+| **Messages** | Messages API-compatible gateway | Generic Anthropic Messages API with web search grounding | `AGENT_WEB_SEARCH_MESSAGES_API_KEY` | No |
 | **Zhipu Chat Search** | [Zhipu AI](https://open.bigmodel.cn/) | GLM Chat Completions with native web search | `ZHIPU_CHAT_SEARCH_API_KEY` | No |
 
 ### Agent search providers
@@ -654,6 +655,30 @@ Add `responses` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 Multiple configured models are selected round-robin for successive
 requests.
 
+#### 16. Messages
+
+Messages is a generic Anthropic Messages API client for gateways that expose
+a server-side web search tool at `POST {base_url}/v1/messages`. It traverses
+the `content` array (never assuming a single block holds results), maps
+`web_search_tool_result` / `web_search_result` blocks into normalized
+results, backfills missing titles from citations or the result domain, and
+preserves the model-generated answer. A response with only text and no URLs
+keeps the answer, returns empty `results`, and marks `searched` as false.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `AGENT_WEB_SEARCH_MESSAGES_BASE_URL` | No | Base URL; defaults to `https://api.anthropic.com`. Appends `/v1/messages` |
+| `AGENT_WEB_SEARCH_MESSAGES_ENDPOINT` | No | Complete endpoint override; takes priority over the base URL |
+| `AGENT_WEB_SEARCH_MESSAGES_API_KEY` | Yes | `x-api-key` credential |
+| `AGENT_WEB_SEARCH_MESSAGES_MODELS` | No | Comma/newline-separated model IDs; defaults to `claude-3-7-sonnet-20250219,claude-3-5-haiku-20241022` |
+| `AGENT_WEB_SEARCH_MESSAGES_TOOL_TYPE` | No | Search tool type; defaults to `web_search_20250305` |
+| `AGENT_WEB_SEARCH_MESSAGES_TOOL_NAME` | No | Search tool name; defaults to `web_search` |
+| `AGENT_WEB_SEARCH_MESSAGES_TIMEOUT` | No | Per-request timeout in seconds; overrides `AGENT_WEB_SEARCH_TIMEOUT` when set |
+
+Add `messages` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+Multiple configured models are selected round-robin for successive
+requests.
+
 ### Common search controls
 
 Each provider maps the shared controls to its native API when possible and
@@ -670,6 +695,7 @@ ignores unsupported controls.
 | Grok | Prompt constraint | Prompt; X Search also uses native dates |
 | Codex Alpha | Local result truncation | Ignored |
 | DeepSeek | Local search-result truncation | Prompt constraint |
+| Messages | Local deduplication and cap | Prompt constraint |
 | Perplexity | Native `max_results` | Native recency filter |
 | Tavily | Native `max_results` | Native `time_range` |
 | You.com | Native `count`, combined cap | Native `freshness` |

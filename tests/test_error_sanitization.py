@@ -13,6 +13,7 @@ PROVIDER_FILES = (
     "exa.py",
     "gemini.py",
     "grok.py",
+    "messages.py",
     "parallel.py",
     "perplexity.py",
     "tavily.py",
