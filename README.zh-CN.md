@@ -578,7 +578,7 @@ Responses 是通用 OpenAI Responses API 客户端，适用于在 `POST {base_ur
 | --- | :---: | --- |
 | `AGENT_WEB_SEARCH_RESPONSES_BASE_URL` | 否 | 基础地址；默认 `https://api.openai.com/v1`。无 `/v1` 后缀时追加 `/v1/responses`，否则追加 `/responses` |
 | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | 是 | Bearer 凭据；可回退到 `OPENAI_API_KEY` |
-| `AGENT_WEB_SEARCH_RESPONSES_MODELS` | 否 | 用逗号/换行分隔的模型 ID，默认 `gpt-4o` |
+| `AGENT_WEB_SEARCH_RESPONSES_MODELS` | 否 | 用逗号/换行分隔的模型 ID，默认 `gpt-5-mini` |
 | `AGENT_WEB_SEARCH_RESPONSES_TOOL_TYPE` | 否 | 搜索工具类型，默认 `web_search` |
 | `AGENT_WEB_SEARCH_RESPONSES_TIMEOUT` | 否 | 单次请求超时（秒）；设置后覆盖 `AGENT_WEB_SEARCH_TIMEOUT` |
 

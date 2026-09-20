@@ -646,7 +646,7 @@ message and no URLs keeps the answer, returns empty `results`, and marks
 | --- | :---: | --- |
 | `AGENT_WEB_SEARCH_RESPONSES_BASE_URL` | No | Base URL; defaults to `https://api.openai.com/v1`. Appends `/responses`, or `/v1/responses` when the base has no `/v1` suffix |
 | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | Yes | Bearer credential; falls back to `OPENAI_API_KEY` |
-| `AGENT_WEB_SEARCH_RESPONSES_MODELS` | No | Comma/newline-separated model IDs; defaults to `gpt-4o` |
+| `AGENT_WEB_SEARCH_RESPONSES_MODELS` | No | Comma/newline-separated model IDs; defaults to `gpt-5-mini` |
 | `AGENT_WEB_SEARCH_RESPONSES_TOOL_TYPE` | No | Search tool type; defaults to `web_search` |
 | `AGENT_WEB_SEARCH_RESPONSES_TIMEOUT` | No | Per-request timeout in seconds; overrides `AGENT_WEB_SEARCH_TIMEOUT` when set |
 

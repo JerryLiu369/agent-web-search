@@ -14,7 +14,7 @@ from ..models import ProviderResponse, SearchRequest, SearchResult
 from ..prompting import search_prompt
 from .base import Provider
 
-DEFAULT_MODELS = ["gpt-4o"]
+DEFAULT_MODELS = ["gpt-5-mini"]
 DEFAULT_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_TOOL_TYPE = "web_search"
 DEFAULT_TIMEOUT = 60.0

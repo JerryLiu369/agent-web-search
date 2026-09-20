@@ -46,7 +46,7 @@ def _standard_body() -> dict:
         "id": "resp_123",
         "object": "response",
         "status": "completed",
-        "model": "gpt-4o",
+        "model": "gpt-5-mini",
         "output": [
             {"id": "rs_01", "type": "reasoning", "summary": "..."},
             {
@@ -116,7 +116,7 @@ def test_parse_standard_response_with_reasoning_first():
     response = parse(_standard_body(), max_results=10)
 
     assert response.provider == "responses"
-    assert response.model == "gpt-4o"
+    assert response.model == "gpt-5-mini"
     assert response.searched is True
     assert response.answer == "Alexander Zverev won the 2026 US Open."
     assert [(row.title, row.url) for row in response.results] == [
@@ -249,7 +249,7 @@ def test_provider_defaults_to_openai_base_url_and_model(monkeypatch):
     provider = ResponsesProvider(api_key="k")
 
     assert provider.endpoint == "https://api.openai.com/v1/responses"
-    assert provider.models == ["gpt-4o"]
+    assert provider.models == ["gpt-5-mini"]
 
 
 def test_provider_supports_legacy_endpoint_env(monkeypatch):
@@ -315,7 +315,7 @@ def test_provider_posts_responses_payload_and_parses_response():
     assert payload["input"].startswith("Search")
     assert response.answer == "Alexander Zverev won the 2026 US Open."
     assert response.results[0].url == "https://www.usopen.org/news/a"
-    assert response.model == "gpt-4o"
+    assert response.model == "gpt-5-mini"
 
 
 def test_provider_rotates_models_round_robin():
