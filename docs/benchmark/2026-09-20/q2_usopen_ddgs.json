@@ -1,0 +1,44 @@
+{
+  "query": "Who won the 2026 US Open Men singles final, and what records were set in the tournament?",
+  "provider": "ddgs",
+  "duration_seconds": 1.32,
+  "searched": true,
+  "answer": "",
+  "results": [
+    {
+      "title": "2026 US Open (tennis) - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/2026_US_Open_(tennis)",
+      "description": "The 2026 US Open was the 146th edition of tennis' US Open, and the fourth and final Grand Slam event of the year. It was held on the outdoor hard courts at the USTA Billie Jean King National Tennis Center in New York City.",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "US Open tennis tournament 2026 | Schedule & results | LTA",
+      "url": "https://www.lta.org.uk/fan-zone/grand-slam/us-open/",
+      "description": "Who won the US Open in 2025? Here is a full list of the current US Open champions: Women’s singles: Aryna Sabalenka.The British players set to compete at the 2026 US Open across singles, doubles, and wheelchair events will be announced closer to the event.",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "Official Site of the 2026 US Open Tennis Championships - A USTA...",
+      "url": "https://www.usopen.org/index.html?os=winDhGBITyl&ref=app",
+      "description": "At the 2026 US Open, physically and emotionally distressed male tennis players shed tears on court.Roger Federer (left) defeated Andy Murray in the 2008 final to win his record fifth straight US Open men's singles title. What happens to the junior champs?",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "Who Won The Us Open Mens Final | TikTok",
+      "url": "https://www.tiktok.com/discover/who-won-the-us-open-mens-final",
+      "description": "Discover videos related to Who Won The Us Open Mens Final on TikTok. Last updated 2026-09-14.Alexander Zverev captures the 2026 US Open Men's title and a $5.5M prize, defeating top contenders including Ben Shelton. Highlights, scoreline, and key moments.",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "US Open | Overview | ATP Tour | Tennis",
+      "url": "https://www.atptour.com/en/tournaments/us-open/560/overview",
+      "description": "Official tennis tournament profile of US Open on the ATP Tour. Featuring news, who played, past champions, prize money, and more.",
+      "published_at": null,
+      "author": null
+    }
+  ]
+}

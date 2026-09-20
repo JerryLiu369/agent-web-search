@@ -1,0 +1,44 @@
+{
+  "query": "What are the core architectural changes in vLLM V1 engine redesign compared to V0?",
+  "provider": "ddgs",
+  "duration_seconds": 2.45,
+  "searched": true,
+  "answer": "",
+  "results": [
+    {
+      "title": "vLLM V1 vs V0 Architecture. A technical deep dive into... | Medium",
+      "url": "https://medium.com/@sharatonline/vllm-v1-vs-v0-architecture-53ecf086753c",
+      "description": "vLLM V1 represents a significant redesign of its predecessor, the V0 inference engine. vLLM V1 delivers a 1.7× improvement in throughput. The gains come from fundamental changes in request scheduling, memory management, and the overall execution flow.",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "vLLM V1 | OpenLM.ai",
+      "url": "https://openlm.ai/vllm-v1/",
+      "description": "vLLM V1 introduces a comprehensive re-architecture of its core components, including the scheduler, KV cache manager, worker, sampler, and API server.",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "vLLM's V1 Engine Architecture · Issue #8779 · vllm-project/vllm",
+      "url": "https://github.com/vllm-project/vllm/issues/8779",
+      "description": "vLLM's V1 Engine Architecture #8779. New issue. Copy link.This issues describes the high level directions that \"create LLM Engine V1\". We want the design to be as transparent as possible and created this issue to track progress and solicit feedback.",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "vLLM in Production: Open-Source LLM Inference Engine... — Effloow",
+      "url": "https://effloow.com/articles/vllm-production-inference-guide-2026",
+      "description": "The v1 Architecture: What Actually Changed. The original vLLM engine scheduled tokens by copying intermediate tensors between GPU and CPU during each scheduling decision. At high concurrency, this CPU-GPU round-trip became the bottleneck.",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "vllm.ai/llms.txt",
+      "url": "https://vllm.ai/llms.txt",
+      "description": "# vLLM > vLLM is a high-throughput, memory-efficient inference and serving engine for large language models. #MTP speculative decoding, Model Runner V2, and the SLA-first trade-offs behind the final configuration.",
+      "published_at": null,
+      "author": null
+    }
+  ]
+}

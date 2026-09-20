@@ -67,11 +67,11 @@ sends a keyword query to conventional engines and merges result pages. Agent
 Web Search instead aggregates **search capabilities built for agents**: one
 tool call returns structured, citation-ready evidence — or, through
 model-native grounding providers, a synthesized answer with explicit
-citations. A [measured benchmark](docs/benchmark-2026-09-06.md) shows the
-practical difference: on a natural-language Chinese query asking for official
-sources, conventional SERP backends returned no government-domain results in
-the top 5, while the grounding provider returned the 海关总署 figures with a
-working citation.
+citations. [Measured benchmarks](docs/benchmark-2026-09-20.md) (and [earlier runs](docs/benchmark-2026-09-06.md)) show the
+practical difference: on complex technical architecture and breaking news questions, conventional SERP backends
+return shallow marketing snippets requiring 3–5 downstream `web_extract` calls, whereas semantic search (Exa)
+delivers sub-second RFC/doc discovery and model grounding providers (Responses / ARK) deliver an authoritative,
+citation-backed multi-thousand-word synthesis in a single tool call.
 
 - **Agent-native by design.** The primary interface is a complete natural-language
   question, not a thin keyword fan-out to Google, Bing, or Baidu.

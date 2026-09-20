@@ -59,7 +59,7 @@ DDGS  大模型提供商    Agent 搜索提供商
 
 ## 为什么选择 Agent Web Search
 
-传统搜索聚合（Google/Bing/百度封装、抓取 SERP）把关键词查询发给传统搜索引擎再合并结果页。Agent Web Search 聚合的是**为 Agent 构建的搜索能力**：一次工具调用返回结构化、可直接引用的证据——或通过模型原生 grounding 提供商返回带明确引用的综合回答。[实测基准](docs/benchmark-2026-09-06.md)显示了实际差异：在一个要求官方来源的中文自然语言查询上，传统 SERP 后端前 5 条结果没有任何政府域名，而 grounding 提供商返回了海关总署数据并附可用引用链接。
+传统搜索聚合（Google/Bing/百度封装、抓取 SERP）把关键词查询发给传统搜索引擎再合并结果页。Agent Web Search 聚合的是**为 Agent 构建的搜索能力**：一次工具调用返回结构化、可直接引用的证据——或通过模型原生 grounding 提供商返回带明确引用的综合回答。[实测基准（2026-09-20）](docs/benchmark-2026-09-20.md)与[早期测试](docs/benchmark-2026-09-06.md)显示了根本性的差异：在面对复杂的底层技术架构（如 vLLM V1 重构机理）或突发实时新闻时，传统 SERP 抓取只返回浅层片段，迫使 Agent 额外进行 3~5 次下游网页正文抓取；而神经语义搜索（Exa）能 1 秒内直接命中 RFC 与核心文档，模型原生 Grounding（Responses 协议 / ARK）更能**在单次工具调用中直接输出数千字、结构完备且带精确角标的权威技术研报**。
 
 - **从设计上就是 Agent-native。** 主要输入是完整的自然语言问题，而不是把关键词简单分发给 Google、Bing 或百度。
 - **模型原生搜索后端。** ARK、Gemini、Grok、DeepSeek、智谱 Chat Search 和 Codex Alpha 可以把联网检索、模型综合回答与明确引用结合起来。

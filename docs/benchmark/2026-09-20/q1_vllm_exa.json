@@ -1,0 +1,44 @@
+{
+  "query": "What are the core architectural changes in vLLM V1 engine redesign compared to V0?",
+  "provider": "exa",
+  "duration_seconds": 1.21,
+  "searched": true,
+  "answer": "",
+  "results": [
+    {
+      "title": "vLLM V1: A Major Upgrade to vLLM's Core Architecture",
+      "url": "https://vllm.ai/blog/2025-01-27-v1-alpha-release",
+      "description": "We are thrilled to announce the alpha release of vLLM V1, a major upgrade to vLLM’s core architecture. Based on lessons we learned over the past 1.5 years of vLLM development, we revisited key design decisions, consolidated various features, and simplified the codebase to enhance flexibility and scalability. V1 already achieves state-of-the-art performance and is set to gain even more optimizations. Best of all, users can enable V1 seamlessly—just set the`VLLM_USE_V1=1` environment variable with",
+      "published_at": "2025-01-27T00:00:00.000Z",
+      "author": "vLLM Team"
+    },
+    {
+      "title": "vLLM V1 - vLLM",
+      "url": "https://docs.vllm.ai/en/latest/usage/v1_guide/",
+      "description": "We have fully deprecated V0. Please read RFC #18571 for more details.\n...\nvLLM V0 successfully supported a wide range of models and hardware, but as new features were developed independently, the system grew increasingly complex. This complexity made it harder to integrate new capabilities and introduced technical debt, revealing the need for a more streamlined and unified design.\n...\nBuilding on V0’s success, vLLM V1 retains the stable and proven components from V0 (such as the models, GPU kern",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "Performance boosts in vLLM 0.8.1: Switching to the V1 engine | Red Hat Developer",
+      "url": "https://developers.redhat.com/articles/2025/04/28/performance-boosts-vllm-081-switching-v1-engine",
+      "description": "## Architectural changes and simplifications\n...\nSome of the more significant performance improvements include:\n...\n- Engine re-architecture\n- Simplified scheduler\n- Prefix caching on by default\n- Enhanced multimodal performance\n...\n### 1. Engine re-architecture (V1 engine)\n...\nThe vLLM team has been building a massive change in the architecture of the core engine. While this has existed since the v0.6.x days, the v1 engine is now the default since version v0.8.0. The v1 engine allows for signif",
+      "published_at": "2025-04-28T14:00:00.000Z",
+      "author": null
+    },
+    {
+      "title": "vLLM V1 Alpha: A major upgrade to vLLM's core architecture",
+      "url": "https://developers.redhat.com/articles/2025/01/28/vllm-v1-a-major-upgrade-vllms-core-architecture",
+      "description": "We are thrilled to announce the alpha release of vLLM V1, a major upgrade to vLLM’s core architecture. Based on lessons we learned over the past 1.5 years of vLLM development, we revisited key design decisions, consolidated various features, and simplified the codebase to enhance flexibility and scalability. V1 already achieves state-of-the-art performance and is set to gain even more optimizations. Best of all, users can enable V1 seamlessly—just set the`VLLM_USE_V1=1` environment variable with",
+      "published_at": "2025-01-28T00:00:00.000Z",
+      "author": null
+    },
+    {
+      "title": "vLLM V1 vs V0 Architecture. A technical deep dive into scheduling… | by Sharat Nellltla | Medium",
+      "url": "https://medium.com/@sharatonline/vllm-v1-vs-v0-architecture-53ecf086753c",
+      "description": "As we delve deeper into this topic, we will break it down into more manageable parts. First, we will look at the baseline architecture of V0. Then, we will dissect five key architectural changes that V1 introduces: disaggregated scheduling, a redesign of prefix caching, chunked prefill, multi-step execution, and the new memory manager.\n...\nIn contrast, V1 has re-architected three crucial paths. The scheduler now operates independently from the execution engine, enabling it to make speculative sc",
+      "published_at": "2026-05-06T06:15:45.000Z",
+      "author": "Sharat Nellltla"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "query": "Who won the 2026 US Open Men singles final, and what records were set in the tournament?",
+  "provider": "responses",
+  "duration_seconds": 11.98,
+  "searched": true,
+  "answer": "### Winner\n**Alexander Zverev** won the 2026 US Open Men's singles title on September 13, 2026, defeating American **Ben Shelton** in the final with a score of 6–3, 7–6(2), 5–7, 6–2. \n\n---\n\n### Key Records and Milestones Set During the Tournament\n\n* **First German Champion in 37 Years:** Zverev became the first German man to win the US Open men's singles title since Boris Becker in 1989.\n* **Dual Maiden Slams in a Single Season:** By following up his 2026 French Open title with the US Open, Zverev became only the fourth man in the Open Era to win his first two Grand Slam singles titles in the same calendar year, joining Jimmy Connors (1974), Guillermo Vilas (1977), and Jannik Sinner (2024).\n* **Latest Finish in US Open History:** Ben Shelton’s five-set quarterfinal upset of defending champion Carlos Alcaraz concluded at **3:33 a.m.**, breaking the all-time tournament record for the latest match finish previously set by Alcaraz and Sinner in 2022.\n* **Historic All-Black Major Semifinal:** The semifinal clash between Ben Shelton and Frances Tiafoe marked the first time in Grand Slam history that two Black men faced each other in a major semifinal. Following the victory, Shelton became the first Black American man to reach the US Open final since Arthur Ashe in 1972.\n* **End of a 24-Year \"Big Three\" Streak:** Following Novak Djokovic’s earliest Grand Slam exit since 2006 (a first-round loss to Mariano Navone), he fell out of the ATP top 10, marking the first time since October 2002 that none of the \"Big Three\" (Roger Federer, Rafael Nadal, Novak Djokovic) were ranked inside the top 10.\n* **Modern Era Viewership Record:** Averaging 3.2 million viewers on ABC, the final between Zverev and Shelton became the most-watched US Open men's singles final since ESPN networks acquired full broadcast rights in 2009.",
+  "results": [
+    {
+      "title": "wikipedia.org",
+      "url": "https://en.wikipedia.org/wiki/2026_US_Open_%E2%80%93_Men%27s_singles",
+      "description": "",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "usopen.org",
+      "url": "https://www.usopen.org/en_US/news/articles/2026-09-13/alexander_zverev_defeats_ben_shelton_to_win_2026_us_open.html",
+      "description": "",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "latimes.com",
+      "url": "https://www.latimes.com/sports/story/2026-09-13/us-open-mens-final",
+      "description": "",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "si.com",
+      "url": "https://www.si.com/onsi/serve/news/us-open-mens-final-draws-largest-abc-audience-since-2009-01m2te0gvtp8",
+      "description": "",
+      "published_at": null,
+      "author": null
+    },
+    {
+      "title": "sfgate.com",
+      "url": "https://www.sfgate.com/sports/article/u-s-open-men-s-final-watched-by-record-3-2-22433947.php",
+      "description": "",
+      "published_at": null,
+      "author": null
+    }
+  ]
+}
