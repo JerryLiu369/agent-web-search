@@ -14,6 +14,7 @@ from .providers import (
     GrokProvider,
     ParallelProvider,
     PerplexityProvider,
+    ResponsesProvider,
     TavilyProvider,
     YouProvider,
     ZhipuChatSearchProvider,
@@ -71,6 +72,11 @@ PROVIDER_SPECS = {
         PerplexityProvider,
         "Perplexity structured Search API",
         "PERPLEXITY_API_KEY",
+    ),
+    "responses": ProviderSpec(
+        ResponsesProvider,
+        "Generic Responses API web search",
+        "AGENT_WEB_SEARCH_RESPONSES_API_KEY",
     ),
     "tavily": ProviderSpec(
         TavilyProvider,

@@ -8,6 +8,7 @@ from .gemini import GeminiProvider
 from .grok import GrokProvider
 from .parallel import ParallelProvider
 from .perplexity import PerplexityProvider
+from .responses import ResponsesProvider
 from .tavily import TavilyProvider
 from .you import YouProvider
 from .zhipu_chat_search import ZhipuChatSearchProvider
@@ -24,6 +25,7 @@ __all__ = [
     "GrokProvider",
     "ParallelProvider",
     "PerplexityProvider",
+    "ResponsesProvider",
     "TavilyProvider",
     "YouProvider",
     "ZhipuChatSearchProvider",

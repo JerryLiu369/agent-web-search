@@ -50,6 +50,18 @@
           "isSecret": true
         },
         {
+          "name": "AGENT_WEB_SEARCH_RESPONSES_API_KEY",
+          "description": "Generic Responses API key for web search grounding (falls back to OPENAI_API_KEY)",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "AGENT_WEB_SEARCH_RESPONSES_BASE_URL",
+          "description": "Generic Responses API base URL; defaults to https://api.openai.com/v1",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
           "name": "TAVILY_API_KEY",
           "description": "Tavily API key for agent-oriented search",
           "isRequired": false,

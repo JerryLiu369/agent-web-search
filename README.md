@@ -121,6 +121,7 @@ search evidence.
 | **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Anthropic Messages API with native web search | `DEEPSEEK_API_KEY` | No |
 | **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Gemini Google Search grounding | `GEMINI_API_KEY` | No |
 | **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI web search and X Search | `XAI_API_KEY` | No |
+| **Responses** | Responses API-compatible gateway | Generic OpenAI Responses API with web search grounding | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | No |
 | **Zhipu Chat Search** | [Zhipu AI](https://open.bigmodel.cn/) | GLM Chat Completions with native web search | `ZHIPU_CHAT_SEARCH_API_KEY` | No |
 
 ### Agent search providers
@@ -631,6 +632,28 @@ Add `zhipu_chat_search` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 The Provider appends `/api/paas/v4/chat/completions` to the configured base URL.
 Multiple configured models are selected round-robin for successive requests.
 
+#### 15. Responses
+
+Responses is a generic OpenAI Responses API client for gateways that expose a
+server-side web search tool at `POST {base_url}/responses`. It traverses the
+`output` array (never assuming `output[0]` holds results), maps
+`web_search_call` action sources and `url_citation` annotations into normalized
+results, and preserves the model-generated answer. A response with only a
+message and no URLs keeps the answer, returns empty `results`, and marks
+`searched` as false.
+
+| Variable | Required | Purpose |
+| --- | :---: | --- |
+| `AGENT_WEB_SEARCH_RESPONSES_BASE_URL` | No | Base URL; defaults to `https://api.openai.com/v1`. Appends `/responses`, or `/v1/responses` when the base has no `/v1` suffix |
+| `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | Yes | Bearer credential; falls back to `OPENAI_API_KEY` |
+| `AGENT_WEB_SEARCH_RESPONSES_MODELS` | No | Comma/newline-separated model IDs; defaults to `gpt-5-mini` |
+| `AGENT_WEB_SEARCH_RESPONSES_TOOL_TYPE` | No | Search tool type; defaults to `web_search` |
+| `AGENT_WEB_SEARCH_RESPONSES_TIMEOUT` | No | Per-request timeout in seconds; overrides `AGENT_WEB_SEARCH_TIMEOUT` when set |
+
+Add `responses` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+Multiple configured models are selected round-robin for successive
+requests.
+
 ### Common search controls
 
 Each provider maps the shared controls to its native API when possible and
@@ -652,6 +675,7 @@ ignores unsupported controls.
 | You.com | Native `count`, combined cap | Native `freshness` |
 | Zhipu Web Search | Native `count`, local deduplication and cap | Native recency filter |
 | Zhipu Chat Search | Native `count`, local deduplication and cap | Native recency filter |
+| Responses | Local deduplication and cap | Prompt constraint |
 
 Prompt-based controls are best-effort and are not strict guarantees.
 
