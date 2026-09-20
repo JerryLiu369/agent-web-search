@@ -101,8 +101,17 @@ def parse(
 
     answer_parts: list[str] = []
     results: list[SearchResult] = []
-    seen_urls: set[str] = set()
+    seen: dict[str, SearchResult] = {}
     searched = False
+
+    def _add_or_backfill(url: str, title: str) -> None:
+        existing = seen.get(url)
+        if existing is None:
+            item = SearchResult(title=title, url=url, provider="responses")
+            seen[url] = item
+            results.append(item)
+        elif not existing.title and title:
+            existing.title = title
 
     output = data.get("output") if isinstance(data, dict) else []
     if not isinstance(output, list):
@@ -124,16 +133,9 @@ def parse(
                 if not isinstance(source, dict):
                     continue
                 url = _text(source.get("url"))
-                if not url or url in seen_urls:
+                if not url:
                     continue
-                seen_urls.add(url)
-                results.append(
-                    SearchResult(
-                        title=_text(source.get("title")),
-                        url=url,
-                        provider="responses",
-                    )
-                )
+                _add_or_backfill(url, _text(source.get("title")))
 
     for item in output:
         if not isinstance(item, dict) or item.get("type") != "message":
@@ -159,16 +161,9 @@ def parse(
                 if annotation.get("type") != "url_citation":
                     continue
                 url = _text(annotation.get("url"))
-                if not url or url in seen_urls:
+                if not url:
                     continue
-                seen_urls.add(url)
-                results.append(
-                    SearchResult(
-                        title=_text(annotation.get("title")),
-                        url=url,
-                        provider="responses",
-                    )
-                )
+                _add_or_backfill(url, _text(annotation.get("title")))
 
     answer = "\n\n".join(answer_parts)
     if not answer and isinstance(data.get("output_text"), str):

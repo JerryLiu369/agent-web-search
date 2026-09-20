@@ -201,6 +201,43 @@ def test_parse_matches_custom_tool_type():
     assert response.results[0].url == "https://custom.test"
 
 
+def test_parse_backfills_source_title_from_annotation():
+    response = parse(
+        {
+            "output": [
+                {
+                    "type": "web_search_call",
+                    "status": "completed",
+                    "action": {
+                        "sources": [{"url": "https://example.test/page"}],
+                    },
+                },
+                {
+                    "type": "message",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": "answer",
+                            "annotations": [
+                                {
+                                    "type": "url_citation",
+                                    "url": "https://example.test/page",
+                                    "title": "Example Page",
+                                }
+                            ],
+                        }
+                    ],
+                },
+            ],
+        }
+    )
+
+    assert response.searched is True
+    assert len(response.results) == 1
+    assert response.results[0].url == "https://example.test/page"
+    assert response.results[0].title == "Example Page"
+
+
 def test_parse_handles_malformed_output():
     assert parse({"output": None}).results == []
     assert parse({"output": "bad"}).results == []
