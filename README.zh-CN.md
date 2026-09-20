@@ -96,6 +96,7 @@ DDGS  大模型提供商    Agent 搜索提供商
 | **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Anthropic Messages API 原生网页搜索 | `DEEPSEEK_API_KEY` | 否 |
 | **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Gemini Google Search grounding | `GEMINI_API_KEY` | 否 |
 | **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
+| **Responses** | 兼容 Responses API 的网关 | 通用 OpenAI Responses API 网页搜索 | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | 否 |
 | **智谱 Chat Search** | [智谱 AI](https://open.bigmodel.cn/) | GLM Chat Completions 原生联网搜索 | `ZHIPU_CHAT_SEARCH_API_KEY` | 否 |
 
 ### Agent 搜索提供商
@@ -565,6 +566,24 @@ Web Search 是两个独立 Provider，不存在 API/Chat fallback。
 配置 Key 后，将 `zhipu_chat_search` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。Provider 会在
 基础地址后追加 `/api/paas/v4/chat/completions`。配置多个模型时，连续请求会轮询选择模型。
 
+#### 15. Responses
+
+Responses 是通用 OpenAI Responses API 客户端，适用于在 `POST {base_url}/responses`
+暴露服务端网页搜索工具的网关。它遍历 `output` 数组（不假设 `output[0]` 即为结果），
+将 `web_search_call` 的 action sources 和 `url_citation` 引用统一为标准结果，并保留
+模型生成的回答。只有 message 而没有任何 URL 的响应会保留回答、返回空 `results`，
+并将 `searched` 标记为 false。
+
+| 变量 | 必填 | 用途 |
+| --- | :---: | --- |
+| `AGENT_WEB_SEARCH_RESPONSES_BASE_URL` | 否 | 基础地址；默认 `https://api.openai.com/v1`。无 `/v1` 后缀时追加 `/v1/responses`，否则追加 `/responses` |
+| `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | 是 | Bearer 凭据；可回退到 `OPENAI_API_KEY` |
+| `AGENT_WEB_SEARCH_RESPONSES_MODELS` | 否 | 用逗号/换行分隔的模型 ID，默认 `gpt-4o` |
+| `AGENT_WEB_SEARCH_RESPONSES_TOOL_TYPE` | 否 | 搜索工具类型，默认 `web_search` |
+| `AGENT_WEB_SEARCH_RESPONSES_TIMEOUT` | 否 | 单次请求超时（秒）；设置后覆盖 `AGENT_WEB_SEARCH_TIMEOUT` |
+
+配置 Key 后，将 `responses` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。配置多个模型时，连续请求会轮询选择模型。
+
 ### 通用搜索控制
 
 每个 Provider 会尽可能将公共控制参数映射到原生 API，不支持的参数会被忽略。
@@ -585,6 +604,7 @@ Web Search 是两个独立 Provider，不存在 API/Chat fallback。
 | You.com | 原生 `count`，合并后截断 | 原生 `freshness` |
 | 智谱 Web Search | 原生 `count`，本地去重并截断 | 原生时间范围过滤 |
 | 智谱 Chat Search | 原生 `count`，本地去重并截断 | 原生时间范围过滤 |
+| Responses | 本地去重并截断 | Prompt 约束 |
 
 基于 Prompt 的控制属于尽力而为，不是严格保证。
 
