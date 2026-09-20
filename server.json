@@ -62,6 +62,18 @@
           "isSecret": false
         },
         {
+          "name": "AGENT_WEB_SEARCH_MESSAGES_API_KEY",
+          "description": "Generic Anthropic Messages API key for web search grounding",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "AGENT_WEB_SEARCH_MESSAGES_BASE_URL",
+          "description": "Generic Anthropic Messages API base URL; defaults to https://api.anthropic.com",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
           "name": "TAVILY_API_KEY",
           "description": "Tavily API key for agent-oriented search",
           "isRequired": false,

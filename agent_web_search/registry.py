@@ -12,6 +12,7 @@ from .providers import (
     ExaProvider,
     GeminiProvider,
     GrokProvider,
+    MessagesProvider,
     ParallelProvider,
     PerplexityProvider,
     ResponsesProvider,
@@ -62,6 +63,11 @@ PROVIDER_SPECS = {
         GrokProvider,
         "Grok web search and X Search",
         "XAI_API_KEY",
+    ),
+    "messages": ProviderSpec(
+        MessagesProvider,
+        "Generic Anthropic Messages API web search",
+        "AGENT_WEB_SEARCH_MESSAGES_API_KEY",
     ),
     "parallel": ProviderSpec(
         ParallelProvider,

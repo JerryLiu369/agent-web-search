@@ -6,6 +6,7 @@ from .deepseek import DeepSeekProvider
 from .exa import ExaProvider
 from .gemini import GeminiProvider
 from .grok import GrokProvider
+from .messages import MessagesProvider
 from .parallel import ParallelProvider
 from .perplexity import PerplexityProvider
 from .responses import ResponsesProvider
@@ -23,6 +24,7 @@ __all__ = [
     "ExaProvider",
     "GeminiProvider",
     "GrokProvider",
+    "MessagesProvider",
     "ParallelProvider",
     "PerplexityProvider",
     "ResponsesProvider",

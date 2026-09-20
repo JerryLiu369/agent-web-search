@@ -22,7 +22,9 @@ def time_range_window(
 
 
 def time_range_label(time_range: str | None, now: datetime | None = None) -> str | None:
-    """Human label plus resolved window, e.g. 'the past week (2026-09-07 to 2026-09-14)'.
+    """Human label plus resolved window.
+
+    E.g. 'the past week (2026-09-07 to 2026-09-14)'.
 
     Model-backed providers only receive prompt text, so the window has to be
     spelled out in dates — otherwise the model falls back to its own notion of
