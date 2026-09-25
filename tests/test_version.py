@@ -24,5 +24,9 @@ def test_project_versions_match() -> None:
         ROOT / "plugin.yaml",
         r"^version:\s*([^\s]+)",
     )
+    citation_version = _match_version(
+        ROOT / "CITATION.cff",
+        r"^version:\s*([^\s]+)",
+    )
 
-    assert pyproject_version == plugin_version == __version__
+    assert pyproject_version == plugin_version == citation_version == __version__

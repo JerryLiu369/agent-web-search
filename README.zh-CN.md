@@ -12,7 +12,7 @@
 [![PyPI](https://img.shields.io/pypi/v/agent-web-search-mcp.svg)](https://pypi.org/project/agent-web-search-mcp/)
 [![CI](https://github.com/JerryLiu369/agent-web-search/actions/workflows/ci.yml/badge.svg)](https://github.com/JerryLiu369/agent-web-search/actions/workflows/ci.yml)
 [![MCP 2.x](https://img.shields.io/badge/MCP-2.x-6C47FF)](https://modelcontextprotocol.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/JerryLiu369/agent-web-search/blob/main/LICENSE)
 
 <p><strong>一键部署远程 MCP</strong></p>
 
@@ -27,14 +27,15 @@
 
 [给 Agent 使用](#给-agent-使用) · [搜索服务](#搜索服务) ·
 [统一接口](#统一请求与响应) · [配置](#配置) · [其他接口](#其他接口) ·
-[故障排查](#故障排查) · [架构](ARCHITECTURE.md) · [开发](#开发)
+[故障排查](#故障排查) · [常见问题](#常见问题) · [架构](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [开发](#开发)
 
 </div>
 
 ---
 
-Agent Web Search 为 Agent 提供两种接入同一个搜索核心的方式：原生 MCP
-工具，或者由标准 Agent Skill 教会 Agent 调用 CLI。
+Agent Web Search（PyPI 包名 `agent-web-search-mcp`）是一个开源、MIT 许可的
+AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供两种接入同一个
+搜索核心的方式：原生 MCP 工具，或者由标准 Agent Skill 教会 Agent 调用 CLI。
 
 它不是 Google、Bing、百度那种传统搜索引擎聚合器。传统聚合器通常把一个
 关键词请求分发给多个搜索引擎，再合并搜索结果页；Agent Web Search 聚合的是
@@ -59,7 +60,7 @@ DDGS  大模型提供商    Agent 搜索提供商
 
 ## 为什么选择 Agent Web Search
 
-传统搜索聚合（Google/Bing/百度封装、抓取 SERP）把关键词查询发给传统搜索引擎再合并结果页。Agent Web Search 聚合的是**为 Agent 构建的搜索能力**：一次工具调用返回结构化、可直接引用的证据——或通过模型原生 grounding 提供商返回带明确引用的综合回答。[实测基准](docs/benchmark-2026-09-06.md)显示了实际差异：在一个要求官方来源的中文自然语言查询上，传统 SERP 后端前 5 条结果没有任何政府域名，而 grounding 提供商返回了海关总署数据并附可用引用链接。
+传统搜索聚合（Google/Bing/百度封装、抓取 SERP）把关键词查询发给传统搜索引擎再合并结果页。Agent Web Search 聚合的是**为 Agent 构建的搜索能力**：一次工具调用返回结构化、可直接引用的证据——或通过模型原生 grounding 提供商返回带明确引用的综合回答。[实测基准](https://github.com/JerryLiu369/agent-web-search/blob/main/docs/benchmark-2026-09-06.md)显示了实际差异：在一个要求官方来源的中文自然语言查询上，传统 SERP 后端前 5 条结果没有任何政府域名，而 grounding 提供商返回了海关总署数据并附可用引用链接。
 
 - **从设计上就是 Agent-native。** 主要输入是完整的自然语言问题，而不是把关键词简单分发给 Google、Bing 或百度。
 - **模型原生搜索后端。** ARK、Gemini、Grok、DeepSeek、Messages、智谱 Chat Search 和 Codex Alpha 可以把联网检索、模型综合回答与明确引用结合起来。
@@ -362,7 +363,7 @@ if response.all_providers_failed:
 
 ## 配置
 
-CLI、MCP 服务器或 Hermes 插件启动时会读取环境变量。修改 Provider 设置后需要重启对应进程。仓库内的 [`.env.example`](.env.example) 以注释模板的形式列出了全部变量。
+CLI、MCP 服务器或 Hermes 插件启动时会读取环境变量。修改 Provider 设置后需要重启对应进程。仓库内的 [`.env.example`](https://github.com/JerryLiu369/agent-web-search/blob/main/.env.example) 以注释模板的形式列出了全部变量。
 
 ### 通用设置
 
@@ -655,6 +656,60 @@ Hermes 也可以不安装原生插件，而是通过通用 MCP 集成连接本�
 - **修改 Provider 配置不生效** —— Provider 设置只在进程启动时读取一次；修改后请重启 CLI、MCP 服务器或 Hermes 插件。
 - **MCP 客户端在工具返回前超时** —— `AGENT_WEB_SEARCH_TIMEOUT` 限定的是单次上游 HTTP 调用的超时，不是整次搜索。keyless Parallel 最多发 3 个请求，ARK 可能追加续写请求，最坏总耗时是其 3 倍；请据此设置 MCP 客户端的 tool 超时。
 
+## 常见问题
+
+### Agent Web Search 是什么？
+
+Agent Web Search 是面向 AI Agent 的开源联网搜索层。它通过 MCP 服务器（stdio
+或 Streamable HTTP）、CLI 和 Python API 暴露同一个 `web_search` 工具。工具背后
+并发调用模型原生搜索 grounding（ARK、Gemini、Grok、DeepSeek、智谱 Chat Search
+以及通用 Responses/Messages 网关）、Agent 搜索 API（Exa、Parallel、Brave、
+Perplexity、Tavily、You.com、智谱 Web Search），并以 DuckDuckGo 作为传统搜索
+兜底，最终返回统一格式的 JSON。
+
+### 有没有不需要 API Key 的免费联网搜索 MCP？
+
+有。默认 Provider 组合 DDGS、Exa、Parallel 都不需要 API Key。在设置
+`EXA_API_KEY` 或 `PARALLEL_API_KEY` 之前，Exa 和 Parallel 会尽力使用各自的免费
+MCP 端点。付费 Provider 需要通过 `AGENT_WEB_SEARCH_PROVIDERS` 显式启用。
+
+### 它和 Google/Bing 元搜索类 MCP 有什么区别？
+
+元搜索服务器抓取传统搜索结果页再合并。Agent Web Search 聚合的是面向 Agent 的
+搜索服务，其中模型原生 grounding 会返回带引用的综合 `answer`。
+[与 open-webSearch 的对比基准](https://github.com/JerryLiu369/agent-web-search/blob/main/docs/benchmark-vs-open-websearch-2026-09-06.md)
+记录了这种差异及其前提：从数据中心 IP 抓取 SERP 经常被反爬拦截，而基于 API 的
+Provider 只会返回更少结果，不会完全为空。
+
+### 支持哪些 Agent 和客户端？
+
+任何支持 stdio 或 Streamable HTTP 的 MCP 客户端，包括 Codex CLI、Claude Code、
+OpenCode、Cursor、Cline 和 Claude Desktop。Hermes 有原生插件。具备 Shell 能力
+的 Agent 也可以不用 MCP，而是通过 CLI 加内置 Agent Skill 使用。
+
+### 应该用 MCP 还是 CLI + Skill？
+
+客户端支持工具服务器、需要类型化工具发现、协议级错误或远程部署时，用 MCP。
+Agent 已有 Shell 且支持 Agent Skills 时，用 CLI + Skill，无需任何 MCP 配置。
+两者返回的响应格式相同。
+
+### 能否接入自己的 OpenAI 或 Anthropic 兼容网关做搜索 grounding？
+
+可以。`responses` Provider 可调用任何带服务端联网搜索工具的 OpenAI Responses
+API 网关，`messages` Provider 对 Anthropic Messages API 网关做同样的事。Base
+URL、Key 和模型通过 [Provider 设置](#provider-设置) 中的环境变量配置。
+
+### 能否部署为远程 MCP 服务器？
+
+可以。`agent-web-search-mcp --transport http` 在 `POST /mcp` 提供无状态
+Streamable HTTP 服务，并默认启用 Bearer Token 认证。仓库提供 Vercel、Railway、
+Render、Zeabur 一键部署模板和 Dockerfile。
+
+### 会收集遥测数据或保存我的 API Key 吗？
+
+不会。项目没有遥测，也没有共享 Key 服务。Provider 凭据只从执行搜索的本机或
+服务器环境变量读取，不会作为工具参数传入。
+
 ## 开发
 
 使用 [`uv`](https://docs.astral.sh/uv/) 可以保持开发环境隔离且可复现：
@@ -682,8 +737,8 @@ ruff check .
 
 </details>
 
-[ARCHITECTURE.md](ARCHITECTURE.md) 是设计事实来源，[AGENTS.md](AGENTS.md) 列出了不可妥协的约束。在修改 Transport、配置、鉴权、部署、Provider 或工具 Schema 之前，请先阅读这两份文档，保持 stdio 与 HTTP 行为一致，并在同一改动中保持 `pytest` 和 `ruff` 通过。
+[ARCHITECTURE.md](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) 是设计事实来源，[AGENTS.md](https://github.com/JerryLiu369/agent-web-search/blob/main/AGENTS.md) 列出了不可妥协的约束。在修改 Transport、配置、鉴权、部署、Provider 或工具 Schema 之前，请先阅读这两份文档，保持 stdio 与 HTTP 行为一致，并在同一改动中保持 `pytest` 和 `ruff` 通过。
 
 ## 许可证
 
-[MIT](LICENSE)
+[MIT](https://github.com/JerryLiu369/agent-web-search/blob/main/LICENSE)
