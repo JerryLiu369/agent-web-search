@@ -12,7 +12,7 @@
 [![PyPI](https://img.shields.io/pypi/v/agent-web-search-mcp.svg)](https://pypi.org/project/agent-web-search-mcp/)
 [![CI](https://github.com/JerryLiu369/agent-web-search/actions/workflows/ci.yml/badge.svg)](https://github.com/JerryLiu369/agent-web-search/actions/workflows/ci.yml)
 [![MCP 2.x](https://img.shields.io/badge/MCP-2.x-6C47FF)](https://modelcontextprotocol.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/JerryLiu369/agent-web-search/blob/main/LICENSE)
 
 <p><strong>One-click remote MCP</strong></p>
 
@@ -29,14 +29,16 @@ shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 [Use with an agent](#use-with-an-agent) · [Providers](#providers) ·
 [Shared interface](#shared-request-and-response) · [Configuration](#configuration) ·
 [Other interfaces](#other-interfaces) · [Troubleshooting](#troubleshooting) ·
-[Architecture](ARCHITECTURE.md) · [Development](#development)
+[FAQ](#faq) · [Architecture](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [Development](#development)
 
 </div>
 
 ---
 
-Agent Web Search gives an agent two ways to reach the same provider-neutral
-search core: a native MCP tool, or a CLI taught through a standard Agent Skill.
+Agent Web Search (PyPI: `agent-web-search-mcp`) is an open-source,
+MIT-licensed web search MCP server, CLI, and Python library for AI agents. It
+gives an agent two ways to reach the same provider-neutral search core: a
+native MCP tool, or a CLI taught through a standard Agent Skill.
 
 This is not a Google/Bing/Baidu metasearch wrapper. Traditional search
 aggregation fans a keyword query out to conventional engines and merges their
@@ -67,7 +69,7 @@ sends a keyword query to conventional engines and merges result pages. Agent
 Web Search instead aggregates **search capabilities built for agents**: one
 tool call returns structured, citation-ready evidence — or, through
 model-native grounding providers, a synthesized answer with explicit
-citations. A [measured benchmark](docs/benchmark-2026-09-06.md) shows the
+citations. A [measured benchmark](https://github.com/JerryLiu369/agent-web-search/blob/main/docs/benchmark-2026-09-06.md) shows the
 practical difference: on a natural-language Chinese query asking for official
 sources, conventional SERP backends returned no government-domain results in
 the top 5, while the grounding provider returned the 海关总署 figures with a
@@ -400,7 +402,7 @@ if response.all_providers_failed:
 
 Configuration is read from environment variables when the CLI, MCP server, or
 Hermes plugin starts. Restart the process after changing provider settings.
-See [.env.example](.env.example) for a commented template of every variable.
+See [.env.example](https://github.com/JerryLiu369/agent-web-search/blob/main/.env.example) for a commented template of every variable.
 
 ### General settings
 
@@ -744,6 +746,69 @@ native plugin.
   continuation request, so the worst case is `3 × AGENT_WEB_SEARCH_TIMEOUT`;
   configure your MCP client's tool timeout accordingly.
 
+## FAQ
+
+### What is Agent Web Search?
+
+Agent Web Search is an open-source web search layer for AI agents. It exposes
+one `web_search` tool through an MCP server (stdio or Streamable HTTP), a CLI,
+and a Python API. Behind that tool it runs model-native search grounding
+providers (ARK, Gemini, Grok, DeepSeek, Zhipu Chat Search, and generic
+Responses/Messages gateways), agent search APIs (Exa, Parallel, Brave,
+Perplexity, Tavily, You.com, Zhipu Web Search), and DuckDuckGo as a
+conventional fallback, then returns one normalized JSON response.
+
+### Is there a free web search MCP server that needs no API key?
+
+Yes. The default provider set — DDGS, Exa, and Parallel — works without any API
+key. Exa and Parallel use their free MCP endpoints on a best-effort basis until
+`EXA_API_KEY` or `PARALLEL_API_KEY` is set. Paid providers are opt-in through
+`AGENT_WEB_SEARCH_PROVIDERS`.
+
+### How is it different from a Google/Bing metasearch MCP?
+
+Metasearch servers scrape conventional result pages and merge them. Agent Web
+Search aggregates search services built for agents, including model-native
+grounding that returns a synthesized `answer` with citations. A
+[head-to-head benchmark against open-webSearch](https://github.com/JerryLiu369/agent-web-search/blob/main/docs/benchmark-vs-open-websearch-2026-09-06.md)
+documents the difference, including its caveats: SERP scraping from a
+datacenter IP was frequently bot-walled, while API-backed providers degraded to
+fewer rows instead of none.
+
+### Which agents and clients does it work with?
+
+Any MCP client that supports stdio or Streamable HTTP, including Codex CLI,
+Claude Code, OpenCode, Cursor, Cline, and Claude Desktop. Hermes has a native
+plugin. Shell-capable agents can use the CLI with the included Agent Skill
+instead of MCP.
+
+### Should I use the MCP server or the CLI + Skill?
+
+Use MCP when the client supports tool servers and you want typed tool
+discovery, protocol-level errors, or a remote deployment. Use the CLI + Skill
+when the agent already has a shell and supports Agent Skills; it needs no MCP
+configuration. Both return the same response shape.
+
+### Can I use my own OpenAI- or Anthropic-compatible gateway for search grounding?
+
+Yes. The `responses` provider calls any OpenAI Responses API gateway with a
+server-side web search tool, and the `messages` provider does the same for
+Anthropic Messages API gateways. Set the base URL, key, and models through the
+variables in [Provider settings](#provider-settings).
+
+### Can I host it as a remote MCP server?
+
+Yes. `agent-web-search-mcp --transport http` serves stateless Streamable HTTP
+at `POST /mcp` with Bearer-token authentication. One-click templates are
+provided for Vercel, Railway, Render, and Zeabur, and the repository includes a
+Dockerfile.
+
+### Does it collect telemetry or store my API keys?
+
+No. There is no telemetry and no shared key service. Provider credentials are
+read from environment variables on the machine or server that runs the search
+and are never accepted as tool arguments.
+
 ## Development
 
 Using [`uv`](https://docs.astral.sh/uv/) keeps the development environment
@@ -772,12 +837,12 @@ ruff check .
 
 </details>
 
-[ARCHITECTURE.md](ARCHITECTURE.md) is the design source of truth, and
-[AGENTS.md](AGENTS.md) lists the non-negotiable invariants. Read both before
+[ARCHITECTURE.md](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) is the design source of truth, and
+[AGENTS.md](https://github.com/JerryLiu369/agent-web-search/blob/main/AGENTS.md) lists the non-negotiable invariants. Read both before
 changing transports, configuration, authentication, deployment, providers, or
 tool schemas, keep stdio and HTTP behavior identical, and keep `pytest` and
 `ruff` green in the same change.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/JerryLiu369/agent-web-search/blob/main/LICENSE)

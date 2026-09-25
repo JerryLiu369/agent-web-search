@@ -5,13 +5,29 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agent-web-search-mcp"
 version = "0.7.5"
-description = "A multi-provider web search layer for AI agents"
+description = "Agent-native web search MCP server and CLI for AI agents: model-native grounding, agent search APIs, keyless defaults"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{name = "Jerry Liu"}]
-keywords = ["ai-agents", "llm", "mcp", "web-search"]
+keywords = [
+    "ai-agents",
+    "claude-code",
+    "codex",
+    "exa",
+    "grounding",
+    "hermes-agent",
+    "llm",
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "opencode",
+    "parallel",
+    "search-grounding",
+    "tavily",
+    "web-search",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -23,6 +39,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
@@ -37,6 +54,8 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/JerryLiu369/agent-web-search"
 Repository = "https://github.com/JerryLiu369/agent-web-search"
+Documentation = "https://github.com/JerryLiu369/agent-web-search#readme"
+Changelog = "https://github.com/JerryLiu369/agent-web-search/releases"
 Issues = "https://github.com/JerryLiu369/agent-web-search/issues"
 
 [project.optional-dependencies]

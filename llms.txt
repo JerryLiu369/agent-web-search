@@ -1,0 +1,32 @@
+# Agent Web Search
+
+> Agent Web Search (PyPI: `agent-web-search-mcp`) is an open-source, MIT-licensed web search MCP server, CLI, and Python library for AI agents. It exposes one `web_search` tool that runs model-native search grounding providers and agent search APIs concurrently and returns one normalized JSON response. The default providers (DDGS, Exa, Parallel) need no API key.
+
+Key facts:
+
+- Interfaces: MCP server `agent-web-search-mcp` (stdio by default, stateless Streamable HTTP with `--transport http`), CLI `agent-web-search "<question>"`, and Python `agent_web_search.SearchEngine`. All share one tool schema and response shape.
+- Tool arguments: `query` (natural-language question, 1-4,000 characters), optional `max_results` (1-20), `time_range` (`d`, `w`, `m`, `y`), `providers`, and `grok_search_mode` when Grok is enabled.
+- Response: `providers.<name>.results[]` rows with `title`, `url`, `description`, optional `published_at` and `author`; model-backed providers may add `answer`. If every provider fails, the error code is `all_providers_failed`.
+- Model-native grounding providers: `ark` (Volcengine Doubao), `gemini`, `grok`, `deepseek`, `zhipu_chat_search`, `responses` (any OpenAI Responses API gateway), `messages` (any Anthropic Messages API gateway), `codex_alpha` (experimental).
+- Agent search providers: `exa`, `parallel`, `brave`, `perplexity`, `tavily`, `you`, `zhipu_web_search`. Conventional fallback: `ddgs` (DuckDuckGo).
+- Configuration is environment-only (`AGENT_WEB_SEARCH_PROVIDERS`, provider API keys). Credentials are never tool arguments. No telemetry.
+- Works with Codex CLI, Claude Code, OpenCode, Cursor, Cline, Claude Desktop, Hermes (native plugin), and any MCP client.
+
+## Docs
+
+- [README](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/README.md): Installation, MCP and CLI setup, providers, configuration, FAQ
+- [README (简体中文)](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/README.zh-CN.md): Chinese documentation
+- [Architecture](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/ARCHITECTURE.md): Design decisions, transports, and invariants
+- [Agent Skill](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/skills/agent-web-search/SKILL.md): How a shell-capable agent should call the CLI
+- [Environment template](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/.env.example): Every supported environment variable
+
+## Benchmarks
+
+- [Agent-native vs traditional search backends](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/docs/benchmark-2026-09-06.md): Measured latency, result counts, and grounding quality per provider
+- [Head-to-head vs open-webSearch](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/docs/benchmark-vs-open-websearch-2026-09-06.md): Comparison with a SERP-scraping metasearch MCP, with caveats
+
+## Optional
+
+- [PyPI package](https://pypi.org/project/agent-web-search-mcp/): Release history and install command
+- [MCP Registry entry](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/server.json): `io.github.JerryLiu369/agent-web-search`
+- [Source repository](https://github.com/JerryLiu369/agent-web-search): Code, issues, and releases

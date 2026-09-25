@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "Agent Web Search"
+abstract: >-
+  Open-source web search MCP server, CLI, and Python library for AI agents that
+  aggregates model-native search grounding providers and agent search APIs
+  behind one provider-neutral web_search tool.
+authors:
+  - given-names: "Jerry"
+    family-names: "Liu"
+    alias: "JerryLiu369"
+version: 0.7.5
+date-released: 2026-09-06
+license: MIT
+url: "https://pypi.org/project/agent-web-search-mcp/"
+repository-code: "https://github.com/JerryLiu369/agent-web-search"
+keywords:
+  - ai-agents
+  - web-search
+  - mcp
+  - model-context-protocol
+  - search-grounding
+  - llm
