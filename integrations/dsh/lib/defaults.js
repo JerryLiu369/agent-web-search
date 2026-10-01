@@ -208,4 +208,4 @@ export const PACKAGE_NAME = 'dsh-agent-web-search'
  * `version` in both `package.json` files; `defaults.test.js` asserts that, so a
  * version bump fails a test instead of silently drifting.
  */
-export const PACKAGE_VERSION = '0.5.0'
+export const PACKAGE_VERSION = '0.8.0'

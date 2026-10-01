@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-web-search-mcp"
-version = "0.7.5"
+version = "0.8.0"
 description = "Agent-native web search MCP server and CLI for AI agents: model-native grounding, agent search APIs, keyless defaults"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -1,6 +1,6 @@
 {
   "name": "dsh-agent-web-search",
-  "version": "0.5.0",
+  "version": "0.8.0",
   "private": true,
   "description": "DeepSeek Harness (DSH) native plugin: replaces DSH's built-in web_search with this project's provider set.",
   "type": "module",
