@@ -249,10 +249,10 @@ stderr 写入统一的 `all_providers_failed` JSON，并以状态码 1 退出，
 可以区分真正的失败和空结果。
 
 | CLI 选项 | MCP 参数 | 取值 | 默认值 |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | 位置参数 `QUERY` | `query` | 1–4,000 个字符的自然语言问题 | 必填 |
 | `--provider`（可重复） | `providers` | 已启用的 Provider 名 | 所有已启用 |
-| `--max-results` | `max_results` | 1–20 | `10` |
+| `--max-results` | `max_results` | 1–20 | `5` |
 | `--time-range` | `time_range` | `d`、`w`、`m`、`y` | — |
 | `--grok-search-mode` | `grok_search_mode` | `web_search`、`x_search`、`both` | `web_search` |
 
@@ -276,7 +276,7 @@ MCP 对外注册一个名为 `web_search` 的工具；CLI 映射到同一组输�
 | 参数 | 类型 | 必填 | 默认值 | 说明 |
 | --- | --- | :---: | --- | --- |
 | `query` | string，1–4,000 个字符 | 是 | — | 完整的自然语言搜索问题 |
-| `max_results` | integer，1–20 | 否 | `10` | 期望返回的最大结果数量 |
+| `max_results` | integer，1–20 | 否 | `5` | 期望返回的最大结果数量 |
 | `time_range` | `d`、`w`、`m`、`y` | 否 | — | 过去一天、一周、一月或一年 |
 | `providers` | string 数组 | 否 | 所有已启用 Provider | 将本次请求限制在指定的已启用 Provider 中 |
 | `grok_search_mode` | `web_search`、`x_search`、`both` | 否 | `web_search` | 仅在启用 Grok 时可用 |

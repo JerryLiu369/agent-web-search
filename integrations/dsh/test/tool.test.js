@@ -113,7 +113,7 @@ test('omitted max_results stays omitted so the core default applies', async () =
   await stages.tool.execute({ query: 'q', providers: ['ddgs'] }, { signal: undefined })
   assert.equal(calls.length, 1)
   // No DSH-side substitute: `max_results` is a per-call request input, so the
-  // core default (10) still applies downstream.
+  // core default (5) still applies downstream.
   assert.equal(calls[0].maxResults, undefined)
 })
 

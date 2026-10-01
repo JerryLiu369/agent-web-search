@@ -61,7 +61,7 @@ def test_ark_continuation_merges_initial_and_followup_results(monkeypatch):
 
     assert result.searched is True
     assert result.answer == "A complete answer"
-    assert captured["payload"]["tools"] == [{"type": "web_search", "limit": 10}]
+    assert captured["payload"]["tools"] == [{"type": "web_search", "limit": 5}]
     assert [item.url for item in result.results] == [
         "https://initial",
         "https://followup",

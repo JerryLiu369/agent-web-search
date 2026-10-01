@@ -23,7 +23,7 @@ def _text(value: Any) -> str:
     return value.strip() if isinstance(value, str) else ""
 
 
-def parse_results(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
+def parse_results(data: dict[str, Any], max_results: int = 5) -> ProviderResponse:
     """Normalize the opaque Alpha ``results`` array into public result rows."""
     try:
         limit = max(1, int(max_results))

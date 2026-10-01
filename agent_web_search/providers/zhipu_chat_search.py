@@ -27,7 +27,7 @@ def _endpoint(base_url: str) -> str:
 def build_payload(
     query: str,
     model: str,
-    max_results: int = 10,
+    max_results: int = 5,
     time_range: str | None = None,
 ) -> dict[str, Any]:
     web_search: dict[str, Any] = {
@@ -60,7 +60,7 @@ def build_payload(
     }
 
 
-def parse(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
+def parse(data: dict[str, Any], max_results: int = 5) -> ProviderResponse:
     if "error" in data:
         return ProviderResponse(
             provider="zhipu_chat_search",

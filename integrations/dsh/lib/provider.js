@@ -83,7 +83,7 @@ export class AgentWebSearchProvider {
     }
     // `max_results` is a per-call request input, never persistent configuration
     // (ARCHITECTURE.md: request inputs are not configuration). Omitted means
-    // the core default (10) applies downstream; DSH must not substitute its own.
+    // the core default (5) applies downstream; DSH must not substitute its own.
     const maxResults = Number.isFinite(request?.maxResults) && request.maxResults > 0
       ? Math.min(20, Math.floor(request.maxResults))
       : undefined

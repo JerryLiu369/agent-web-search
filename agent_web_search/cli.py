@@ -19,7 +19,7 @@ def _parser() -> argparse.ArgumentParser:
         "--version", action="version", version=f"agent-web-search {__version__}"
     )
     p.add_argument("--provider", action="append", dest="providers")
-    p.add_argument("--max-results", type=int, default=10)
+    p.add_argument("--max-results", type=int, default=5)
     p.add_argument("--time-range", choices=["d", "w", "m", "y"])
     p.add_argument(
         "--grok-search-mode",

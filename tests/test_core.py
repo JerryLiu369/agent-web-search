@@ -203,6 +203,13 @@ def test_common_controls_are_normalized_before_provider_dispatch():
     assert provider.request.providers == ["capture"]
 
 
+def test_search_request_default_max_results():
+    req = SearchRequest("hello")
+    assert req.max_results == 5
+    assert req.normalized().max_results == 5
+    assert SearchRequest.from_mapping({"query": "hello"}).max_results == 5
+
+
 def test_python_api_rejects_schema_invalid_request_fields():
     engine = SearchEngine(providers={"ddgs": Fake("ddgs")})
 

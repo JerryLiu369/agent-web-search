@@ -107,7 +107,7 @@ def build_payload(
     }
 
 
-def parse(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
+def parse(data: dict[str, Any], max_results: int = 5) -> ProviderResponse:
     """Parse a Generic Anthropic Messages response with web search results."""
     try:
         limit = max(1, int(max_results))

@@ -47,7 +47,7 @@ def build_payload(prompt: str, model: str) -> dict[str, Any]:
     }
 
 
-def parse(data: dict[str, Any], max_results: int = 10) -> ProviderResponse:
+def parse(data: dict[str, Any], max_results: int = 5) -> ProviderResponse:
     """Parse an Anthropic Messages response from DeepSeek."""
     try:
         limit = max(1, int(max_results))

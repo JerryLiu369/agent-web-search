@@ -22,7 +22,7 @@ def recency_filter(time_range: str | None) -> str | None:
     return TIME_RANGE_MAP.get(time_range) if time_range is not None else None
 
 
-def result_limit(value: Any, default: int = 10) -> int:
+def result_limit(value: Any, default: int = 5) -> int:
     try:
         return max(1, min(20, int(value)))
     except (OverflowError, TypeError, ValueError):
@@ -32,7 +32,7 @@ def result_limit(value: Any, default: int = 10) -> int:
 def map_search_results(
     rows: Iterable[Any] | None,
     provider: str,
-    max_results: int = 10,
+    max_results: int = 5,
 ) -> list[SearchResult]:
     """Map Zhipu's result rows to the provider-neutral result model."""
     unique: list[SearchResult] = []

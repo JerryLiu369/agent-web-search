@@ -13,7 +13,7 @@ plugin registers its own `web_search` with the same parameters as the Python
 operation — `query`, `max_results`, `time_range`, `providers`, and
 `grok_search_mode`. All of them are per-call inputs, exactly as in the Python
 operation: `max_results` is **not** a DSH setting. When the model omits it, the
-bridge omits it too and the core default (10) applies; `time_range` and
+bridge omits it too and the core default (5) applies; `time_range` and
 `grok_search_mode` are per-call only. Agent presets mount their own `tool-web`
 row, which no patch layer can reach, so the tool is additionally registered
 inside every agent scope (`lib/agent-tool.js`) with `force: true` to shadow the

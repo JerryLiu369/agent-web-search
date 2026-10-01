@@ -8,7 +8,7 @@ from typing import Any
 @dataclass
 class SearchRequest:
     query: str
-    max_results: int = 10
+    max_results: int = 5
     time_range: str | None = None
     providers: list[str] | None = None
     grok_search_mode: str = "web_search"
@@ -18,7 +18,7 @@ class SearchRequest:
         """Create a request from a Hermes or MCP argument mapping."""
         return cls(
             query=values.get("query", ""),
-            max_results=values.get("max_results", 10),
+            max_results=values.get("max_results", 5),
             time_range=values.get("time_range"),
             providers=values.get("providers"),
             grok_search_mode=values.get("grok_search_mode", "web_search"),
@@ -45,7 +45,7 @@ class SearchRequest:
             providers = list(dict.fromkeys(str(name) for name in self.providers))
         return SearchRequest(
             query=str(self.query).strip(),
-            max_results=bounded(self.max_results, 10, 20),
+            max_results=bounded(self.max_results, 5, 20),
             time_range=(
                 self.time_range
                 if isinstance(self.time_range, str)

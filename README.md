@@ -284,7 +284,7 @@ it writes the shared `all_providers_failed` JSON to stderr and exits with status
 | --- | --- | --- | --- |
 | positional `QUERY` | `query` | 1–4,000 character natural-language question | required |
 | `--provider` (repeatable) | `providers` | enabled provider names | all enabled |
-| `--max-results` | `max_results` | 1–20 | `10` |
+| `--max-results` | `max_results` | 1–20 | `5` |
 | `--time-range` | `time_range` | `d`, `w`, `m`, `y` | — |
 | `--grok-search-mode` | `grok_search_mode` | `web_search`, `x_search`, `both` | `web_search` |
 
@@ -309,7 +309,7 @@ MCP exposes one tool named `web_search`; the CLI maps to the same inputs.
 | Argument | Type | Required | Default | Description |
 | --- | --- | :---: | --- | --- |
 | `query` | string, 1–4,000 characters | Yes | — | Complete natural-language search question |
-| `max_results` | integer, 1–20 | No | `10` | Desired maximum number of results |
+| `max_results` | integer, 1–20 | No | `5` | Desired maximum number of results |
 | `time_range` | `d`, `w`, `m`, `y` | No | — | Past day, week, month, or year |
 | `providers` | string array | No | All enabled | Narrow the request to enabled providers |
 | `grok_search_mode` | `web_search`, `x_search`, `both` | No | `web_search` | Available only when Grok is enabled |

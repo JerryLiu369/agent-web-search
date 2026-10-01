@@ -398,7 +398,7 @@ export class PythonSearchBridge {
         name: 'web_search',
         arguments: {
           query, providers,
-          // Omitted stays omitted: the core default (10) applies. Sending a
+          // Omitted stays omitted: the core default (5) applies. Sending a
           // DSH-side substitute here would silently override the core contract.
           ...(maxResults !== undefined ? { max_results: maxResults } : {}),
           ...(timeRange ? { time_range: timeRange } : {}),

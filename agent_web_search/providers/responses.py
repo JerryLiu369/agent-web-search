@@ -90,14 +90,14 @@ def build_payload(prompt: str, model: str, tool_type: str) -> dict[str, Any]:
 
 def parse(
     data: dict[str, Any],
-    max_results: int = 10,
+    max_results: int = 5,
     tool_type: str = DEFAULT_TOOL_TYPE,
 ) -> ProviderResponse:
     """Parse an OpenAI Responses API payload with a web-search tool call."""
     try:
         limit = max(1, int(max_results))
-    except (OverflowError, TypeError, ValueError):
-        limit = 10
+    except (TypeError, ValueError):
+        limit = 5
 
     answer_parts: list[str] = []
     results: list[SearchResult] = []

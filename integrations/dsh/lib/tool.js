@@ -7,7 +7,7 @@
  * Python `web_search` operation: `query`, `max_results`, `time_range`,
  * `providers`, and `grok_search_mode`.
  *
- * An omitted `max_results` uses the MCP default of 10 and an omitted
+ * An omitted `max_results` uses the MCP default of 5 and an omitted
  * `providers` runs the full enabled queue; `time_range` and `grok_search_mode`
  * are per-call only. Execution goes through the shared {@link AgentWebSearchProvider},
  * so history, fanout/fallback, credentials, and citations behave identically
@@ -23,7 +23,7 @@ import { ALL_SOURCES_FAILED_MESSAGE } from './provider.js'
 import { KIND_LABEL, PROVIDER_KINDS } from './defaults.js'
 
 const MAX_QUERY_LENGTH = 4000
-const DEFAULT_MAX_RESULTS = 10
+const DEFAULT_MAX_RESULTS = 5
 const MAX_RESULTS = 20
 const TIME_RANGES = ['d', 'w', 'm', 'y']
 const GROK_MODES = ['web_search', 'x_search', 'both']
@@ -254,7 +254,7 @@ export function registerWebSearchTool(ctx, { config, provider, force = false }) 
       },
       max_results: {
         type: 'integer',
-        description: 'Desired maximum number of results (1-20). Defaults to 10.',
+        description: 'Desired maximum number of results (1-20). Defaults to 5.',
         // Mirrors the core schema default. Omitted at call time means the
         // core default applies; DSH keeps no persistent override for it.
         default: DEFAULT_MAX_RESULTS,
