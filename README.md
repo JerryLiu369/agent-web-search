@@ -26,9 +26,9 @@
 Works with **Codex CLI**, **Claude Code**, **OpenCode**, **Hermes**, **DeepSeek Harness (DSH)**, ordinary
 shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 
-[Use with an agent](#use-with-an-agent) · [Providers](#providers) · [Shared interface](#shared-request-and-response) · [Configuration](#configuration)
+[Quickstart](#installation--quickstart) · [Use with an agent](#use-with-an-agent) · [Providers](#providers) · [Configuration](#configuration)
 <br>
-[Other interfaces](#other-interfaces) · [Troubleshooting](#troubleshooting) · [FAQ](#faq) · [Architecture](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [Development](#development)
+[Shared interface](#shared-request-and-response) · [Other interfaces](#other-interfaces) · [Troubleshooting](#troubleshooting) · [FAQ](#faq) · [Architecture](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [Development](#development)
 
 </div>
 
@@ -62,6 +62,61 @@ conventional search backend in the current provider set.
                   ARK, Grok,    Parallel,
                   Gemini...)    Tavily...)
 ```
+
+## Installation & Quickstart
+
+**Requirements:** Python 3.10+. Default backends (**DDGS, Exa, Parallel**) require **no API key**.
+
+### Try without installing
+
+Test immediate search capabilities using `uvx` (no environment modification):
+
+```bash
+# Direct natural-language search with keyless defaults
+uvx --from agent-web-search-mcp agent-web-search "What changed in the latest OpenAI Codex CLI?"
+
+# Inspect MCP server arguments
+uvx agent-web-search-mcp --help
+```
+
+### Install
+
+Install once into your global user environment (recommended):
+
+```bash
+# Recommended isolated installation
+pipx install agent-web-search-mcp
+
+# Or install into the active Python environment
+python -m pip install agent-web-search-mcp
+```
+
+### Verify
+
+```bash
+# 1. Verify the CLI and run a real search
+agent-web-search --version
+agent-web-search "What changed in the latest OpenAI Codex CLI?"
+
+# 2. Verify the MCP server binary
+agent-web-search-mcp --help
+```
+
+> **Two commands, two roles:**
+> - `agent-web-search`: Direct search CLI for terminals, shell scripts, and Agent Skills.
+> - `agent-web-search-mcp`: Stdio and Streamable HTTP MCP server for MCP clients.
+
+### Pick your agent integration
+
+| Integration | Client / Environment | One-liner Setup |
+| :--- | :--- | :--- |
+| **CLI + Skill** *(Recommended)* | Terminal agents (Claude Code, Codex, OpenCode, Hermes) | `npx skills add JerryLiu369/agent-web-search --skill agent-web-search` ([Details](#option-2-cli--agent-skill)) |
+| **MCP (Stdio)** | Cursor, Cline, Claude Desktop, Roo Code | `codex mcp add agent-web-search -- agent-web-search-mcp` ([Details](#local-stdio-mcp)) |
+| **DSH Plugin** | DeepSeek Harness (desktop & web) | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search` ([Details](#native-deepseek-harness-plugin)) |
+| **Hermes Plugin** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search` ([Details](#native-hermes-plugin)) |
+
+> [!TIP]
+> **Why CLI + Skill is recommended for shell-capable agents:** If your agent already has terminal/bash execution capabilities (like Claude Code, Codex CLI, OpenCode, or Hermes), the CLI + Skill pathway offers the lowest friction and highest reliability. No MCP JSON configuration to debug, no background transport lifecycle to manage, and clean stdout JSON output taught through a standard Skill.
 
 ## Why Agent Web Search
 
@@ -255,7 +310,7 @@ remote MCP client connects like this:
 Every public deployment must set `AGENT_WEB_SEARCH_AUTH_TOKEN` to at least 32
 characters. The server is stateless and does not create `MCP-Session-Id` values.
 
-### Option 2: CLI + Skill
+### Option 2: CLI + Agent Skill<a id="agent-skill"></a>
 
 Choose this shape when the agent already has shell access and supports Agent
 Skills. The Skill teaches the agent how to invoke the CLI, select controls,

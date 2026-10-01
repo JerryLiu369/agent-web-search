@@ -25,9 +25,9 @@
 
 支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、**DeepSeek Harness (DSH)**、普通命令行脚本、Python 应用和远程 Streamable HTTP MCP 客户端。
 
-[给 Agent 使用](#给-agent-使用) · [搜索服务](#搜索服务) · [统一接口](#统一请求与响应) · [配置](#配置)
+[快速上手](#安装与快速上手) · [给 Agent 使用](#给-agent-使用) · [搜索服务](#搜索服务) · [配置](#配置)
 <br>
-[其他接口](#其他接口) · [故障排查](#故障排查) · [常见问题](#常见问题) · [架构](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [开发](#开发)
+[统一接口](#统一请求与响应) · [其他接口](#其他接口) · [故障排查](#故障排查) · [常见问题](#常见问题) · [架构](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [开发](#开发)
 
 </div>
 
@@ -58,6 +58,61 @@ AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供�
                   ARK, Grok,    Parallel,
                   Gemini...)    Tavily...)
 ```
+
+## 安装与快速上手
+
+**环境要求：** Python 3.10+。默认启用的后端组合（**DDGS、Exa、Parallel**）**完全免 API Key**，开箱即用。
+
+### 免安装即刻体验
+
+使用 `uvx` 体验即时搜索，不修改本地任何环境和 PATH：
+
+```bash
+# 直接用免 Key 默认源发起自然语言搜索
+uvx --from agent-web-search-mcp agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
+
+# 查看 MCP 服务器运行参数
+uvx agent-web-search-mcp --help
+```
+
+### 一键安装
+
+推荐使用 `pipx` 隔离安装到全局环境（只需一次）：
+
+```bash
+# 推荐：全局隔离安装
+pipx install agent-web-search-mcp
+
+# 或安装到当前 Python 环境
+python -m pip install agent-web-search-mcp
+```
+
+### 验证运行
+
+```bash
+# 1. 验证 CLI 并进行真实搜索
+agent-web-search --version
+agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
+
+# 2. 验证 MCP 服务器命令
+agent-web-search-mcp --help
+```
+
+> **两个命令分工明确：**
+> - `agent-web-search`：面向终端交互、Shell 脚本与 Agent Skill 的直接搜索命令行工具。
+> - `agent-web-search-mcp`：面向 MCP 客户端的 Stdio 与 Streamable HTTP MCP 服务器。
+
+### 选择接入形态
+
+| 接入形态 | 适用环境 / 客户端 | 一键接入命令 |
+| :--- | :--- | :--- |
+| **CLI + Skill** *(推荐)* | 具备终端命令执行能力的 Agent（Claude Code、Codex、OpenCode、Hermes） | `npx skills add JerryLiu369/agent-web-search --skill agent-web-search`（[详细说明](#选项-2-cli--agent-skill)） |
+| **MCP (Stdio)** | Cursor、Cline、Claude Desktop、Roo Code | `codex mcp add agent-web-search -- agent-web-search-mcp`（[详细说明](#本地-stdio-mcp)） |
+| **DSH 原生插件** | DeepSeek Harness（桌面端与网页端） | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search`（[详细说明](#原生-deepseek-harness-插件)） |
+| **Hermes 原生插件** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search`（[详细说明](#原生-hermes-插件)） |
+
+> [!TIP]
+> **为什么对有终端能力的 Agent 推荐 CLI + Skill：** 如果你的 Agent 自身具备 Bash/命令行执行能力（如 Claude Code、Codex CLI、OpenCode 或 Hermes），CLI + Skill 是摩擦最小、最稳健的形态。无需配置繁杂的 MCP JSON 文件，没有后台常驻进程挂死或清理问题，执行单次命令就能拿到结构化高信噪比的 JSON 证据。
 
 ## 为什么选择 Agent Web Search
 
@@ -225,7 +280,7 @@ agent-web-search-mcp --transport http
 所有公网部署都必须设置至少 32 个字符的 `AGENT_WEB_SEARCH_AUTH_TOKEN`。
 服务端无状态，不会创建 `MCP-Session-Id`。
 
-### 形态二：CLI + Skill
+### 形态二：CLI + Agent Skill<a id="agent-skill"></a>
 
 当 Agent 已经有 Shell 能力并支持 Agent Skills 时，选择这个形态。Skill
 会教 Agent 调用 CLI、选择控制参数、理解 `results` 并处理结构化失败，不需要
