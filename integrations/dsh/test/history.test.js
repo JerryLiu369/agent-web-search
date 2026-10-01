@@ -29,7 +29,13 @@ const envelope = (kind, args, rows) => ({ query: args.query, providers: { [kind]
 
 /** Reject when the attempt signal aborts, so abort/timeout paths are reachable. */
 const neverResolves = args => new Promise((_, reject) => {
-  const onAbort = () => reject(args.signal.reason ?? new Error('aborted'))
+  // A ref'd timer keeps the Node event loop alive while waiting for the
+  // unref'd AbortSignal.timeout timer in tests without active I/O handles.
+  const keepAlive = setTimeout(() => {}, 5000)
+  const onAbort = () => {
+    clearTimeout(keepAlive)
+    reject(args.signal.reason ?? new Error('aborted'))
+  }
   if (args.signal?.aborted) onAbort()
   else args.signal?.addEventListener('abort', onAbort, { once: true })
 })
