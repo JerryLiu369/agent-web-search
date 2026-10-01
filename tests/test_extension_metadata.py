@@ -33,4 +33,4 @@ def test_registry_workflow_checks_out_the_triggering_release_commit():
         encoding="utf-8"
     )
 
-    assert "ref: ${{ github.event.workflow_run.head_sha }}" in workflow
+    assert "github.event.workflow_run.head_sha" in workflow

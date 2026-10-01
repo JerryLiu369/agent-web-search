@@ -23,7 +23,7 @@
   <a href="https://zeabur.com/templates/8MQZG0?referralCode=JerryLiu369"><img alt="Deploy on Zeabur" src="https://zeabur.com/button.svg" height="34"></a>
 </p>
 
-Works with **Codex CLI**, **Claude Code**, **OpenCode**, **Hermes**, ordinary
+Works with **Codex CLI**, **Claude Code**, **OpenCode**, **Hermes**, **DeepSeek Harness (DSH)**, ordinary
 shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 
 [Use with an agent](#use-with-an-agent) · [Providers](#providers) ·

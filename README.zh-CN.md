@@ -23,7 +23,7 @@
   <a href="https://zeabur.com/templates/8MQZG0?referralCode=JerryLiu369"><img alt="Deploy on Zeabur" src="https://zeabur.com/button.svg" height="34"></a>
 </p>
 
-支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、普通命令行脚本、Python 应用和远程 Streamable HTTP MCP 客户端。
+支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、**DeepSeek Harness (DSH)**、普通命令行脚本、Python 应用和远程 Streamable HTTP MCP 客户端。
 
 [给 Agent 使用](#给-agent-使用) · [搜索服务](#搜索服务) ·
 [统一接口](#统一请求与响应) · [配置](#配置) · [其他接口](#其他接口) ·
