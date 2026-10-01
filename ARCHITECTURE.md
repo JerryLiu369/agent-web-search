@@ -22,6 +22,18 @@ Agent Web Search is one provider-neutral search core with thin adapters:
 The adapters must not implement their own provider dispatch, response models,
 tool schema, or failure semantics.
 
+The DeepSeek Harness integration is a product-boundary adapter over this same
+core. It registers one native `ctx.web` provider and keeps DSH's model-facing
+`web_search` tool, source rendering, citation cards, settings, history, and
+diagnostics. Built-in provider attempts are
+delegated to a short-lived `agent-web-search-mcp` stdio child that calls only
+the fixed `web_search` operation; the bridge never registers an
+`mcp__...__web_search` model tool. DSH-only fanout/fallback orchestration
+remains at the seam because those controls are not
+part of the Python public MCP response. The DSH adapter does not consume
+arbitrary third-party MCP servers as search providers: provider dispatch stays
+in the Python `SearchEngine`.
+
 Each public provider response contains at most `answer` and `results`; `answer`
 is omitted when the provider produces no prose. `results`
 is the sole normalized source list for every provider. Model-backed providers
@@ -61,6 +73,11 @@ payload and the process exits with status 1. Argument errors use status 2.
 - `agent_web_search.mcp_http:create_http_app` exposes the ASGI application for
   serverless platforms.
 - The Hermes plugin and Python API call the same `SearchEngine` directly.
+- The DSH provider is another thin adapter: it maps live DSH credentials and
+  provider selection into the Python MCP request and preserves the normalized
+  `{ query, providers }` success payload for the native model-facing tool.
+  DSH-only citation-card sources and execution metadata remain a separate
+  presentation projection and never replace the MCP-shaped model payload.
 
 MCP stdio and MCP HTTP expose the same `web_search` tool, input schema, output
 shape, provider selection, partial-failure behavior, and
@@ -75,7 +92,7 @@ YAML, TOML, or JSON application configuration file.
   `AGENT_WEB_SEARCH_*` and provider-specific environment variables.
 - HTTP host, port, authentication, and transport security also use environment
   variables.
-- `query`, `providers`, `max_results`, and `time_range` are
+- `query`, `providers`, `max_results`, `time_range`, and `grok_search_mode` are
   request inputs, not persistent configuration.
 - A command-line transport selector is allowed because it chooses the process
   operating mode; the equivalent environment variable must also exist for

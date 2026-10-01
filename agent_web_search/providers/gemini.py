@@ -28,6 +28,7 @@ class GeminiProvider(Provider):
         self.api_key = (
             api_key if api_key is not None else os.getenv("GEMINI_API_KEY", "")
         )
+        self.endpoint = os.getenv("AGENT_WEB_SEARCH_GEMINI_ENDPOINT", ENDPOINT)
         self.models = configured_models(
             models=models,
             env_name="AGENT_WEB_SEARCH_GEMINI_MODELS",
@@ -94,7 +95,7 @@ class GeminiProvider(Provider):
             "tools": [{"type": "google_search"}],
         }
         req = urllib.request.Request(
-            ENDPOINT,
+            self.endpoint,
             data=json.dumps(payload).encode(),
             headers={
                 "x-goog-api-key": self.api_key,

@@ -726,6 +726,30 @@ after enabling it; restart the gateway when using a messaging channel.
 Hermes can also connect through its generic MCP integration instead of the
 native plugin.
 
+### Native DeepSeek Harness plugin
+
+Install the native plugin directly from GitHub (desktop and CLI profiles alike —
+the desktop app ships its own `dsh plugin` command, so no manual file
+placement is needed):
+
+```bash
+dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search
+python -m pip install agent-web-search-mcp
+```
+
+The plugin intentionally replaces the implementation behind DSH's native
+`web_search` seam — same model-facing tool name, prompt, normalized sources, and
+citation UI. It does not expose an `mcp__...__web_search` tool. Install the
+`agent-web-search-mcp` Python command in the same environment as DSH, then
+restart DSH if the new provider is not picked up immediately; the bridge
+delegates built-in provider work to that command while DSH retains its native
+settings, history, and diagnostics. Full steps and a copy-paste install prompt
+are in
+[`integrations/dsh/docs/INSTALL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/integrations/dsh/docs/INSTALL.md).
+
+DSH can also connect through its built-in MCP client instead of the native
+plugin.
+
 ## Troubleshooting
 
 - **`all_providers_failed`** — every selected provider errored. MCP marks the
@@ -819,7 +843,7 @@ git clone https://github.com/JerryLiu369/agent-web-search.git
 cd agent-web-search
 uv venv
 uv pip install -e '.[dev]'
-uv run pytest -q
+uv run --extra dev pytest -q
 uv run ruff check .
 ```
 

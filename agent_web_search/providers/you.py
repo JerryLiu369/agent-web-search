@@ -20,6 +20,7 @@ class YouProvider(Provider):
 
     def __init__(self, api_key: str | None = None, timeout: float = 60):
         self.api_key = api_key if api_key is not None else os.getenv("YDC_API_KEY", "")
+        self.endpoint = os.getenv("AGENT_WEB_SEARCH_YOU_ENDPOINT", ENDPOINT)
         self.timeout = timeout
 
     @staticmethod
@@ -79,7 +80,7 @@ class YouProvider(Provider):
         if request.time_range in TIME_RANGE_MAP:
             payload["freshness"] = TIME_RANGE_MAP[request.time_range]
         req = urllib.request.Request(
-            ENDPOINT,
+            self.endpoint,
             data=json.dumps(payload).encode(),
             headers={
                 "Accept": "application/json",

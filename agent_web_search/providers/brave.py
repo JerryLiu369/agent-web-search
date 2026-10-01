@@ -23,6 +23,7 @@ class BraveProvider(Provider):
         self.api_key = (
             api_key if api_key is not None else os.getenv("BRAVE_SEARCH_API_KEY", "")
         )
+        self.endpoint = os.getenv("AGENT_WEB_SEARCH_BRAVE_ENDPOINT", ENDPOINT)
         self.timeout = timeout
 
     @staticmethod
@@ -53,7 +54,7 @@ class BraveProvider(Provider):
         if request.time_range in TIME_RANGE_MAP:
             query["freshness"] = TIME_RANGE_MAP[request.time_range]
         req = urllib.request.Request(
-            f"{ENDPOINT}?{urlencode(query)}",
+            f"{self.endpoint}?{urlencode(query)}",
             headers={
                 "Accept": "application/json",
                 "X-Subscription-Token": self.api_key,

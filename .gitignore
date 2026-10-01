@@ -7,3 +7,6 @@ build/
 .env
 .pytest_cache/
 .ruff_cache/
+# integrations/dsh 的 JS 依赖与锁文件：只为跑那套测试，版本在 package.json 里钉死
+node_modules/
+package-lock.json

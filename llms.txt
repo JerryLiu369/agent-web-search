@@ -10,7 +10,7 @@ Key facts:
 - Model-native grounding providers: `ark` (Volcengine Doubao), `gemini`, `grok`, `deepseek`, `zhipu_chat_search`, `responses` (any OpenAI Responses API gateway), `messages` (any Anthropic Messages API gateway), `codex_alpha` (experimental).
 - Agent search providers: `exa`, `parallel`, `brave`, `perplexity`, `tavily`, `you`, `zhipu_web_search`. Conventional fallback: `ddgs` (DuckDuckGo).
 - Configuration is environment-only (`AGENT_WEB_SEARCH_PROVIDERS`, provider API keys). Credentials are never tool arguments. No telemetry.
-- Works with Codex CLI, Claude Code, OpenCode, Cursor, Cline, Claude Desktop, Hermes (native plugin), and any MCP client.
+- Works with Codex CLI, Claude Code, OpenCode, Cursor, Cline, Claude Desktop, Hermes (native plugin), DeepSeek Harness (native plugin), and any MCP client.
 
 ## Docs
 
@@ -18,6 +18,7 @@ Key facts:
 - [README (简体中文)](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/README.zh-CN.md): Chinese documentation
 - [Architecture](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/ARCHITECTURE.md): Design decisions, transports, and invariants
 - [Agent Skill](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/skills/agent-web-search/SKILL.md): How a shell-capable agent should call the CLI
+- [DeepSeek Harness native plugin](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/integrations/dsh/docs/INSTALL.md): Installing the native DSH bundle and its Python runtime
 - [Environment template](https://raw.githubusercontent.com/JerryLiu369/agent-web-search/main/.env.example): Every supported environment variable
 
 ## Benchmarks

@@ -26,6 +26,7 @@ class GrokProvider(Provider):
         timeout: float = 60,
     ):
         self.api_key = api_key if api_key is not None else os.getenv("XAI_API_KEY", "")
+        self.endpoint = os.getenv("AGENT_WEB_SEARCH_GROK_ENDPOINT", ENDPOINT)
         self.models = configured_models(
             models=models,
             env_name="AGENT_WEB_SEARCH_GROK_MODELS",
@@ -115,7 +116,7 @@ class GrokProvider(Provider):
             "tools": tools,
         }
         req = urllib.request.Request(
-            ENDPOINT,
+            self.endpoint,
             data=json.dumps(payload).encode(),
             headers={
                 "Authorization": f"Bearer {self.api_key}",

@@ -1,0 +1,95 @@
+# dsh-agent-web-search bundle layer.
+#
+# Four moves, in order:
+#
+# 1. PIN the web seam's search provider to this plugin's id. A patch replaces
+#    the targeted row's WHOLE config, so every key this deployment needs must be
+#    restated verbatim — that is why `fetchProvider` is repeated here and not
+#    just `searchProvider`. If you also install a fetching plugin (a Playwright
+#    fetcher, say), restate ITS provider id on this same line; whichever layer
+#    applies last wins, and the profile's own cordis.patch.yml always beats a
+#    bundle layer.
+#
+# 2. DISABLE the shipped DeepSeek search row. Without this both providers would
+#    be registered, and the built-in one would keep advertising itself in the
+#    Plugins page while never being selected. Deleting these two lines restores
+#    it; so does setting `disabled: false` from your own profile layer.
+#
+# 3. TURN OFF the shipped `{ queries }` web_search tool at host scope, keeping
+#    `web_fetch`. This plugin registers its own `web_search` with the
+#    MCP-consistent schema (query/max_results/time_range/providers/
+#    grok_search_mode). Agent presets mount their own `tool-web` row that no
+#    patch layer can reach, so `lib/agent-tool.js` additionally registers this
+#    tool inside every agent scope (force: true) to shadow it. This restates
+#    tool-web's other defaults verbatim because a patch replaces the whole row
+#    config; re-enable `search` here only if you also remove this plugin's tool
+#    registration.
+#
+# 4. INSERT this package's plugin row. Everything the row's config says can be
+#    edited afterwards from Settings → agent-web-search, because the schema marks
+#    every field volatile — the values here are only the shipped defaults.
+#
+# Only the three keyless upstreams ship ENABLED. A keyed upstream with no key
+# fails its attempt on every search, so shipping them on would make "enabled"
+# mean "will probably fail" and the Plugins page would show sixteen rows as on
+# while none could serve. Flip them on in the card once their credential is set.
+- id: web
+  config:
+    searchProvider: agent-web-search
+    fetchProvider: http
+
+- id: web-search-deepseek
+  disabled: true
+
+- id: tool-web
+  config:
+    search: false
+    fetch: true
+    searchMaxResults: 8
+    searchMaxQueries: 4
+    fetchTimeoutMs: 30000
+    searchTimeoutMs: 30000
+    fetchMaxOutputChars: 200000
+
+- insert:
+    - id: agent-web-search
+      name: dsh-agent-web-search
+      config:
+        mode: fanout
+        attemptTimeoutMs: 12000
+        totalTimeoutMs: 30000
+        dedupeByUrl: true
+        includeAnswer: true
+        providers:
+          - kind: exa
+            enabled: true
+          - kind: parallel
+            enabled: true
+          - kind: ddgs
+            enabled: true
+          - kind: brave
+            enabled: false
+          - kind: tavily
+            enabled: false
+          - kind: perplexity
+            enabled: false
+          - kind: you
+            enabled: false
+          - kind: gemini
+            enabled: false
+          - kind: grok
+            enabled: false
+          - kind: ark
+            enabled: false
+          - kind: zhipu_web_search
+            enabled: false
+          - kind: zhipu_chat_search
+            enabled: false
+          - kind: deepseek
+            enabled: false
+          - kind: messages
+            enabled: false
+          - kind: responses
+            enabled: false
+          - kind: codex_alpha
+            enabled: false

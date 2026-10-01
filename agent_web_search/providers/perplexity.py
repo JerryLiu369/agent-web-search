@@ -22,6 +22,7 @@ class PerplexityProvider(Provider):
         self.api_key = (
             api_key if api_key is not None else os.getenv("PERPLEXITY_API_KEY", "")
         )
+        self.endpoint = os.getenv("AGENT_WEB_SEARCH_PERPLEXITY_ENDPOINT", ENDPOINT)
         self.timeout = timeout
 
     @staticmethod
@@ -52,7 +53,7 @@ class PerplexityProvider(Provider):
         if request.time_range in TIME_RANGE_MAP:
             payload["search_recency_filter"] = TIME_RANGE_MAP[request.time_range]
         req = urllib.request.Request(
-            ENDPOINT,
+            self.endpoint,
             data=json.dumps(payload).encode(),
             headers={
                 "Accept": "application/json",

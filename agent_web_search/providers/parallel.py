@@ -37,6 +37,8 @@ class ParallelProvider(Provider):
         self.api_key = (
             api_key if api_key is not None else os.getenv("PARALLEL_API_KEY", "")
         )
+        self.endpoint = os.getenv("AGENT_WEB_SEARCH_PARALLEL_ENDPOINT", ENDPOINT)
+        self.mcp_endpoint = os.getenv("AGENT_WEB_SEARCH_PARALLEL_MCP_URL", MCP_ENDPOINT)
         self.timeout = timeout
 
     @staticmethod
@@ -78,7 +80,7 @@ class ParallelProvider(Provider):
             "advanced_settings": {"max_results": max_results},
         }
         req = urllib.request.Request(
-            ENDPOINT,
+            self.endpoint,
             data=json.dumps(payload).encode(),
             headers={
                 "Accept": "application/json",
@@ -175,7 +177,7 @@ class ParallelProvider(Provider):
         if protocol_version:
             headers["MCP-Protocol-Version"] = protocol_version
         req = urllib.request.Request(
-            MCP_ENDPOINT,
+            self.mcp_endpoint,
             data=json.dumps(body).encode(),
             headers=headers,
             method="POST",

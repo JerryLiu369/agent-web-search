@@ -1,0 +1,59 @@
+{
+  "name": "dsh-agent-web-search",
+  "version": "0.5.0",
+  "private": true,
+  "description": "DeepSeek Harness (DSH) native plugin: replaces DSH's built-in web_search with this project's provider set.",
+  "type": "module",
+  "main": "integrations/dsh/lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./integrations/dsh/lib/index.js"
+    },
+    "./client": {
+      "default": "./integrations/dsh/lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./integrations/dsh/cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-api-remotes"
+      ]
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.1.7-rc.1": "compatible",
+        "0.1.7-rc.2": "compatible",
+        "0.2.0-rc.2": "compatible"
+      },
+      "node": ">=20"
+    }
+  },
+  "scripts": {
+    "test": "node --test integrations/dsh/test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": ">=3.18.4 <4"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.1-rc.1 <5",
+    "@deepseek-ai/dsh-credentials": ">=0.1.0-rc.6 <0.2.0 || >=0.1.1-rc.1 <1",
+    "@deepseek-ai/dsh-web": ">=0.1.0-rc.6 <0.2.0 || >=0.1.1-rc.1 <1",
+    "@deepseek-ai/dsh-tools": ">=0.1.0-rc.6 <0.2.0 || >=0.1.1-rc.1 <1"
+  },
+  "devDependencies": {
+    "@deepseek-ai/dsh-credentials": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-web": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-tools": "0.1.7-rc.2"
+  },
+  "license": "MIT"
+}

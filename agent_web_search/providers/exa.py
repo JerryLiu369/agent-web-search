@@ -30,6 +30,7 @@ class ExaProvider(Provider):
     ):
         self.api_key = api_key if api_key is not None else os.getenv("EXA_API_KEY", "")
         self.endpoint = endpoint or os.getenv("EXA_MCP_URL", "https://mcp.exa.ai/mcp")
+        self.api_endpoint = os.getenv("AGENT_WEB_SEARCH_EXA_ENDPOINT", API_ENDPOINT)
         self.timeout = timeout
 
     # --- free MCP path (no key) ---
@@ -154,7 +155,7 @@ class ExaProvider(Provider):
                 datetime.now(timezone.utc) - timedelta(days=days)
             ).strftime("%Y-%m-%d")
         req = urllib.request.Request(
-            API_ENDPOINT,
+            self.api_endpoint,
             data=json.dumps(payload).encode(),
             headers={
                 "x-api-key": self.api_key,

@@ -22,6 +22,7 @@ class TavilyProvider(Provider):
         self.api_key = (
             api_key if api_key is not None else os.getenv("TAVILY_API_KEY", "")
         )
+        self.endpoint = os.getenv("AGENT_WEB_SEARCH_TAVILY_ENDPOINT", ENDPOINT)
         self.timeout = timeout
 
     @staticmethod
@@ -62,7 +63,7 @@ class TavilyProvider(Provider):
         if request.time_range in TIME_RANGE_MAP:
             payload["time_range"] = TIME_RANGE_MAP[request.time_range]
         req = urllib.request.Request(
-            ENDPOINT,
+            self.endpoint,
             data=json.dumps(payload).encode(),
             headers={
                 "Authorization": f"Bearer {self.api_key}",

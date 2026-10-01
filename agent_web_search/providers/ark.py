@@ -37,6 +37,7 @@ class ArkProvider(Provider):
         timeout: float = 60,
     ):
         self.api_key = api_key if api_key is not None else os.getenv("ARK_API_KEY", "")
+        self.endpoint = os.getenv("AGENT_WEB_SEARCH_ARK_ENDPOINT", ENDPOINT)
         self.models = configured_models(
             models=models,
             env_name="AGENT_WEB_SEARCH_ARK_MODELS",
@@ -119,7 +120,7 @@ class ArkProvider(Provider):
             "max_output_tokens": 4096,
         }
         req = urllib.request.Request(
-            ENDPOINT,
+            self.endpoint,
             data=json.dumps(payload).encode(),
             headers={
                 "Authorization": f"Bearer {key}",
@@ -166,7 +167,7 @@ class ArkProvider(Provider):
             "max_output_tokens": 4096,
         }
         req = urllib.request.Request(
-            ENDPOINT,
+            self.endpoint,
             data=json.dumps(payload).encode(),
             headers={
                 "Authorization": f"Bearer {key}",

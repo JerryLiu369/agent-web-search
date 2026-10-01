@@ -647,6 +647,19 @@ hermes plugins enable agent-web-search --allow-tool-override
 
 Hermes 也可以不安装原生插件，而是通过通用 MCP 集成连接本项目。
 
+### DeepSeek Harness 原生插件
+
+直接从 GitHub 安装原生插件（桌面版和 CLI 版 profile 都一样 —— 桌面版自带 `dsh plugin` 命令，不需要手工落盘）：
+
+```bash
+dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search
+python -m pip install agent-web-search-mcp
+```
+
+该插件会有意替换 DSH 原生 `web_search` seam 背后的实现 —— 保持同一个模型可见工具名、提示词、规范化来源和引用卡片；不会暴露 `mcp__...__web_search` 工具。请把 `agent-web-search-mcp` Python 命令安装在 DSH 所用的同一环境中，装完重启 DSH。桥接层把内置 Provider 委托给该命令，同时保留 DSH 原生设置、历史与诊断。完整步骤和一段可直接粘贴的安装 prompt 见 [`integrations/dsh/docs/INSTALL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/integrations/dsh/docs/INSTALL.md)。
+
+DSH 也可以不装原生插件，而是用自带的 MCP 客户端连接本项目。
+
 ## 故障排查
 
 - **`all_providers_failed`** —— 所有 Provider 都失败了。MCP 会标记工具错误；CLI 会把诊断写入 stderr 并退出 1。请检查 Key、配额和网络；临时限流可以有界重试一次。
@@ -719,7 +732,7 @@ git clone https://github.com/JerryLiu369/agent-web-search.git
 cd agent-web-search
 uv venv
 uv pip install -e '.[dev]'
-uv run pytest -q
+uv run --extra dev pytest -q
 uv run ruff check .
 ```
 
