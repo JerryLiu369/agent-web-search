@@ -4,7 +4,7 @@
 
 <!-- mcp-name: io.github.JerryLiu369/agent-web-search -->
 
-**面向 AI Agent 的原生搜索层：聚合模型原生搜索与 Agent 搜索服务，而不是传统搜索引擎聚合器。**
+**为 AI Agent 而生的原生联网搜索层 — 将模型原生 Grounding 与 Agent 专属搜索 API 统一于中立契约之下。**
 
 [English](https://github.com/JerryLiu369/agent-web-search/blob/main/README.md) | **简体中文**
 
@@ -61,7 +61,7 @@ AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供�
 
 ## 安装与快速上手
 
-**环境要求：** Python 3.10+。默认启用的后端组合（**DDGS、Exa、Parallel**）**完全免 API Key**，开箱即用。
+**环境要求：** Python 3.10+。默认启用的 Provider 组合（**DDGS、Exa、Parallel**）**完全免 API Key**，开箱即用。
 
 ### 免安装即刻体验
 
@@ -112,7 +112,7 @@ agent-web-search-mcp --help
 | **Hermes 原生插件** | Hermes Agent | `hermes plugins install JerryLiu369/agent-web-search`（[详细说明](#hermes-原生插件)） |
 
 > [!TIP]
-> **为什么对有终端能力的 Agent 推荐 CLI + Skill：** 如果你的 Agent 自身具备 Bash/命令行执行能力（如 Claude Code、Codex CLI、OpenCode 或 Hermes），CLI + Skill 是摩擦最小、最稳健的形态。无需配置繁杂的 MCP JSON 文件，没有后台常驻进程挂死或清理问题，执行单次命令就能拿到结构化高信噪比的 JSON 证据。
+> **为什么对有终端能力的 Agent 推荐 CLI + Skill：** 如果你的 Agent 自身具备 Bash/命令行执行能力（如 Claude Code、Codex CLI、OpenCode 或 Hermes），CLI + Skill 是心智负担最小、最可靠的形态：无需配置繁杂的 MCP JSON 文件，没有后台常驻进程挂死或清理问题，单次命令即返回结构化高信噪比的 JSON 证据。
 
 ## 为什么选择 Agent Web Search
 
@@ -495,7 +495,7 @@ Parallel 默认启用，Key 为可选项。
 | 变量 | 必填 | 用途 |
 | --- | :---: | --- |
 | `ARK_API_KEY` | 是 | 单个 Key，或用逗号/换行分隔的多个 Key |
-| `AGENT_WEB_SEARCH_ARK_MODELS` | 否 | 用逗号/换行分隔的 ARK 模型 ID |
+| `AGENT_WEB_SEARCH_ARK_MODELS` | 否 | 用逗号/换行分隔的 ARK 模型 ID；默认 `glm-5-2-260617,doubao-seed-2-1-turbo-260628,deepseek-v4-flash-ga-260731` |
 
 只配置一个模型时会固定使用该模型；配置多个模型时，连续请求会轮询选择模型。配置多个 ARK Key 时，每次请求会选择一个 Key。
 
@@ -519,7 +519,7 @@ Parallel 默认启用，Key 为可选项。
 | 变量 | 必填 | 用途 |
 | --- | :---: | --- |
 | `GEMINI_API_KEY` | 是 | Google AI API 凭据 |
-| `AGENT_WEB_SEARCH_GEMINI_MODELS` | 否 | 用逗号/换行分隔的 Gemini 模型 ID |
+| `AGENT_WEB_SEARCH_GEMINI_MODELS` | 否 | 用逗号/换行分隔的 Gemini 模型 ID；默认 `gemini-3.7-flash` |
 
 Gemini 会把通用的结果数量和时间控制尽力转换为 Prompt 约束。只配置一个模型时固定使用该模型；配置多个模型时连续请求会轮询选择模型。
 
@@ -528,7 +528,7 @@ Gemini 会把通用的结果数量和时间控制尽力转换为 Prompt 约束�
 | 变量 | 必填 | 用途 |
 | --- | :---: | --- |
 | `XAI_API_KEY` | 是 | xAI API 凭据 |
-| `AGENT_WEB_SEARCH_GROK_MODELS` | 否 | 用逗号/换行分隔的 Grok 模型 ID |
+| `AGENT_WEB_SEARCH_GROK_MODELS` | 否 | 用逗号/换行分隔的 Grok 模型 ID；默认 `grok-4.6` |
 
 只配置一个模型时固定使用该模型；配置多个模型时连续请求会轮询选择模型。
 
@@ -703,7 +703,7 @@ Hermes 也可以不安装原生插件，而是通过通用 MCP 集成连接本�
 
 ### DeepSeek Harness 原生插件
 
-直接从 GitHub 安装原生插件（桌面版和 CLI 版 profile 都一样 —— 桌面版自带 `dsh plugin` 命令，不需要手工落盘）：
+直接从 GitHub 安装原生插件（桌面版和 CLI 版 profile 都一样 —— 桌面版自带 `dsh plugin` 命令，无需手动放置文件）：
 
 ```bash
 dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search

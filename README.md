@@ -4,7 +4,7 @@
 
 <!-- mcp-name: io.github.JerryLiu369/agent-web-search -->
 
-**Agent-native web search for AI agents — aggregating model-native search and agent search providers, not traditional search engines.**
+**Agent-native web search — model-native grounding and agent search APIs behind one provider-neutral contract.**
 
 **English** | [简体中文](https://github.com/JerryLiu369/agent-web-search/blob/main/README.zh-CN.md)
 
@@ -65,7 +65,7 @@ conventional search backend in the current provider set.
 
 ## Installation & Quickstart
 
-**Requirements:** Python 3.10+. Default backends (**DDGS, Exa, Parallel**) require **no API key**.
+**Requirements:** Python 3.10+. Default providers (**DDGS, Exa, Parallel**) require **no API key**.
 
 ### Try without installing
 
@@ -540,7 +540,7 @@ Add `ark` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 | Variable | Required | Purpose |
 | --- | :---: | --- |
 | `ARK_API_KEY` | Yes | One key, or multiple comma/newline-separated keys |
-| `AGENT_WEB_SEARCH_ARK_MODELS` | No | Comma/newline-separated ARK model IDs |
+| `AGENT_WEB_SEARCH_ARK_MODELS` | No | Comma/newline-separated ARK model IDs; defaults to `glm-5-2-260617,doubao-seed-2-1-turbo-260628,deepseek-v4-flash-ga-260731` |
 
 One model stays fixed; multiple models are selected round-robin for successive
 requests. When multiple ARK keys are configured, a key is selected per request.
@@ -570,7 +570,7 @@ Add `brave` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
 | Variable | Required | Purpose |
 | --- | :---: | --- |
 | `GEMINI_API_KEY` | Yes | Google AI API credential |
-| `AGENT_WEB_SEARCH_GEMINI_MODELS` | No | Comma/newline-separated Gemini model IDs |
+| `AGENT_WEB_SEARCH_GEMINI_MODELS` | No | Comma/newline-separated Gemini model IDs; defaults to `gemini-3.7-flash` |
 
 Gemini maps common result and time controls into best-effort prompt
 constraints. One configured model stays fixed; multiple models are selected
@@ -581,7 +581,7 @@ round-robin for successive requests.
 | Variable | Required | Purpose |
 | --- | :---: | --- |
 | `XAI_API_KEY` | Yes | xAI API credential |
-| `AGENT_WEB_SEARCH_GROK_MODELS` | No | Comma/newline-separated Grok model IDs |
+| `AGENT_WEB_SEARCH_GROK_MODELS` | No | Comma/newline-separated Grok model IDs; defaults to `grok-4.6` |
 
 One configured model stays fixed; multiple models are selected round-robin for
 successive requests.
@@ -596,7 +596,7 @@ When Grok is enabled, the public tool schema adds `grok_search_mode`:
 #### 8. Codex Alpha (experimental)
 
 The `codex_alpha` provider uses only a gateway API key and a complete endpoint
-implementing `/v1/alpha/search`; it does not handle Codex OAuth tokens. Set the
+implementing `/v1/alpha/search` (the provider does not append a path); it does not handle Codex OAuth tokens. Set the
 endpoint, key, and optional model, then add `codex_alpha` to
 `AGENT_WEB_SEARCH_PROVIDERS`:
 
