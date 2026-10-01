@@ -125,10 +125,13 @@ Key。请根据你的 Agent 选择最适合的接入形态：
 
 | 接入形态 | 客户端 / 适用环境 | 快速配置 |
 | :--- | :--- | :--- |
-| **MCP** | Codex CLI, Claude Code, OpenCode, Cursor, Cline | `codex mcp add agent-web-search -- agent-web-search-mcp` |
-| **CLI / Skill** | 终端命令行 Agent、Shell 脚本、Python 应用 | `pipx install agent-web-search-mcp` + [Agent Skill](#agent-skill) |
+| **CLI + Skill** *（推荐）* | 终端 Agent（Claude Code, Codex, OpenCode, Hermes）、Shell 脚本 | `pipx install agent-web-search-mcp` + [Agent Skill](#agent-skill) |
+| **MCP** | Cursor, Cline, Claude Desktop 等仅支持 MCP 的环境 | `codex mcp add agent-web-search -- agent-web-search-mcp` |
 | **DSH 原生插件** | DeepSeek Harness（桌面端与 Web 端） | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search` |
 | **Hermes 原生插件** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search` |
+
+> [!TIP]
+> **为什么有终端能力的 Agent 强烈推荐使用 CLI + Skill：** 如果你的 Agent 本身具备执行 Shell / 终端命令的能力（如 Claude Code、Codex CLI、OpenCode、Hermes 等），**CLI + Skill 是心智负担最低、最稳健的方式**。无需折腾各家 MCP 客户端复杂的 JSON 配置文件，无需维护后台常驻进程与连接重启，Agent 直接在终端跑 `agent-web-search "<query>"`，通过标准 Skill 理解结构化输出，开箱即用。
 
 ### 形态一：MCP
 

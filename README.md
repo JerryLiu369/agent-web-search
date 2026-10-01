@@ -155,10 +155,13 @@ Parallel — need no API key. Choose the integration shape that fits your agent:
 
 | Integration | Client / Environment | Quick setup |
 | :--- | :--- | :--- |
-| **MCP** | Codex CLI, Claude Code, OpenCode, Cursor, Cline | `codex mcp add agent-web-search -- agent-web-search-mcp` |
-| **CLI / Skill** | Terminal agents, shell scripts, Python | `pipx install agent-web-search-mcp` + [Agent Skill](#agent-skill) |
+| **CLI + Skill** *(Recommended)* | Terminal agents (Claude Code, Codex, OpenCode, Hermes), shell scripts | `pipx install agent-web-search-mcp` + [Agent Skill](#agent-skill) |
+| **MCP** | Cursor, Cline, Claude Desktop, or MCP-only clients | `codex mcp add agent-web-search -- agent-web-search-mcp` |
 | **DSH Plugin** | DeepSeek Harness (desktop & web) | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search` |
 | **Hermes Plugin** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search` |
+
+> [!TIP]
+> **Why CLI + Skill is recommended for shell-capable agents:** If your agent already has terminal/bash execution capabilities (like Claude Code, Codex CLI, OpenCode, or Hermes), the CLI + Skill pathway offers the lowest friction and highest reliability. No MCP JSON configuration to debug, no background transport lifecycle to manage, and clean stdout JSON output taught through a standard Skill.
 
 ### Option 1: MCP
 
