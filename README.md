@@ -49,17 +49,18 @@ structured evidence in forms an agent can use directly. DDGS is the only
 conventional search backend in the current provider set.
 
 ```text
-        Natural-language question
-                    │
-                    ▼
-               SearchEngine
-         ┌──────────┼──────────┐
-         ▼          ▼          ▼
-       DDGS       Model      Agent
-                grounding    APIs
-              (Responses,   (Exa,
-               ARK, Grok,    Parallel,
-               Gemini...)    Tavily...)
+          Natural-language question
+                      |
+                      v
+                 SearchEngine
+          +-----------+-----------+
+          |           |           |
+          v           v           v
+        DDGS        Model       Agent
+                  grounding     APIs
+                 (Responses,   (Exa,
+                  ARK, Grok,    Parallel,
+                  Gemini...)    Tavily...)
 ```
 
 ## Why Agent Web Search

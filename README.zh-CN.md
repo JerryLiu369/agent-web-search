@@ -45,16 +45,18 @@ AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供�
 传统搜索后端。
 
 ```text
-            自然语言问题
-                 │
-                 ▼
-            SearchEngine
-      ┌──────────┼──────────┐
-      ▼          ▼          ▼
-    DDGS      模型检索    Agent 搜索
-             (Responses,   (Exa,
-              ARK, Grok,    Parallel,
-              Gemini...)    Tavily...)
+          Natural-language question
+                      |
+                      v
+                 SearchEngine
+          +-----------+-----------+
+          |           |           |
+          v           v           v
+        DDGS        Model       Agent
+                  grounding     APIs
+                 (Responses,   (Exa,
+                  ARK, Grok,    Parallel,
+                  Gemini...)    Tavily...)
 ```
 
 ## 为什么选择 Agent Web Search
