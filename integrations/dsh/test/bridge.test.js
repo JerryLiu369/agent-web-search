@@ -198,20 +198,27 @@ test('bridge rejects malformed MCP results and bounds process output', async () 
 })
 
 test('bridge cancellation and timeout terminate the child process', async () => {
-  const cancellationState = {}
-  const cancellation = new PythonSearchBridge({
-    spawn: spawnFor(() => {}, cancellationState), env: {}, lineMode: true,
-  })
-  const controller = new AbortController()
-  const pending = cancellation.search({ query: 'q', maxResults: 1, providers: ['ddgs'], entries: [{ kind: 'ddgs' }], resolveValue: async () => undefined, timeoutMs: 5000, signal: controller.signal })
-  controller.abort()
-  await assert.rejects(pending, error => error.name === 'AbortError')
-  assert.equal(cancellationState.child.killed, true)
+  // A ref'd timer keeps Node 20's event loop alive while waiting for the
+  // unref'd AbortSignal.timeout timer in tests without active I/O handles.
+  const keepAlive = setTimeout(() => {}, 5000)
+  try {
+    const cancellationState = {}
+    const cancellation = new PythonSearchBridge({
+      spawn: spawnFor(() => {}, cancellationState), env: {}, lineMode: true,
+    })
+    const controller = new AbortController()
+    const pending = cancellation.search({ query: 'q', maxResults: 1, providers: ['ddgs'], entries: [{ kind: 'ddgs' }], resolveValue: async () => undefined, timeoutMs: 5000, signal: controller.signal })
+    controller.abort()
+    await assert.rejects(pending, error => error.name === 'AbortError')
+    assert.equal(cancellationState.child.killed, true)
 
-  const timeoutState = {}
-  const timeout = new PythonSearchBridge({ spawn: spawnFor(() => {}, timeoutState), env: {}, lineMode: true })
-  await assert.rejects(timeout.search({ query: 'q', maxResults: 1, providers: ['ddgs'], entries: [{ kind: 'ddgs' }], resolveValue: async () => undefined, timeoutMs: 10 }), error => error.name === 'TimeoutError')
-  assert.equal(timeoutState.child.killed, true)
+    const timeoutState = {}
+    const timeout = new PythonSearchBridge({ spawn: spawnFor(() => {}, timeoutState), env: {}, lineMode: true })
+    await assert.rejects(timeout.search({ query: 'q', maxResults: 1, providers: ['ddgs'], entries: [{ kind: 'ddgs' }], resolveValue: async () => undefined, timeoutMs: 10 }), error => error.name === 'TimeoutError')
+    assert.equal(timeoutState.child.killed, true)
+  } finally {
+    clearTimeout(keepAlive)
+  }
 })
 
 test('bridge forwards per-source models and clears inherited model vars', async () => {
