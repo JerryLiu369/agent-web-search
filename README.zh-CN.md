@@ -106,10 +106,10 @@ agent-web-search-mcp --help
 
 | 接入形态 | 适用环境 / 客户端 | 一键接入命令 |
 | :--- | :--- | :--- |
-| **CLI + Skill** *(推荐)* | 具备终端命令执行能力的 Agent（Claude Code、Codex、OpenCode、Hermes） | `npx skills add JerryLiu369/agent-web-search --skill agent-web-search`（[详细说明](#选项-2-cli--agent-skill)） |
-| **MCP (Stdio)** | Cursor、Cline、Claude Desktop、Roo Code | `codex mcp add agent-web-search -- agent-web-search-mcp`（[详细说明](#本地-stdio-mcp)） |
-| **DSH 原生插件** | DeepSeek Harness（桌面端与网页端） | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search`（[详细说明](#原生-deepseek-harness-插件)） |
-| **Hermes 原生插件** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search`（[详细说明](#原生-hermes-插件)） |
+| **CLI + Skill** *(推荐)* | 具备终端命令执行能力的 Agent（Claude Code、Codex、OpenCode、Hermes） | `npx skills add JerryLiu369/agent-web-search --skill agent-web-search`（[详细说明](#agent-skill)） |
+| **MCP (Stdio)** | Codex CLI、Claude Code、Cursor、Cline、Roo Code | `codex mcp add agent-web-search -- agent-web-search-mcp`（[详细说明](#option-1-mcp)） |
+| **DSH 原生插件** | DeepSeek Harness（桌面端与网页端） | `dsh plugin --profile desktop add github:JerryLiu369/agent-web-search`（[详细说明](#deepseek-harness-原生插件)） |
+| **Hermes 原生插件** | Hermes Agent | `hermes plugins install JerryLiu369/agent-web-search`（[详细说明](#hermes-原生插件)） |
 
 > [!TIP]
 > **为什么对有终端能力的 Agent 推荐 CLI + Skill：** 如果你的 Agent 自身具备 Bash/命令行执行能力（如 Claude Code、Codex CLI、OpenCode 或 Hermes），CLI + Skill 是摩擦最小、最稳健的形态。无需配置繁杂的 MCP JSON 文件，没有后台常驻进程挂死或清理问题，执行单次命令就能拿到结构化高信噪比的 JSON 证据。
@@ -176,20 +176,9 @@ Provider 架构是开放的：添加新的搜索后端时，不需要修改 MCP�
 
 ## 给 Agent 使用
 
-**环境要求：** Python 3.10+。默认的 DDGS、Exa 和 Parallel 都无需 API
-Key。请根据你的 Agent 选择最适合的接入形态：
+> **前置要求：** 请先完成 [安装与快速上手](#安装与快速上手)。下文针对各接入形态提供详细的客户端配置与命令参考。
 
-| 接入形态 | 客户端 / 适用环境 | 快速配置 |
-| :--- | :--- | :--- |
-| **CLI + Skill** *（推荐）* | 终端 Agent（Claude Code, Codex, OpenCode, Hermes）、Shell 脚本 | `pipx install agent-web-search-mcp` + [Agent Skill](#agent-skill) |
-| **MCP** | Cursor, Cline, Claude Desktop 等仅支持 MCP 的环境 | `codex mcp add agent-web-search -- agent-web-search-mcp` |
-| **DSH 原生插件** | DeepSeek Harness（桌面端与 Web 端） | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search` |
-| **Hermes 原生插件** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search` |
-
-> [!TIP]
-> **为什么有终端能力的 Agent 强烈推荐使用 CLI + Skill：** 如果你的 Agent 本身具备执行 Shell / 终端命令的能力（如 Claude Code、Codex CLI、OpenCode、Hermes 等），**CLI + Skill 是心智负担最低、最稳健的方式**。无需折腾各家 MCP 客户端复杂的 JSON 配置文件，无需维护后台常驻进程与连接重启，Agent 直接在终端跑 `agent-web-search "<query>"`，通过标准 Skill 理解结构化输出，开箱即用。
-
-### 形态一：MCP
+### 形态一：MCP<a id="option-1-mcp"></a>
 
 当 Agent 支持工具服务器，或者你需要类型化的工具发现、协议级错误、远程
 访问时，选择 MCP。同一个 `agent-web-search-mcp` 命令同时支持本地 stdio
@@ -449,7 +438,7 @@ $env:AGENT_WEB_SEARCH_PROVIDERS = "ddgs,exa,brave"
 $env:AGENT_WEB_SEARCH_TIMEOUT = "30"
 ```
 
-### HTTP Transport 设置
+### HTTP 传输设置
 
 | 变量 | 默认值 | 用途 |
 | --- | --- | --- |

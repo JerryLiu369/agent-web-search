@@ -108,12 +108,12 @@ agent-web-search-mcp --help
 
 ### Pick your agent integration
 
-| Integration | Client / Environment | One-liner Setup |
+| Integration | Client / Environment | Setup |
 | :--- | :--- | :--- |
 | **CLI + Skill** *(Recommended)* | Terminal agents (Claude Code, Codex, OpenCode, Hermes) | `npx skills add JerryLiu369/agent-web-search --skill agent-web-search` ([Details](#option-2-cli--agent-skill)) |
-| **MCP (Stdio)** | Cursor, Cline, Claude Desktop, Roo Code | `codex mcp add agent-web-search -- agent-web-search-mcp` ([Details](#local-stdio-mcp)) |
-| **DSH Plugin** | DeepSeek Harness (desktop & web) | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search` ([Details](#native-deepseek-harness-plugin)) |
-| **Hermes Plugin** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search` ([Details](#native-hermes-plugin)) |
+| **MCP (Stdio)** | Codex CLI, Claude Code, Cursor, Cline, Roo Code | `codex mcp add agent-web-search -- agent-web-search-mcp` ([Details](#option-1-mcp)) |
+| **DSH Plugin** | DeepSeek Harness (desktop & web) | `dsh plugin --profile desktop add github:JerryLiu369/agent-web-search` ([Details](#native-deepseek-harness-plugin)) |
+| **Hermes Plugin** | Hermes Agent | `hermes plugins install JerryLiu369/agent-web-search` ([Details](#native-hermes-plugin)) |
 
 > [!TIP]
 > **Why CLI + Skill is recommended for shell-capable agents:** If your agent already has terminal/bash execution capabilities (like Claude Code, Codex CLI, OpenCode, or Hermes), the CLI + Skill pathway offers the lowest friction and highest reliability. No MCP JSON configuration to debug, no background transport lifecycle to manage, and clean stdout JSON output taught through a standard Skill.
@@ -205,20 +205,9 @@ interfaces.
 
 ## Use with an agent
 
-**Requirements:** Python 3.10+. The default providers — DDGS, Exa, and
-Parallel — need no API key. Choose the integration shape that fits your agent:
+> **Prerequisite:** Complete [Installation & Quickstart](#installation--quickstart) first. The sections below provide detailed client configurations and command references for each integration pathway.
 
-| Integration | Client / Environment | Quick setup |
-| :--- | :--- | :--- |
-| **CLI + Skill** *(Recommended)* | Terminal agents (Claude Code, Codex, OpenCode, Hermes), shell scripts | `pipx install agent-web-search-mcp` + [Agent Skill](#agent-skill) |
-| **MCP** | Cursor, Cline, Claude Desktop, or MCP-only clients | `codex mcp add agent-web-search -- agent-web-search-mcp` |
-| **DSH Plugin** | DeepSeek Harness (desktop & web) | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search` |
-| **Hermes Plugin** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search` |
-
-> [!TIP]
-> **Why CLI + Skill is recommended for shell-capable agents:** If your agent already has terminal/bash execution capabilities (like Claude Code, Codex CLI, OpenCode, or Hermes), the CLI + Skill pathway offers the lowest friction and highest reliability. No MCP JSON configuration to debug, no background transport lifecycle to manage, and clean stdout JSON output taught through a standard Skill.
-
-### Option 1: MCP
+### Option 1: MCP<a id="option-1-mcp"></a>
 
 Choose MCP when the agent supports tool servers and you want typed discovery,
 protocol-level errors, or remote access. The same `agent-web-search-mcp`
