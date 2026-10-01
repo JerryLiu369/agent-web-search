@@ -37,8 +37,9 @@ shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 
 Agent Web Search (PyPI: `agent-web-search-mcp`) is an open-source,
 MIT-licensed web search MCP server, CLI, and Python library for AI agents. It
-gives an agent two ways to reach the same provider-neutral search core: a
-native MCP tool, or a CLI taught through a standard Agent Skill.
+gives an agent three ways to reach the same provider-neutral search core: a
+native MCP tool, a native plugin (Hermes, DeepSeek Harness), or a CLI taught
+through a standard Agent Skill.
 
 This is not a Google/Bing/Baidu metasearch wrapper. Traditional search
 aggregation fans a keyword query out to conventional engines and merges their
@@ -150,9 +151,14 @@ interfaces.
 ## Use with an agent
 
 **Requirements:** Python 3.10+. The default providers — DDGS, Exa, and
-Parallel — need no API key. Choose one integration shape for your agent; both
-use the same package and search engine. The PyPI package installs both
-`agent-web-search-mcp` and `agent-web-search` commands.
+Parallel — need no API key. Choose the integration shape that fits your agent:
+
+| Integration | Client / Environment | Quick setup |
+| :--- | :--- | :--- |
+| **MCP** | Codex CLI, Claude Code, OpenCode, Cursor, Cline | `codex mcp add agent-web-search -- agent-web-search-mcp` |
+| **CLI / Skill** | Terminal agents, shell scripts, Python | `pipx install agent-web-search-mcp` + [Agent Skill](#agent-skill) |
+| **DSH Plugin** | DeepSeek Harness (desktop & web) | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search` |
+| **Hermes Plugin** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search` |
 
 ### Option 1: MCP
 

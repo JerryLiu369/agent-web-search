@@ -34,8 +34,8 @@
 ---
 
 Agent Web Search（PyPI 包名 `agent-web-search-mcp`）是一个开源、MIT 许可的
-AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供两种接入同一个
-搜索核心的方式：原生 MCP 工具，或者由标准 Agent Skill 教会 Agent 调用 CLI。
+AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供三种接入同一个
+搜索核心的方式：原生 MCP 工具、原生插件（Hermes、DeepSeek Harness），或者由标准 Agent Skill 教会 Agent 调用 CLI。
 
 它不是 Google、Bing、百度那种传统搜索引擎聚合器。传统聚合器通常把一个
 关键词请求分发给多个搜索引擎，再合并搜索结果页；Agent Web Search 聚合的是
@@ -121,8 +121,14 @@ Provider 架构是开放的：添加新的搜索后端时，不需要修改 MCP�
 ## 给 Agent 使用
 
 **环境要求：** Python 3.10+。默认的 DDGS、Exa 和 Parallel 都无需 API
-Key。请为 Agent 选择一种接入形态；两者使用的是同一个包和搜索引擎。PyPI
-包会同时安装 `agent-web-search-mcp` 和 `agent-web-search` 两个命令。
+Key。请根据你的 Agent 选择最适合的接入形态：
+
+| 接入形态 | 客户端 / 适用环境 | 快速配置 |
+| :--- | :--- | :--- |
+| **MCP** | Codex CLI, Claude Code, OpenCode, Cursor, Cline | `codex mcp add agent-web-search -- agent-web-search-mcp` |
+| **CLI / Skill** | 终端命令行 Agent、Shell 脚本、Python 应用 | `pipx install agent-web-search-mcp` + [Agent Skill](#agent-skill) |
+| **DSH 原生插件** | DeepSeek Harness（桌面端与 Web 端） | `dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search` |
+| **Hermes 原生插件** | Hermes Agent | `hermes plugins install https://github.com/JerryLiu369/agent-web-search` |
 
 ### 形态一：MCP
 
