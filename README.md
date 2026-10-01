@@ -26,10 +26,9 @@
 Works with **Codex CLI**, **Claude Code**, **OpenCode**, **Hermes**, **DeepSeek Harness (DSH)**, ordinary
 shell scripts, Python applications, and remote Streamable HTTP MCP clients.
 
-[Use with an agent](#use-with-an-agent) · [Providers](#providers) ·
-[Shared interface](#shared-request-and-response) · [Configuration](#configuration) ·
-[Other interfaces](#other-interfaces) · [Troubleshooting](#troubleshooting) ·
-[FAQ](#faq) · [Architecture](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [Development](#development)
+[Use with an agent](#use-with-an-agent) · [Providers](#providers) · [Shared interface](#shared-request-and-response) · [Configuration](#configuration)
+<br>
+[Other interfaces](#other-interfaces) · [Troubleshooting](#troubleshooting) · [FAQ](#faq) · [Architecture](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [Development](#development)
 
 </div>
 
@@ -50,17 +49,17 @@ structured evidence in forms an agent can use directly. DDGS is the only
 conventional search backend in the current provider set.
 
 ```text
-Natural-language question
-             │
-             ▼
-        SearchEngine
-       ┌─────┼──────────────┐
-       ▼     ▼              ▼
-     DDGS  Model providers  Agent search providers
-           ARK · Gemini     Exa · Parallel · Brave
-           Grok · DeepSeek  Perplexity · Tavily · You.com
-           Codex Alpha      Zhipu Web Search
-           Zhipu Chat · Responses · Messages
+        Natural-language question
+                    │
+                    ▼
+               SearchEngine
+         ┌──────────┼──────────┐
+         ▼          ▼          ▼
+       DDGS       Model      Agent
+                grounding    APIs
+              (Responses,   (Exa,
+               ARK, Grok,    Parallel,
+               Gemini...)    Tavily...)
 ```
 
 ## Why Agent Web Search

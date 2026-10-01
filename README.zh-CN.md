@@ -25,9 +25,9 @@
 
 支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、**DeepSeek Harness (DSH)**、普通命令行脚本、Python 应用和远程 Streamable HTTP MCP 客户端。
 
-[给 Agent 使用](#给-agent-使用) · [搜索服务](#搜索服务) ·
-[统一接口](#统一请求与响应) · [配置](#配置) · [其他接口](#其他接口) ·
-[故障排查](#故障排查) · [常见问题](#常见问题) · [架构](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [开发](#开发)
+[给 Agent 使用](#给-agent-使用) · [搜索服务](#搜索服务) · [统一接口](#统一请求与响应) · [配置](#配置)
+<br>
+[其他接口](#其他接口) · [故障排查](#故障排查) · [常见问题](#常见问题) · [架构](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [开发](#开发)
 
 </div>
 
@@ -45,17 +45,16 @@ AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供�
 传统搜索后端。
 
 ```text
-自然语言问题
-       │
-       ▼
-  SearchEngine
- ┌─────┼──────────────┐
- ▼     ▼              ▼
-DDGS  大模型提供商    Agent 搜索提供商
-      ARK · Gemini    Exa · Parallel · Brave
-      Grok · DeepSeek Perplexity · Tavily · You.com
-      Codex Alpha     智谱 Web Search
-      智谱 Chat · Responses · Messages
+            自然语言问题
+                 │
+                 ▼
+            SearchEngine
+      ┌──────────┼──────────┐
+      ▼          ▼          ▼
+    DDGS      模型检索    Agent 搜索
+             (Responses,   (Exa,
+              ARK, Grok,    Parallel,
+              Gemini...)    Tavily...)
 ```
 
 ## 为什么选择 Agent Web Search
