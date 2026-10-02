@@ -77,9 +77,9 @@ SEARCH_ALWAYS
   "request_id": "req_123456",
   "search_intent": [
     {
-      "query": "GLM-5.3-Flash 最新消息",
+      "query": "GLM-5.3-Flash 最近发布了哪些新消息？",
       "intent": "SEARCH_ALL",
-      "keywords": "GLM-5.3-Flash 最新消息"
+      "keywords": "GLM-5.3-Flash 最近发布了哪些新消息？"
     }
   ],
   "search_result": [

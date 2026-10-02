@@ -133,8 +133,8 @@ China's General Administration of Customs with a working citation.
 
 - **Agent-native by design.** The primary interface is a complete natural-language
   question, not a thin keyword fan-out to Google, Bing, or Baidu.
-- **Model-native search backends.** ARK, Gemini, Grok, DeepSeek, Messages,
-  Zhipu Chat Search, and Codex Alpha can combine web retrieval with
+- **Model-native search backends.** ARK, Gemini, Grok, DeepSeek, Responses,
+  Messages, Zhipu Chat Search, and Codex Alpha can combine web retrieval with
   model-generated synthesis and explicit citations.
 - **Agent search providers.** Exa, Parallel, Brave, Perplexity, Tavily, You.com,
   and Zhipu Web Search expose search APIs intended to provide structured,
@@ -289,7 +289,7 @@ remote MCP client connects like this:
     "agent-web-search": {
       "url": "https://your-deployment.example/mcp",
       "headers": {
-        "Authorization": "Bearer your-deployment-token"
+        "Authorization": "Bearer <your-deployment-token>"
       }
     }
   }
@@ -371,7 +371,7 @@ Example call:
 
 ```json
 {
-  "query": "GPU kernel generation papers from the past month",
+  "query": "What GPU kernel generation papers were published in the past month?",
   "max_results": 5,
   "time_range": "m",
   "providers": ["ddgs", "exa"]
@@ -391,7 +391,7 @@ providers are omitted:
 
 ```json
 {
-  "query": "GPU kernel generation papers from the past month",
+  "query": "What GPU kernel generation papers were published in the past month?",
   "providers": {
     "ddgs": {
       "results": [
@@ -425,7 +425,7 @@ same payload to stderr and exits with status 1. Both use the stable code
       "ddgs": "RuntimeError: rate limited"
     }
   },
-  "query": "GPU kernel generation papers from the past month"
+  "query": "What GPU kernel generation papers were published in the past month?"
 }
 ```
 
@@ -441,7 +441,11 @@ from agent_web_search import SearchEngine, SearchRequest
 engine = SearchEngine()  # reads AGENT_WEB_SEARCH_* variables at construction
 
 response = engine.search(
-    SearchRequest(query="latest MCP spec changes", max_results=5, time_range="m")
+    SearchRequest(
+        query="What are the latest changes to the MCP specification?",
+        max_results=5,
+        time_range="m",
+    )
 )
 
 for name, provider in response.providers.items():
@@ -830,8 +834,8 @@ plugin.
 Agent Web Search is an open-source web search layer for AI agents. It exposes
 one `web_search` tool through an MCP server (stdio or Streamable HTTP), a CLI,
 and a Python API. Behind that tool it runs model-native search grounding
-providers (ARK, Gemini, Grok, DeepSeek, Zhipu Chat Search, and generic
-Responses/Messages gateways), agent search APIs (Exa, Parallel, Brave,
+providers (ARK, Gemini, Grok, DeepSeek, Zhipu Chat Search, Codex Alpha, and
+generic Responses/Messages gateways), agent search APIs (Exa, Parallel, Brave,
 Perplexity, Tavily, You.com, Zhipu Web Search), and DuckDuckGo as a
 conventional fallback, then returns one normalized JSON response.
 

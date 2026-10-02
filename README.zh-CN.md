@@ -246,7 +246,7 @@ OpenCode：
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"
-export AGENT_WEB_SEARCH_AUTH_TOKEN="替换为刚生成的-token"
+export AGENT_WEB_SEARCH_AUTH_TOKEN="<your-generated-token>"
 agent-web-search-mcp --transport http
 ```
 
@@ -257,9 +257,9 @@ agent-web-search-mcp --transport http
 {
   "mcpServers": {
     "agent-web-search": {
-      "url": "https://你的部署域名.example/mcp",
+      "url": "https://<your-deployment-domain>/mcp",
       "headers": {
-        "Authorization": "Bearer 你的部署-token"
+        "Authorization": "Bearer <your-deployment-token>"
       }
     }
   }
@@ -339,7 +339,7 @@ MCP 对外注册一个名为 `web_search` 的工具；CLI 映射到同一组输�
 
 ```json
 {
-  "query": "过去一个月发布的 GPU kernel generation 论文",
+  "query": "过去一个月发表了哪些 GPU 内核生成方向的论文？",
   "max_results": 5,
   "time_range": "m",
   "providers": ["ddgs", "exa"]
@@ -357,7 +357,7 @@ Provider 选择分为两层：
 
 ```json
 {
-  "query": "GPU kernel generation papers from the past month",
+  "query": "过去一个月发表了哪些 GPU 内核生成方向的论文？",
   "providers": {
     "ddgs": {
       "results": [
@@ -391,7 +391,7 @@ stderr 并以状态码 1 退出。两者都使用稳定错误码 `all_providers_
       "ddgs": "RuntimeError: rate limited"
     }
   },
-  "query": "GPU kernel generation papers from the past month"
+  "query": "过去一个月发表了哪些 GPU 内核生成方向的论文？"
 }
 ```
 
@@ -405,7 +405,7 @@ from agent_web_search import SearchEngine, SearchRequest
 engine = SearchEngine()  # 构造时读取 AGENT_WEB_SEARCH_* 环境变量
 
 response = engine.search(
-    SearchRequest(query="MCP 规范最近的变化", max_results=5, time_range="m")
+    SearchRequest(query="MCP 规范最近有哪些变化？", max_results=5, time_range="m")
 )
 
 for name, provider in response.providers.items():
@@ -729,8 +729,8 @@ DSH 也可以不装原生插件，而是用自带的 MCP 客户端连接本项�
 
 Agent Web Search 是面向 AI Agent 的开源联网搜索层。它通过 MCP 服务器（stdio
 或 Streamable HTTP）、CLI 和 Python API 暴露同一个 `web_search` 工具。工具背后
-并发调用模型原生搜索 grounding（ARK、Gemini、Grok、DeepSeek、智谱 Chat Search
-以及通用 Responses/Messages 网关）、Agent 搜索 API（Exa、Parallel、Brave、
+并发调用模型原生搜索 grounding（ARK、Gemini、Grok、DeepSeek、智谱 Chat Search、
+Codex Alpha（实验性）以及通用 Responses/Messages 网关）、Agent 搜索 API（Exa、Parallel、Brave、
 Perplexity、Tavily、You.com、智谱 Web Search），并以 DuckDuckGo 作为传统搜索
 兜底，最终返回统一格式的 JSON。
 
