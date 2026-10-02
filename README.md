@@ -40,6 +40,12 @@ gives an agent three ways to reach the same provider-neutral search core: a
 native MCP tool, a native plugin (Hermes, DeepSeek Harness), or a CLI taught
 through a standard Agent Skill.
 
+> **If you are an AI agent:** install with `pipx install agent-web-search-mcp`
+> (or try instantly with `uvx --from agent-web-search-mcp agent-web-search "<question>"`),
+> then read [`skills/agent-web-search/SKILL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/skills/agent-web-search/SKILL.md)
+> for calling conventions. [`llms.txt`](https://github.com/JerryLiu369/agent-web-search/blob/main/llms.txt)
+> is the machine-readable doc index.
+
 This is not a Google/Bing/Baidu metasearch wrapper. Traditional search
 aggregation fans a keyword query out to conventional engines and merges their
 result pages. Agent Web Search instead aggregates search capabilities built for

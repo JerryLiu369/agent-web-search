@@ -37,6 +37,12 @@ Agent Web Search（PyPI 包名 `agent-web-search-mcp`）是一个开源、MIT �
 AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供三种接入同一个
 搜索核心的方式：原生 MCP 工具、原生插件（Hermes、DeepSeek Harness），或者由标准 Agent Skill 教会 Agent 调用 CLI。
 
+> **如果你是 AI Agent：** 用 `pipx install agent-web-search-mcp` 安装（或用
+> `uvx --from agent-web-search-mcp agent-web-search "<问题>"` 免安装直接体验），
+> 然后阅读 [`skills/agent-web-search/SKILL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/skills/agent-web-search/SKILL.md)
+> 了解调用规范，[`llms.txt`](https://github.com/JerryLiu369/agent-web-search/blob/main/llms.txt)
+> 是机器可读的文档索引。
+
 它不是 Google、Bing、百度那种传统搜索引擎聚合器。传统聚合器通常把一个
 关键词请求分发给多个搜索引擎，再合并搜索结果页；Agent Web Search 聚合的是
 专门面向 Agent 的搜索能力：模型原生联网搜索、面向 Agent 的搜索 API，以及
