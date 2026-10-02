@@ -61,6 +61,7 @@ AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供�
 
 ## 安装与快速上手
 
+三步约一分钟：免安装先体验，装一次永久用，再接你的 Agent。
 **环境要求：** Python 3.10+。默认启用的 Provider 组合（**DDGS、Exa、Parallel**）**完全免 API Key**，开箱即用。
 
 ### 免安装即刻体验

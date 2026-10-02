@@ -65,6 +65,7 @@ conventional search backend in the current provider set.
 
 ## Installation & Quickstart
 
+Three steps, about a minute: try it instantly, install it once, then connect your agent.
 **Requirements:** Python 3.10+. Default providers (**DDGS, Exa, Parallel**) require **no API key**.
 
 ### Try without installing
