@@ -42,8 +42,9 @@ through a standard Agent Skill.
 
 > **If you are an AI agent:** install with `pipx install agent-web-search-mcp`
 > (or try instantly with `uvx --from agent-web-search-mcp agent-web-search "<question>"`),
-> then read [`skills/agent-web-search/SKILL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/skills/agent-web-search/SKILL.md)
-> for calling conventions. [`llms.txt`](https://github.com/JerryLiu369/agent-web-search/blob/main/llms.txt)
+> then read [`skills/agent-web-search/SKILL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/skills/agent-web-search/SKILL.md) —
+> it teaches the CLI pathway only (for MCP setups, follow [Option 1](#option-1-mcp)
+> instead). [`llms.txt`](https://github.com/JerryLiu369/agent-web-search/blob/main/llms.txt)
 > is the machine-readable doc index.
 
 This is not a Google/Bing/Baidu metasearch wrapper. Traditional search

@@ -39,8 +39,8 @@ AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供�
 
 > **如果你是 AI Agent：** 用 `pipx install agent-web-search-mcp` 安装（或用
 > `uvx --from agent-web-search-mcp agent-web-search "<问题>"` 免安装直接体验），
-> 然后阅读 [`skills/agent-web-search/SKILL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/skills/agent-web-search/SKILL.md)
-> 了解调用规范，[`llms.txt`](https://github.com/JerryLiu369/agent-web-search/blob/main/llms.txt)
+> 然后阅读 [`skills/agent-web-search/SKILL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/skills/agent-web-search/SKILL.md) ——
+> 它只教 CLI 形态（走 MCP 请看[形态一](#option-1-mcp)），[`llms.txt`](https://github.com/JerryLiu369/agent-web-search/blob/main/llms.txt)
 > 是机器可读的文档索引。
 
 它不是 Google、Bing、百度那种传统搜索引擎聚合器。传统聚合器通常把一个
