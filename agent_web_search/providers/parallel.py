@@ -128,14 +128,12 @@ class ParallelProvider(Provider):
 
     @classmethod
     def _select_mcp_envelope(cls, text: str, request_id: str) -> dict[str, Any]:
-        fallback: dict[str, Any] = {}
         for message in cls._iter_mcp_messages(text):
             if "result" not in message and "error" not in message:
                 continue
             if message.get("id") == request_id:
                 return message
-            fallback = message
-        return fallback
+        raise RuntimeError("Parallel MCP returned no matching response")
 
     @staticmethod
     def _extract_mcp_payload(envelope: dict[str, Any]) -> dict[str, Any]:
@@ -207,12 +205,16 @@ class ParallelProvider(Provider):
             }
         )
         initialize = self._select_mcp_envelope(initialize_text, initialize_id)
+        if "error" in initialize:
+            raise RuntimeError("Parallel MCP initialization failed")
         initialize_result = initialize.get("result")
         protocol_version = (
             initialize_result.get("protocolVersion")
             if isinstance(initialize_result, dict)
             else None
-        ) or MCP_PROTOCOL_VERSION
+        )
+        if not isinstance(protocol_version, str) or not protocol_version.strip():
+            raise RuntimeError("Parallel MCP returned an invalid initialization result")
 
         self._post_mcp(
             {"jsonrpc": "2.0", "method": "notifications/initialized"},
