@@ -112,6 +112,19 @@ def test_build_payload_uses_configured_tool_type():
     }
 
 
+def test_build_payload_reasoning_effort_handling():
+    assert "reasoning" not in build_payload("search prompt", "model-a", "web_search")
+    assert "reasoning" not in build_payload(
+        "search prompt", "model-a", "web_search", "   "
+    )
+    assert build_payload("search prompt", "model-a", "web_search", "  medium  ") == {
+        "model": "model-a",
+        "input": "search prompt",
+        "tools": [{"type": "web_search"}],
+        "reasoning": {"effort": "medium"},
+    }
+
+
 def test_parse_standard_response_with_reasoning_first():
     response = parse(_standard_body(), max_results=10)
 
@@ -349,10 +362,77 @@ def test_provider_posts_responses_payload_and_parses_response():
     assert request.headers["Authorization"] == "Bearer test-key"
     assert payload["model"] == "model-a"
     assert payload["tools"] == [{"type": "web_search"}]
+    assert "reasoning" not in payload
     assert payload["input"].startswith("Search")
     assert response.answer == "Alexander Zverev won the 2026 US Open."
     assert response.results[0].url == "https://www.usopen.org/news/a"
     assert response.model == "gpt-5-mini"
+
+
+def test_provider_reasoning_effort_env_and_explicit_overrides(monkeypatch):
+    monkeypatch.setenv("AGENT_WEB_SEARCH_RESPONSES_REASONING_EFFORT", "  medium  ")
+    from_env = ResponsesProvider(
+        api_key="test-key",
+        base_url="https://gateway.test/v1",
+        models=["model-a"],
+    )
+    assert from_env.reasoning_effort == "medium"
+
+    with patch(
+        "agent_web_search.providers.responses.urllib.request.urlopen",
+        return_value=_Response(_standard_body()),
+    ) as opened:
+        from_env.search(SearchRequest("question"))
+    env_payload = json.loads(opened.call_args.args[0].data)
+    assert env_payload["reasoning"] == {"effort": "medium"}
+
+    explicit_override = ResponsesProvider(
+        api_key="test-key",
+        base_url="https://gateway.test/v1",
+        models=["model-a"],
+        reasoning_effort=" high ",
+    )
+    assert explicit_override.reasoning_effort == "high"
+
+    with patch(
+        "agent_web_search.providers.responses.urllib.request.urlopen",
+        return_value=_Response(_standard_body()),
+    ) as opened:
+        explicit_override.search(SearchRequest("question"))
+    override_payload = json.loads(opened.call_args.args[0].data)
+    assert override_payload["reasoning"] == {"effort": "high"}
+
+    explicit_blank = ResponsesProvider(
+        api_key="test-key",
+        base_url="https://gateway.test/v1",
+        models=["model-a"],
+        reasoning_effort="   ",
+    )
+    assert explicit_blank.reasoning_effort == ""
+
+    with patch(
+        "agent_web_search.providers.responses.urllib.request.urlopen",
+        return_value=_Response(_standard_body()),
+    ) as opened:
+        explicit_blank.search(SearchRequest("question"))
+    blank_payload = json.loads(opened.call_args.args[0].data)
+    assert "reasoning" not in blank_payload
+
+    monkeypatch.setenv("AGENT_WEB_SEARCH_RESPONSES_REASONING_EFFORT", " \t ")
+    blank_env = ResponsesProvider(
+        api_key="test-key",
+        base_url="https://gateway.test/v1",
+        models=["model-a"],
+    )
+    assert blank_env.reasoning_effort == ""
+
+    with patch(
+        "agent_web_search.providers.responses.urllib.request.urlopen",
+        return_value=_Response(_standard_body()),
+    ) as opened:
+        blank_env.search(SearchRequest("question"))
+    blank_env_payload = json.loads(opened.call_args.args[0].data)
+    assert "reasoning" not in blank_env_payload
 
 
 def test_provider_rotates_models_round_robin():

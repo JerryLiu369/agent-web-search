@@ -716,6 +716,7 @@ message and no URLs keeps the answer, returns empty `results`, and marks
 | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | Yes | Bearer credential; falls back to `OPENAI_API_KEY` |
 | `AGENT_WEB_SEARCH_RESPONSES_MODELS` | No | Comma/newline-separated model IDs; defaults to `gpt-5-mini` |
 | `AGENT_WEB_SEARCH_RESPONSES_TOOL_TYPE` | No | Search tool type; defaults to `web_search` |
+| `AGENT_WEB_SEARCH_RESPONSES_REASONING_EFFORT` | No | Reasoning effort sent as `reasoning: {"effort": "<value>"}` (for example `low`, `medium`, `high`); omitted when unset |
 | `AGENT_WEB_SEARCH_RESPONSES_TIMEOUT` | No | Per-request timeout in seconds; overrides `AGENT_WEB_SEARCH_TIMEOUT` when set |
 
 Add `responses` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.

@@ -643,6 +643,7 @@ Responses 是通用 OpenAI Responses API 客户端，适用于在 `POST {base_ur
 | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | 是 | Bearer 凭据；可回退到 `OPENAI_API_KEY` |
 | `AGENT_WEB_SEARCH_RESPONSES_MODELS` | 否 | 用逗号/换行分隔的模型 ID，默认 `gpt-5-mini` |
 | `AGENT_WEB_SEARCH_RESPONSES_TOOL_TYPE` | 否 | 搜索工具类型，默认 `web_search` |
+| `AGENT_WEB_SEARCH_RESPONSES_REASONING_EFFORT` | 否 | 推理强度，设置后在请求体中附带 `reasoning: {"effort": "<值>"}`（如 `low`、`medium`、`high`）；未设置时不传 |
 | `AGENT_WEB_SEARCH_RESPONSES_TIMEOUT` | 否 | 单次请求超时（秒）；设置后覆盖 `AGENT_WEB_SEARCH_TIMEOUT` |
 
 配置 Key 后，将 `responses` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。配置多个模型时，连续请求会轮询选择模型。

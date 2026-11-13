@@ -25,6 +25,7 @@ ENDPOINT_ENV = "AGENT_WEB_SEARCH_RESPONSES_ENDPOINT"
 API_KEY_ENV = "AGENT_WEB_SEARCH_RESPONSES_API_KEY"
 MODEL_ENV = "AGENT_WEB_SEARCH_RESPONSES_MODELS"
 TOOL_TYPE_ENV = "AGENT_WEB_SEARCH_RESPONSES_TOOL_TYPE"
+REASONING_EFFORT_ENV = "AGENT_WEB_SEARCH_RESPONSES_REASONING_EFFORT"
 TIMEOUT_ENV = "AGENT_WEB_SEARCH_RESPONSES_TIMEOUT"
 
 USER_AGENT = f"agent-web-search/{__version__}"
@@ -66,6 +67,12 @@ def _resolve_tool_type(explicit: str | None) -> str:
     return _text(os.getenv(TOOL_TYPE_ENV, "")) or DEFAULT_TOOL_TYPE
 
 
+def _resolve_reasoning_effort(explicit: str | None) -> str:
+    if explicit is not None:
+        return _text(explicit)
+    return _text(os.getenv(REASONING_EFFORT_ENV, ""))
+
+
 def _resolve_timeout(explicit: float | None) -> float:
     raw = _text(os.getenv(TIMEOUT_ENV, ""))
     if raw:
@@ -80,12 +87,21 @@ def _resolve_timeout(explicit: float | None) -> float:
     return DEFAULT_TIMEOUT
 
 
-def build_payload(prompt: str, model: str, tool_type: str) -> dict[str, Any]:
-    return {
+def build_payload(
+    prompt: str,
+    model: str,
+    tool_type: str,
+    reasoning_effort: str = "",
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
         "model": model,
         "input": prompt,
         "tools": [{"type": tool_type}],
     }
+    effort = _text(reasoning_effort)
+    if effort:
+        payload["reasoning"] = {"effort": effort}
+    return payload
 
 
 def parse(
@@ -194,6 +210,7 @@ class ResponsesProvider(Provider):
         models: list[str] | None = None,
         tool_type: str | None = None,
         timeout: float | None = None,
+        reasoning_effort: str | None = None,
     ):
         self.api_key = _resolve_api_key(api_key)
         configured_base_url = _resolve_base_url(base_url, endpoint)
@@ -204,6 +221,7 @@ class ResponsesProvider(Provider):
             defaults=DEFAULT_MODELS,
         )
         self.tool_type = _resolve_tool_type(tool_type)
+        self.reasoning_effort = _resolve_reasoning_effort(reasoning_effort)
         self.timeout = _resolve_timeout(timeout)
         self._model_pool = RoundRobinModels(self.models)
 
@@ -226,7 +244,12 @@ class ResponsesProvider(Provider):
             time_range=request.time_range,
             max_results=request.max_results,
         )
-        payload = build_payload(prompt, model, self.tool_type)
+        payload = build_payload(
+            prompt,
+            model,
+            self.tool_type,
+            self.reasoning_effort,
+        )
         req = urllib.request.Request(
             self.endpoint,
             data=json.dumps(payload).encode(),
