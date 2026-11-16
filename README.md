@@ -488,6 +488,27 @@ $env:AGENT_WEB_SEARCH_PROVIDERS = "ddgs,exa,brave"
 $env:AGENT_WEB_SEARCH_TIMEOUT = "30"
 ```
 
+### Outbound proxy
+
+Provider requests honor the standard proxy environment variables, so a server
+in a region that providers block can egress through a proxy you operate or
+trust. No application setting is needed:
+
+| Variable | Applies to | Purpose |
+| --- | --- | --- |
+| `HTTPS_PROXY` / `HTTP_PROXY` | All providers | Proxy URL such as `http://user:pass@proxy.example:3128` |
+| `NO_PROXY` | All providers | Comma-separated hosts that bypass the proxy |
+| `DDGS_PROXY` | DDGS only | Overrides the proxy for DDGS; also accepts `socks5h://…` |
+
+```bash
+export HTTPS_PROXY="http://proxy.example:3128"
+```
+
+Provider API keys travel through the proxy inside the TLS tunnel, but the proxy
+operator still sees which providers you call and can block or log traffic. Use
+a proxy you control or trust; anonymous public proxy lists are not recommended.
+Proxies are server-side only: MCP tool arguments never choose an egress proxy.
+
 ### HTTP transport settings
 
 | Variable | Default | Purpose |
@@ -830,6 +851,9 @@ plugin.
   `response.failed_provider_errors`.
 - **Provider changes have no effect** — provider settings are read once at
   startup; restart the CLI, MCP server, or Hermes plugin after changing them.
+- **Providers return HTTP 403 or region errors** — some providers block
+  certain regions. Route provider traffic through a trusted proxy with
+  `HTTPS_PROXY`; see [Outbound proxy](#outbound-proxy).
 - **MCP client times out before the tool returns** —
   `AGENT_WEB_SEARCH_TIMEOUT` bounds a single upstream HTTP call, not the
   whole search. Keyless Parallel issues up to 3 calls and ARK may append a
