@@ -445,6 +445,22 @@ $env:AGENT_WEB_SEARCH_PROVIDERS = "ddgs,exa,brave"
 $env:AGENT_WEB_SEARCH_TIMEOUT = "30"
 ```
 
+### 出站代理
+
+所有 Provider 请求都遵循标准代理环境变量。如果服务所在地区被搜索服务封锁，可以通过你自己运营或信任的代理出站，无需额外的应用配置：
+
+| 变量 | 作用范围 | 用途 |
+| --- | --- | --- |
+| `HTTPS_PROXY` / `HTTP_PROXY` | 全部 Provider | 代理地址，例如 `http://user:pass@proxy.example:3128` |
+| `NO_PROXY` | 全部 Provider | 以逗号分隔、绕过代理的主机 |
+| `DDGS_PROXY` | 仅 DDGS | 单独为 DDGS 指定代理，也支持 `socks5h://…` |
+
+```bash
+export HTTPS_PROXY="http://proxy.example:3128"
+```
+
+Provider API Key 会在 TLS 隧道内经过代理，但代理运营方仍能看到你调用了哪些服务，并可以拦截或记录流量。请使用你能控制或信任的代理，不建议使用匿名公共代理列表。代理只在服务端配置，MCP 工具参数不会选择出站代理。
+
 ### HTTP 传输设置
 
 | 变量 | 默认值 | 用途 |
@@ -727,6 +743,7 @@ DSH 也可以不装原生插件，而是用自带的 MCP 客户端连接本项�
 - **`all_providers_failed`** —— 所有 Provider 都失败了。MCP 会标记工具错误；CLI 会把诊断写入 stderr 并退出 1。请检查 Key、配额和网络；临时限流可以有界重试一次。
 - **找不到 `agent-web-search`** —— 使用 `pipx` 或 `pip` 安装 PyPI 包，然后重新打开 Shell，确保脚本目录已经加入 `PATH`。
 - **HTTP 401 `invalid_token`** —— `Authorization: Bearer …` 请求头必须与 `AGENT_WEB_SEARCH_AUTH_TOKEN` 一致，且该 Token 至少 32 个字符。
+- **Provider 返回 HTTP 403 或地区限制错误** —— 部分服务会封锁特定地区。可以用 `HTTPS_PROXY` 让 Provider 流量经可信代理出站，见[出站代理](#出站代理)。
 - **响应里少了某个 Provider** —— 失败的 Provider 会从成功响应中剔除。Python API 可以通过 `response.failed_provider_errors` 查看原因。
 - **修改 Provider 配置不生效** —— Provider 设置只在进程启动时读取一次；修改后请重启 CLI、MCP 服务器或 Hermes 插件。
 - **MCP 客户端在工具返回前超时** —— `AGENT_WEB_SEARCH_TIMEOUT` 限定的是单次上游 HTTP 调用的超时，不是整次搜索。keyless Parallel 最多发 3 个请求，ARK 可能追加续写请求，最坏总耗时是其 3 倍；请据此设置 MCP 客户端的 tool 超时。
