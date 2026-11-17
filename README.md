@@ -4,9 +4,9 @@
 
 <!-- mcp-name: io.github.JerryLiu369/agent-web-search -->
 
-**Agent-native web search — model-native grounding and agent search APIs behind one provider-neutral contract.**
+**为 AI Agent 而生的原生联网搜索层 — 将模型原生 Grounding 与 Agent 专属搜索 API 统一于中立契约之下。**
 
-**English** | [简体中文](https://github.com/JerryLiu369/agent-web-search/blob/main/README.zh-CN.md)
+[English](https://github.com/JerryLiu369/agent-web-search/blob/main/README.md) | **简体中文**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![PyPI](https://img.shields.io/pypi/v/agent-web-search-mcp.svg)](https://pypi.org/project/agent-web-search-mcp/)
@@ -14,7 +14,7 @@
 [![MCP 2.x](https://img.shields.io/badge/MCP-2.x-6C47FF)](https://modelcontextprotocol.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/JerryLiu369/agent-web-search/blob/main/LICENSE)
 
-<p><strong>One-click remote MCP</strong></p>
+<p><strong>一键部署远程 MCP</strong></p>
 
 <p>
   <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FJerryLiu369%2Fagent-web-search&amp;env=AGENT_WEB_SEARCH_AUTH_TOKEN"><img alt="Deploy with Vercel" src="https://vercel.com/button" height="34"></a>
@@ -23,37 +23,32 @@
   <a href="https://zeabur.com/templates/8MQZG0?referralCode=JerryLiu369"><img alt="Deploy on Zeabur" src="https://zeabur.com/button.svg" height="34"></a>
 </p>
 
-Works with **Codex CLI**, **Claude Code**, **OpenCode**, **Hermes**, **DeepSeek Harness (DSH)**, ordinary
-shell scripts, Python applications, and remote Streamable HTTP MCP clients.
+支持 **Codex CLI**、**Claude Code**、**OpenCode**、**Hermes**、**DeepSeek Harness (DSH)**、普通命令行脚本、Python 应用和远程 Streamable HTTP MCP 客户端。
 
-[Quickstart](#installation--quickstart) · [Use with an agent](#use-with-an-agent) · [Providers](#providers) · [Configuration](#configuration)
+[快速上手](#安装与快速上手) · [给 Agent 使用](#给-agent-使用) · [搜索服务](#搜索服务) · [配置](#配置)
 <br>
-[Shared interface](#shared-request-and-response) · [Other interfaces](#other-interfaces) · [Troubleshooting](#troubleshooting) · [FAQ](#faq) · [Architecture](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [Development](#development)
+[统一接口](#统一请求与响应) · [其他接口](#其他接口) · [故障排查](#故障排查) · [常见问题](#常见问题) · [架构](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) · [开发](#开发)
 
 </div>
 
 ---
 
-Agent Web Search (PyPI: `agent-web-search-mcp`) is an open-source,
-MIT-licensed web search MCP server, CLI, and Python library for AI agents. It
-gives an agent three ways to reach the same provider-neutral search core: a
-native MCP tool, a native plugin (Hermes, DeepSeek Harness), or a CLI taught
-through a standard Agent Skill.
+Agent Web Search（PyPI 包名 `agent-web-search-mcp`）是一个开源、MIT 许可的
+AI Agent 联网搜索 MCP 服务器、CLI 和 Python 库。它为 Agent 提供三种接入同一个
+搜索核心的方式：原生 MCP 工具、原生插件（Hermes、DeepSeek Harness），或者由标准 Agent Skill 教会 Agent 调用 CLI。
 
-> **If you are an AI agent:** install with `pipx install agent-web-search-mcp`
-> (or try instantly with `uvx --from agent-web-search-mcp agent-web-search "<question>"`),
-> then read [`skills/agent-web-search/SKILL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/skills/agent-web-search/SKILL.md) —
-> it teaches the CLI pathway only (for MCP setups, follow [Option 1](#option-1-mcp)
-> instead). [`llms.txt`](https://github.com/JerryLiu369/agent-web-search/blob/main/llms.txt)
-> is the machine-readable doc index.
+> **如果你是 AI Agent：** 用 `pipx install agent-web-search-mcp` 安装（或用
+> `uvx --from agent-web-search-mcp agent-web-search "<问题>"` 免安装直接体验），
+> 然后阅读 [`skills/agent-web-search/SKILL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/skills/agent-web-search/SKILL.md) ——
+> 它只教 CLI 形态（走 MCP 请看[形态一](#option-1-mcp)），[`llms.txt`](https://github.com/JerryLiu369/agent-web-search/blob/main/llms.txt)
+> 是机器可读的文档索引。
 
-This is not a Google/Bing/Baidu metasearch wrapper. Traditional search
-aggregation fans a keyword query out to conventional engines and merges their
-result pages. Agent Web Search instead aggregates search capabilities built for
-agents: model-native web grounding, agent-oriented search APIs, and context-ready
-sources that accept natural-language questions and return answers, citations, or
-structured evidence in forms an agent can use directly. DDGS is the only
-conventional search backend in the current provider set.
+它不是 Google、Bing、百度那种传统搜索引擎聚合器。传统聚合器通常把一个
+关键词请求分发给多个搜索引擎，再合并搜索结果页；Agent Web Search 聚合的是
+专门面向 Agent 的搜索能力：模型原生联网搜索、面向 Agent 的搜索 API，以及
+适合直接放入上下文的高信号来源。它们接受自然语言问题，返回模型回答、引用
+或结构化证据，Agent 可以直接使用。当前 Provider 集合中，只有 DDGS 属于
+传统搜索后端。
 
 ```text
           Natural-language question
@@ -70,170 +65,145 @@ conventional search backend in the current provider set.
                   Gemini...)    Tavily...)
 ```
 
-## Installation & Quickstart
+## 安装与快速上手
 
-Three steps, about a minute: try it instantly, install it once, then connect your agent.
-**Requirements:** Python 3.10+. Default providers (**DDGS, Exa, Parallel**) require **no API key**.
+三步约一分钟：免安装先体验，装一次永久用，再接你的 Agent。
+**环境要求：** Python 3.10+。默认启用的 Provider 组合（**DDGS、Exa、Parallel**）**完全免 API Key**，开箱即用。
 
-### Try without installing
+### 免安装即刻体验
 
-Test immediate search capabilities using `uvx` (no environment modification):
+使用 `uvx` 体验即时搜索，不修改本地任何环境和 PATH：
 
 ```bash
-# Direct natural-language search with keyless defaults
-uvx --from agent-web-search-mcp agent-web-search "What changed in the latest OpenAI Codex CLI?"
+# 直接用免 Key 默认源发起自然语言搜索
+uvx --from agent-web-search-mcp agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
 
-# Inspect MCP server arguments
+# 查看 MCP 服务器运行参数
 uvx agent-web-search-mcp --help
 ```
 
-### Install
+### 一键安装
 
-Install once into your global user environment (recommended):
+推荐使用 `pipx` 隔离安装到全局环境（只需一次）：
 
 ```bash
-# Recommended isolated installation
+# 推荐：全局隔离安装
 pipx install agent-web-search-mcp
 
-# Or install into the active Python environment
+# 或安装到当前 Python 环境
 python -m pip install agent-web-search-mcp
 ```
 
-### Verify
+### 验证运行
 
 ```bash
-# 1. Verify the CLI and run a real search
+# 1. 验证 CLI 并进行真实搜索
 agent-web-search --version
-agent-web-search "What changed in the latest OpenAI Codex CLI?"
+agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
 
-# 2. Verify the MCP server binary
+# 2. 验证 MCP 服务器命令
 agent-web-search-mcp --help
 ```
 
-> **Two commands, two roles:**
-> - `agent-web-search`: Direct search CLI for terminals, shell scripts, and Agent Skills.
-> - `agent-web-search-mcp`: Stdio and Streamable HTTP MCP server for MCP clients.
+> **两个命令分工明确：**
+> - `agent-web-search`：面向终端交互、Shell 脚本与 Agent Skill 的直接搜索命令行工具。
+> - `agent-web-search-mcp`：面向 MCP 客户端的 Stdio 与 Streamable HTTP MCP 服务器。
 
-### Pick your agent integration
+### 选择接入形态
 
-| Integration | Client / Environment | Setup |
+| 接入形态 | 适用环境 / 客户端 | 一键接入命令 |
 | :--- | :--- | :--- |
-| **CLI + Skill** *(Recommended)* | Terminal agents (Claude Code, Codex, OpenCode, Hermes) | `npx skills add JerryLiu369/agent-web-search --skill agent-web-search` ([Details](#option-2-cli--agent-skill)) |
-| **MCP (Stdio)** | Codex CLI, Claude Code, Cursor, Cline, Roo Code | `codex mcp add agent-web-search -- agent-web-search-mcp` ([Details](#option-1-mcp)) |
-| **DSH Plugin** | DeepSeek Harness (desktop & web) | `dsh plugin --profile desktop add github:JerryLiu369/agent-web-search` ([Details](#native-deepseek-harness-plugin)) |
-| **Hermes Plugin** | Hermes Agent | `hermes plugins install JerryLiu369/agent-web-search` ([Details](#native-hermes-plugin)) |
+| **CLI + Skill** *(推荐)* | 具备终端命令执行能力的 Agent（Claude Code、Codex、OpenCode、Hermes） | `npx skills add JerryLiu369/agent-web-search --skill agent-web-search`（[详细说明](#agent-skill)） |
+| **MCP (Stdio)** | Codex CLI、Claude Code、Cursor、Cline、Roo Code | `codex mcp add agent-web-search -- agent-web-search-mcp`（[详细说明](#option-1-mcp)） |
+| **DSH 原生插件** | DeepSeek Harness（桌面端与网页端） | `dsh plugin --profile desktop add github:JerryLiu369/agent-web-search`（[详细说明](#deepseek-harness-原生插件)） |
+| **Hermes 原生插件** | Hermes Agent | `hermes plugins install JerryLiu369/agent-web-search`（[详细说明](#hermes-原生插件)） |
 
 > [!TIP]
-> **Why CLI + Skill is recommended for shell-capable agents:** If your agent already has terminal/bash execution capabilities (like Claude Code, Codex CLI, OpenCode, or Hermes), the CLI + Skill pathway offers the lowest friction and highest reliability. No MCP JSON configuration to debug, no background transport lifecycle to manage, and clean stdout JSON output taught through a standard Skill.
+> **为什么对有终端能力的 Agent 推荐 CLI + Skill：** 如果你的 Agent 自身具备 Bash/命令行执行能力（如 Claude Code、Codex CLI、OpenCode 或 Hermes），CLI + Skill 是心智负担最小、最可靠的形态：无需配置繁杂的 MCP JSON 文件，没有后台常驻进程挂死或清理问题，单次命令即返回结构化高信噪比的 JSON 证据。
 
-## Why Agent Web Search
+## 为什么选择 Agent Web Search
 
-Traditional search aggregation (Google/Bing/Baidu wrappers, scraped SERPs)
-sends a keyword query to conventional engines and merges result pages. Agent
-Web Search instead aggregates **search capabilities built for agents**: one
-tool call returns structured, citation-ready evidence — or, through
-model-native grounding providers, a synthesized answer with explicit
-citations. A [measured benchmark](https://github.com/JerryLiu369/agent-web-search/blob/main/docs/benchmark-2026-09-06.md) shows the
-practical difference: on a natural-language Chinese query asking for official
-sources, conventional SERP backends returned no government-domain results in
-the top 5, while the grounding provider returned official figures from
-China's General Administration of Customs with a working citation.
+传统搜索聚合（Google/Bing/百度封装、抓取 SERP）把关键词查询发给传统搜索引擎再合并结果页。Agent Web Search 聚合的是**为 Agent 构建的搜索能力**：一次工具调用返回结构化、可直接引用的证据——或通过模型原生 grounding 提供商返回带明确引用的综合回答。[实测基准](https://github.com/JerryLiu369/agent-web-search/blob/main/docs/benchmark-2026-09-06.md)显示了实际差异：在一个要求官方来源的中文自然语言查询上，传统 SERP 后端前 5 条结果没有任何政府域名，而 grounding 提供商返回了海关总署数据并附可用引用链接。
 
-- **Agent-native by design.** The primary interface is a complete natural-language
-  question, not a thin keyword fan-out to Google, Bing, or Baidu.
-- **Model-native search backends.** ARK, Gemini, Grok, DeepSeek, Responses,
-  Messages, Zhipu Chat Search, and Codex Alpha can combine web retrieval with
-  model-generated synthesis and explicit citations.
-- **Agent search providers.** Exa, Parallel, Brave, Perplexity, Tavily, You.com,
-  and Zhipu Web Search expose search APIs intended to provide structured,
-  citation-friendly, or context-ready evidence to downstream agents.
-- **One provider-neutral contract.** Every backend is available through the same
-  MCP tool, CLI, Python API, and normalized `results`; model-backed providers may
-  also return an `answer`.
-- **Independent providers.** Selected providers run concurrently, and one
-  provider's failure never discards another provider's successful result.
-- **DDGS remains a simple fallback.** DDGS is the only conventional search
-  backend; it requires no API key and keeps the project usable without paid
-  provider credentials. Exa and Parallel are also keyless by default.
-- **No telemetry, no shared secrets.** Provider keys stay in runtime
-  environment variables; there is no shared API-key service.
+- **从设计上就是 Agent-native。** 主要输入是完整的自然语言问题，而不是把关键词简单分发给 Google、Bing 或百度。
+- **模型原生搜索后端。** ARK、Gemini、Grok、DeepSeek、Messages、智谱 Chat Search 和 Codex Alpha 可以把联网检索、模型综合回答与明确引用结合起来。
+- **Agent 搜索提供商。** Exa、Parallel、Brave、Perplexity、Tavily、You.com 和智谱 Web Search 提供面向 Agent 的搜索 API，输出结构化、适合引用或适合放入上下文的证据。
+- **统一的 Provider-neutral 契约。** 所有后端都通过同一个 MCP 工具、CLI、Python API 和统一的 `results` 返回；模型后端还可以返回 `answer`。
+- **Provider 相互独立。** 选中的 Provider 会并发执行，一个 Provider 失败不会丢弃其他 Provider 的成功结果。
+- **保留一个简单的 DDGS 后端。** DDGS 是唯一的传统搜索后端，不需要 API Key；Exa 和 Parallel 默认也可以免 Key 使用。
+- **无遥测、不共享密钥。** Provider Key 只存在于运行环境变量中，项目不提供共享 API Key 服务。
 
-## Providers
+## 搜索服务
 
-The provider list is intentionally split by the kind of search capability it
-provides. Only DDGS is a conventional search backend; the other two groups are
-built around model-native grounding or agent-facing search services.
+下面按搜索能力类型划分 Provider。DDGS 是唯一的传统搜索后端；其余 Provider
+分别属于模型原生搜索或面向 Agent 的搜索服务。
 
-> **Free, keyless defaults:** DDGS, Exa, and Parallel all work without an API
-> key. Exa and Parallel automatically use their free MCP transports until a
-> paid API key is provided.
+> **默认免费、无需 Key：** DDGS、Exa 和 Parallel 都可以不配置 API Key
+> 直接使用。Exa 和 Parallel 只有在提供付费 API Key 后才会切换到付费接口，
+> 否则自动使用免费 MCP。
 
-### Traditional search backend
+### 传统搜索后端
 
-| Provider | Website | Search backend | API key | Enabled by default |
+| Provider | 官网 | 搜索后端 | API Key | 默认启用 |
 | --- | --- | --- | --- | :---: |
-| **DDGS** | [DuckDuckGo](https://duckduckgo.com) | Conventional DuckDuckGo search | **Free · no key required** | Yes |
+| **DDGS** | [DuckDuckGo](https://duckduckgo.com) | 传统 DuckDuckGo 搜索 | **免费 · 无需 Key** | 是 |
 
-### Model providers
+### 大模型提供商
 
-These providers use a model-native search or grounding surface. Their responses
-can include a model-generated answer together with citations or other explicit
-search evidence.
+这类 Provider 使用模型原生联网搜索或 grounding 能力。响应可以同时包含模型
+生成的回答，以及明确的引用或其他搜索证据。
 
-| Provider | Website | Model-native search surface | API key | Enabled by default |
+| Provider | 官网 | 模型原生搜索能力 | API Key | 默认启用 |
 | --- | --- | --- | --- | :---: |
-| **ARK** | [Volcengine Ark](https://www.volcengine.com/product/ark) | Responses API with Doubao web-search grounding | `ARK_API_KEY` | No |
-| **Codex Alpha** (experimental) | Alpha Search-compatible gateway | Model-backed Alpha Search surface | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | No |
-| **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Anthropic Messages API with native web search | `DEEPSEEK_API_KEY` | No |
-| **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Gemini Google Search grounding | `GEMINI_API_KEY` | No |
-| **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI web search and X Search | `XAI_API_KEY` | No |
-| **Responses** | Responses API-compatible gateway | Generic OpenAI Responses API with web search grounding | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | No |
-| **Messages** | Messages API-compatible gateway | Generic Anthropic Messages API with web search grounding | `AGENT_WEB_SEARCH_MESSAGES_API_KEY` | No |
-| **Zhipu Chat Search** | [Zhipu AI](https://open.bigmodel.cn/) | GLM Chat Completions with native web search | `ZHIPU_CHAT_SEARCH_API_KEY` | No |
+| **ARK** | [火山引擎 Ark](https://www.volcengine.com/product/ark) | Responses API + 豆包联网搜索 | `ARK_API_KEY` | 否 |
+| **Codex Alpha**（实验性） | 兼容 Alpha Search 的反代网关 | 模型驱动的 Alpha Search | `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | 否 |
+| **DeepSeek** | [DeepSeek API](https://api-docs.deepseek.com/) | Anthropic Messages API 原生网页搜索 | `DEEPSEEK_API_KEY` | 否 |
+| **Gemini** | [Google AI](https://ai.google.dev/gemini-api/docs/google-search) | Gemini Google Search grounding | `GEMINI_API_KEY` | 否 |
+| **Grok** | [xAI](https://docs.x.ai/docs/guides/tools/overview) | xAI 网页搜索和 X Search | `XAI_API_KEY` | 否 |
+| **Responses** | 兼容 Responses API 的网关 | 通用 OpenAI Responses API 网页搜索 | `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | 否 |
+| **Messages** | 兼容 Messages API 的网关 | 通用 Anthropic Messages API 网页搜索 | `AGENT_WEB_SEARCH_MESSAGES_API_KEY` | 否 |
+| **智谱 Chat Search** | [智谱 AI](https://open.bigmodel.cn/) | GLM Chat Completions 原生联网搜索 | `ZHIPU_CHAT_SEARCH_API_KEY` | 否 |
 
-### Agent search providers
+### Agent 搜索提供商
 
-These providers expose search services for agent consumption: natural-language
-queries, structured source rows, high-signal excerpts, or citation-friendly
-metadata rather than a conventional search-page experience.
+这类 Provider 面向 Agent 提供搜索服务：支持自然语言查询，并返回结构化来源、
+高信号摘录或适合引用的元数据，而不是传统搜索页面式体验。
 
-| Provider | Website | Agent-facing search surface | API key | Enabled by default |
+| Provider | 官网 | 面向 Agent 的搜索能力 | API Key | 默认启用 |
 | --- | --- | --- | --- | :---: |
-| **Exa** | [Exa](https://exa.ai) | Semantic Search API or free MCP fallback | **Free without key** · optional `EXA_API_KEY` | Yes |
-| **Parallel** | [Parallel](https://parallel.ai) | Context-oriented search API or free MCP | **Free without key** · optional `PARALLEL_API_KEY` | Yes |
-| **Brave** | [Brave Search](https://brave.com/search/api/) | Structured Web Search API | `BRAVE_SEARCH_API_KEY` | No |
-| **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | Native structured Search API | `PERPLEXITY_API_KEY` | No |
-| **Tavily** | [Tavily](https://tavily.com) | Agent-oriented Search API | `TAVILY_API_KEY` | No |
-| **You.com** | [You.com API](https://you.com/platform/api) | Unified web and news Search API | `YDC_API_KEY` | No |
-| **Zhipu Web Search** | [Zhipu AI](https://open.bigmodel.cn/) | Standalone structured Web Search API | `ZHIPU_WEB_SEARCH_API_KEY` | No |
+| **Exa** | [Exa](https://exa.ai) | 语义 Search API 或免费 MCP 后端 | **无 Key 免费** · 可选 `EXA_API_KEY` | 是 |
+| **Parallel** | [Parallel](https://parallel.ai) | 面向上下文的搜索 API 或免费 MCP | **无 Key 免费** · 可选 `PARALLEL_API_KEY` | 是 |
+| **Brave** | [Brave Search](https://brave.com/search/api/) | 结构化 Web Search API | `BRAVE_SEARCH_API_KEY` | 否 |
+| **Perplexity** | [Perplexity API](https://www.perplexity.ai/api-platform) | 原生结构化 Search API | `PERPLEXITY_API_KEY` | 否 |
+| **Tavily** | [Tavily](https://tavily.com) | 面向 Agent 的 Search API | `TAVILY_API_KEY` | 否 |
+| **You.com** | [You.com API](https://you.com/platform/api) | 统一网页与新闻 Search API | `YDC_API_KEY` | 否 |
+| **智谱 Web Search** | [智谱 AI](https://open.bigmodel.cn/) | 独立的结构化 Web Search API | `ZHIPU_WEB_SEARCH_API_KEY` | 否 |
 
-The provider architecture is intentionally open: another search-capable
-backend can be added without changing the MCP, Hermes, CLI, or Python-facing
-interfaces.
+Provider 架构是开放的：添加新的搜索后端时，不需要修改 MCP、Hermes、CLI 或 Python 接口。
 
-## Use with an agent
+## 给 Agent 使用
 
-> **Prerequisite:** Complete [Installation & Quickstart](#installation--quickstart) first. The sections below provide detailed client configurations and command references for each integration pathway.
+> **前置要求：** 请先完成 [安装与快速上手](#安装与快速上手)。下文针对各接入形态提供详细的客户端配置与命令参考。
 
-### Option 1: MCP<a id="option-1-mcp"></a>
+### 形态一：MCP<a id="option-1-mcp"></a>
 
-Choose MCP when the agent supports tool servers and you want typed discovery,
-protocol-level errors, or remote access. The same `agent-web-search-mcp`
-command supports local stdio and stateless Streamable HTTP.
+当 Agent 支持工具服务器，或者你需要类型化的工具发现、协议级错误、远程
+访问时，选择 MCP。同一个 `agent-web-search-mcp` 命令同时支持本地 stdio
+和无状态 Streamable HTTP。
 
-#### Local stdio MCP
+#### 本地 stdio MCP
 
-Install the package once:
+先安装一次：
 
 ```bash
-# Recommended isolated installation
+# 推荐：隔离安装
 pipx install agent-web-search-mcp
 
-# Or install into the active Python environment
+# 或安装到当前 Python 环境
 python -m pip install agent-web-search-mcp
 ```
 
-Then configure the MCP client to launch `agent-web-search-mcp`:
+然后让 MCP 客户端启动 `agent-web-search-mcp`：
 
 ```json
 {
@@ -246,11 +216,11 @@ Then configure the MCP client to launch `agent-web-search-mcp`:
 }
 ```
 
-If `uvx` is already available, a client can run the package without a
-persistent install by using command `uvx` with args `["agent-web-search-mcp"]`.
+如果本机已经有 `uvx`，也可以不持久安装，让客户端使用命令 `uvx`、参数
+`["agent-web-search-mcp"]`。
 
 <details>
-<summary><strong>Codex CLI, Claude Code, and OpenCode examples</strong></summary>
+<summary><strong>Codex CLI、Claude Code 和 OpenCode 示例</strong></summary>
 
 ```bash
 # Codex CLI
@@ -260,7 +230,7 @@ codex mcp add agent-web-search -- agent-web-search-mcp
 claude mcp add agent-web-search -- agent-web-search-mcp
 ```
 
-OpenCode:
+OpenCode：
 
 ```json
 {
@@ -277,10 +247,9 @@ OpenCode:
 
 </details>
 
-#### Remote MCP over HTTPS
+#### 远程 HTTPS MCP
 
-Use one of the deployment buttons at the top of this README, or run the same
-server yourself:
+可以直接使用 README 顶部的一键部署按钮，也可以自行运行同一个服务器：
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"
@@ -288,14 +257,14 @@ export AGENT_WEB_SEARCH_AUTH_TOKEN="<your-generated-token>"
 agent-web-search-mcp --transport http
 ```
 
-The server exposes authenticated `POST /mcp` and public `GET /healthz`. A
-remote MCP client connects like this:
+服务器提供需要鉴权的 `POST /mcp` 和公开的 `GET /healthz`。远程 MCP
+客户端这样连接：
 
 ```json
 {
   "mcpServers": {
     "agent-web-search": {
-      "url": "https://your-deployment.example/mcp",
+      "url": "https://<your-deployment-domain>/mcp",
       "headers": {
         "Authorization": "Bearer <your-deployment-token>"
       }
@@ -304,53 +273,52 @@ remote MCP client connects like this:
 }
 ```
 
-Every public deployment must set `AGENT_WEB_SEARCH_AUTH_TOKEN` to at least 32
-characters. The server is stateless and does not create `MCP-Session-Id` values.
+所有公网部署都必须设置至少 32 个字符的 `AGENT_WEB_SEARCH_AUTH_TOKEN`。
+服务端无状态，不会创建 `MCP-Session-Id`。
 
-### Option 2: CLI + Agent Skill<a id="agent-skill"></a>
+### 形态二：CLI + Agent Skill<a id="agent-skill"></a>
 
-Choose this shape when the agent already has shell access and supports Agent
-Skills. The Skill teaches the agent how to invoke the CLI, select controls,
-interpret `results`, and handle structured failures; no MCP configuration is
-needed.
+当 Agent 已经有 Shell 能力并支持 Agent Skills 时，选择这个形态。Skill
+会教 Agent 调用 CLI、选择控制参数、理解 `results` 并处理结构化失败，不需要
+配置 MCP Server。
 
-1. Install the CLI:
+1. 安装 CLI：
 
    ```bash
    pipx install agent-web-search-mcp
-   # Or: python -m pip install agent-web-search-mcp
+   # 或：python -m pip install agent-web-search-mcp
    ```
 
-2. Install the included [`agent-web-search` Skill](https://github.com/JerryLiu369/agent-web-search/tree/main/skills/agent-web-search):
+2. 安装仓库内的 [`agent-web-search` Skill](https://github.com/JerryLiu369/agent-web-search/tree/main/skills/agent-web-search)：
 
    ```bash
    npx skills add JerryLiu369/agent-web-search --skill agent-web-search
    ```
 
-   If the agent does not use the `skills` installer, copy
-   `skills/agent-web-search` into that client's Skills directory.
+   如果 Agent 不使用 `skills` 安装器，就把 `skills/agent-web-search` 复制到
+   对应客户端的 Skills 目录。
 
-3. Verify the CLI, then let the agent search:
+3. 验证 CLI，然后让 Agent 搜索：
 
    ```bash
    agent-web-search --version
-   agent-web-search "What changed in the latest OpenAI Codex CLI?"
+   agent-web-search "OpenAI Codex CLI 最新版本有哪些变化？"
    ```
 
-The CLI writes one JSON document to stdout on success. If every provider fails,
-it writes the shared `all_providers_failed` JSON to stderr and exits with status
-1, so shell-capable agents can distinguish a real failure from empty results.
+CLI 成功时向 stdout 写入一个 JSON 文档。如果所有 Provider 都失败，它会向
+stderr 写入统一的 `all_providers_failed` JSON，并以状态码 1 退出，因此 Agent
+可以区分真正的失败和空结果。
 
-| CLI option | MCP argument | Values | Default |
+| CLI 选项 | MCP 参数 | 取值 | 默认值 |
 | --- | --- | --- | --- |
-| positional `QUERY` | `query` | 1–4,000 character natural-language question | required |
-| `--provider` (repeatable) | `providers` | enabled provider names | all enabled |
+| 位置参数 `QUERY` | `query` | 1–4,000 个字符的自然语言问题 | 必填 |
+| `--provider`（可重复） | `providers` | 已启用的 Provider 名 | 所有已启用 |
 | `--max-results` | `max_results` | 1–20 | `5` |
-| `--time-range` | `time_range` | `d`, `w`, `m`, `y` | — |
-| `--grok-search-mode` | `grok_search_mode` | `web_search`, `x_search`, `both` | `web_search` |
+| `--time-range` | `time_range` | `d`、`w`、`m`、`y` | — |
+| `--grok-search-mode` | `grok_search_mode` | `web_search`、`x_search`、`both` | `web_search` |
 
 <details>
-<summary><strong>Install the latest development version from GitHub</strong></summary>
+<summary><strong>从 GitHub 安装最新开发版本</strong></summary>
 
 ```bash
 pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
@@ -359,47 +327,44 @@ pipx install 'git+https://github.com/JerryLiu369/agent-web-search.git'
 </details>
 
 > [!IMPORTANT]
-> Do not place API keys in shell history, source code, Git commits, screenshots,
-> or checked-in MCP configuration. Supply them through server-side or local
-> environment variables.
+> 不要把 API Key 写入 Shell 历史、源代码、Git 提交、截图或纳入版本控制的
+> MCP 配置。请通过服务端或本地环境变量提供 Key。
 
-## Shared request and response
+## 统一请求与响应
 
-MCP exposes one tool named `web_search`; the CLI maps to the same inputs.
+MCP 对外注册一个名为 `web_search` 的工具；CLI 映射到同一组输入。
 
-| Argument | Type | Required | Default | Description |
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
 | --- | --- | :---: | --- | --- |
-| `query` | string, 1–4,000 characters | Yes | — | Complete natural-language search question |
-| `max_results` | integer, 1–20 | No | `5` | Desired maximum number of results |
-| `time_range` | `d`, `w`, `m`, `y` | No | — | Past day, week, month, or year |
-| `providers` | string array | No | All enabled | Narrow the request to enabled providers |
-| `grok_search_mode` | `web_search`, `x_search`, `both` | No | `web_search` | Available only when Grok is enabled |
+| `query` | string，1–4,000 个字符 | 是 | — | 完整的自然语言搜索问题 |
+| `max_results` | integer，1–20 | 否 | `5` | 期望返回的最大结果数量 |
+| `time_range` | `d`、`w`、`m`、`y` | 否 | — | 过去一天、一周、一月或一年 |
+| `providers` | string 数组 | 否 | 所有已启用 Provider | 将本次请求限制在指定的已启用 Provider 中 |
+| `grok_search_mode` | `web_search`、`x_search`、`both` | 否 | `web_search` | 仅在启用 Grok 时可用 |
 
-Example call:
+调用示例：
 
 ```json
 {
-  "query": "What GPU kernel generation papers were published in the past month?",
+  "query": "过去一个月发表了哪些 GPU 内核生成方向的论文？",
   "max_results": 5,
   "time_range": "m",
   "providers": ["ddgs", "exa"]
 }
 ```
 
-Provider selection has two levels:
+Provider 选择分为两层：
 
-1. `AGENT_WEB_SEARCH_PROVIDERS` defines the provider set when the process starts.
-2. The request-level `providers` argument may narrow that set, but cannot enable
-   a provider that was disabled at startup.
+1. `AGENT_WEB_SEARCH_PROVIDERS` 决定进程启动时启用哪些 Provider。
+2. 请求级 `providers` 参数可以进一步缩小范围，但不能启用启动时未启用的 Provider。
 
-### Response format
+### 响应格式
 
-Each selected provider that succeeds appears under `providers`; failed
-providers are omitted:
+每个成功返回的 Provider 会出现在 `providers` 字段中；失败的 Provider 会被剔除：
 
 ```json
 {
-  "query": "What GPU kernel generation papers were published in the past month?",
+  "query": "过去一个月发表了哪些 GPU 内核生成方向的论文？",
   "providers": {
     "ddgs": {
       "results": [
@@ -415,14 +380,14 @@ providers are omitted:
 }
 ```
 
-| Field | Meaning |
+| 字段 | 含义 |
 | --- | --- |
-| `answer` | Provider-generated prose answer, when the backend produces one; omitted otherwise |
-| `results` | Result rows: `title`, `url`, `description`, plus optional `published_at` and `author` |
+| `answer` | 后端生成时返回的文本回答，无则省略该字段 |
+| `results` | 结果行：`title`、`url`、`description`，以及可选的 `published_at` 和 `author` |
 
-If every selected provider fails, MCP returns a tool error. The CLI writes the
-same payload to stderr and exits with status 1. Both use the stable code
-`all_providers_failed` and include per-provider diagnostics:
+如果选中的 Provider 全部失败，MCP 会返回工具错误；CLI 则把同一载荷写入
+stderr 并以状态码 1 退出。两者都使用稳定错误码 `all_providers_failed`，并附带
+各 Provider 的诊断信息：
 
 ```json
 {
@@ -433,27 +398,21 @@ same payload to stderr and exits with status 1. Both use the stable code
       "ddgs": "RuntimeError: rate limited"
     }
   },
-  "query": "What GPU kernel generation papers were published in the past month?"
+  "query": "过去一个月发表了哪些 GPU 内核生成方向的论文？"
 }
 ```
 
 ## Python API
 
-The CLI, MCP servers, and Hermes plugin are thin wrappers around
-`agent_web_search.SearchEngine`, which is the public Python API.
-`SearchRequest` accepts the same fields as the MCP tool arguments:
+CLI、MCP 服务器和 Hermes 插件都是 `agent_web_search.SearchEngine` 的薄封装，后者即公开的 Python API。`SearchRequest` 接受与 MCP 工具参数相同的字段：
 
 ```python
 from agent_web_search import SearchEngine, SearchRequest
 
-engine = SearchEngine()  # reads AGENT_WEB_SEARCH_* variables at construction
+engine = SearchEngine()  # 构造时读取 AGENT_WEB_SEARCH_* 环境变量
 
 response = engine.search(
-    SearchRequest(
-        query="What are the latest changes to the MCP specification?",
-        max_results=5,
-        time_range="m",
-    )
+    SearchRequest(query="MCP 规范最近有哪些变化？", max_results=5, time_range="m")
 )
 
 for name, provider in response.providers.items():
@@ -463,20 +422,18 @@ if response.all_providers_failed:
     print(response.failed_provider_errors)
 ```
 
-## Configuration
+## 配置
 
-Configuration is read from environment variables when the CLI, MCP server, or
-Hermes plugin starts. Restart the process after changing provider settings.
-See [.env.example](https://github.com/JerryLiu369/agent-web-search/blob/main/.env.example) for a commented template of every variable.
+CLI、MCP 服务器或 Hermes 插件启动时会读取环境变量。修改 Provider 设置后需要重启对应进程。仓库内的 [`.env.example`](https://github.com/JerryLiu369/agent-web-search/blob/main/.env.example) 以注释模板的形式列出了全部变量。
 
-### General settings
+### 通用设置
 
-| Variable | Default | Purpose |
+| 变量 | 默认值 | 用途 |
 | --- | --- | --- |
-| `AGENT_WEB_SEARCH_PROVIDERS` | `ddgs,exa,parallel` | Comma-separated startup-enabled provider set |
-| `AGENT_WEB_SEARCH_TIMEOUT` | `60` | Socket timeout for a single upstream HTTP call. Multi-step providers multiply it: keyless Parallel makes up to 3 calls (worst case 3×), ARK may append a continuation call (worst case 2×), so the whole search can take up to `3 ×` this value |
+| `AGENT_WEB_SEARCH_PROVIDERS` | `ddgs,exa,parallel` | 以逗号分隔的启动时启用 Provider 列表 |
+| `AGENT_WEB_SEARCH_TIMEOUT` | `60` | 单次上游 HTTP 调用的 socket 超时。多步 Provider 会成倍放大：keyless Parallel 最多发 3 个请求（最坏 3×），ARK 可能追加续写请求（最坏 2×），因此整次搜索最长可达该值的 3 倍 |
 
-Example:
+示例：
 
 ```bash
 export AGENT_WEB_SEARCH_PROVIDERS="ddgs,exa,brave"
@@ -488,317 +445,275 @@ $env:AGENT_WEB_SEARCH_PROVIDERS = "ddgs,exa,brave"
 $env:AGENT_WEB_SEARCH_TIMEOUT = "30"
 ```
 
-### Outbound proxy
+### 出站代理
 
-Provider requests honor the standard proxy environment variables, so a server
-in a region that providers block can egress through a proxy you operate or
-trust. No application setting is needed:
+所有 Provider 请求都遵循标准代理环境变量。如果服务所在地区被搜索服务封锁，可以通过你自己运营或信任的代理出站，无需额外的应用配置：
 
-| Variable | Applies to | Purpose |
+| 变量 | 作用范围 | 用途 |
 | --- | --- | --- |
-| `HTTPS_PROXY` / `HTTP_PROXY` | All providers | Proxy URL such as `http://user:pass@proxy.example:3128` |
-| `NO_PROXY` | All providers | Comma-separated hosts that bypass the proxy |
-| `DDGS_PROXY` | DDGS only | Overrides the proxy for DDGS; also accepts `socks5h://…` |
+| `HTTPS_PROXY` / `HTTP_PROXY` | 全部 Provider | 代理地址，例如 `http://user:pass@proxy.example:3128` |
+| `NO_PROXY` | 全部 Provider | 以逗号分隔、绕过代理的主机 |
+| `DDGS_PROXY` | 仅 DDGS | 单独为 DDGS 指定代理，也支持 `socks5h://…` |
 
 ```bash
 export HTTPS_PROXY="http://proxy.example:3128"
 ```
 
-Provider API keys travel through the proxy inside the TLS tunnel, but the proxy
-operator still sees which providers you call and can block or log traffic. Use
-a proxy you control or trust; anonymous public proxy lists are not recommended.
-Proxies are server-side only: MCP tool arguments never choose an egress proxy.
+Provider API Key 会在 TLS 隧道内经过代理，但代理运营方仍能看到你调用了哪些服务，并可以拦截或记录流量。请使用你能控制或信任的代理，不建议使用匿名公共代理列表。代理只在服务端配置，MCP 工具参数不会选择出站代理。
 
-### HTTP transport settings
+### HTTP 传输设置
 
-| Variable | Default | Purpose |
+| 变量 | 默认值 | 用途 |
 | --- | --- | --- |
-| `AGENT_WEB_SEARCH_MCP_TRANSPORT` | `stdio` | `stdio` or `http`; `--transport` may override it |
-| `AGENT_WEB_SEARCH_HTTP_HOST` | `0.0.0.0` | HTTP bind host for container deployments |
-| `AGENT_WEB_SEARCH_HTTP_PORT` | `PORT` or `8000` | HTTP bind port; explicit value overrides platform `PORT` |
-| `AGENT_WEB_SEARCH_AUTH_TOKEN` | — | Required HTTP Bearer Token, at least 32 characters |
-| `AGENT_WEB_SEARCH_ALLOW_ANONYMOUS` | `false` | Explicitly disables HTTP auth for trusted/demo environments |
-| `AGENT_WEB_SEARCH_HTTP_ALLOWED_HOSTS` | — | Optional comma-separated Host allowlist |
-| `AGENT_WEB_SEARCH_HTTP_ALLOWED_ORIGINS` | — | Optional comma-separated Origin allowlist; requires allowed hosts |
-| `AGENT_WEB_SEARCH_HTTP_LOG_LEVEL` | `info` | Uvicorn log level for the container server |
+| `AGENT_WEB_SEARCH_MCP_TRANSPORT` | `stdio` | 可选 `stdio` 或 `http`；`--transport` 可以覆盖它 |
+| `AGENT_WEB_SEARCH_HTTP_HOST` | `0.0.0.0` | 容器部署时的 HTTP 监听地址 |
+| `AGENT_WEB_SEARCH_HTTP_PORT` | `PORT` 或 `8000` | HTTP 监听端口；显式值优先于平台 `PORT` |
+| `AGENT_WEB_SEARCH_AUTH_TOKEN` | — | HTTP 必需的 Bearer Token，至少 32 个字符 |
+| `AGENT_WEB_SEARCH_ALLOW_ANONYMOUS` | `false` | 为可信网络或临时 Demo 显式关闭 HTTP 鉴权 |
+| `AGENT_WEB_SEARCH_HTTP_ALLOWED_HOSTS` | — | 可选、逗号分隔的 Host 白名单 |
+| `AGENT_WEB_SEARCH_HTTP_ALLOWED_ORIGINS` | — | 可选、逗号分隔的 Origin 白名单；必须同时配置 Host |
+| `AGENT_WEB_SEARCH_HTTP_LOG_LEVEL` | `info` | 容器服务器的 Uvicorn 日志级别 |
 
-HTTP settings remain environment-only; the deployment files do not introduce
-a second application configuration format.
+HTTP 设置仍然全部来自环境变量；部署文件不会引入第二套应用配置格式。
 
-### Provider settings
+### Provider 设置
 
-Provider-specific settings below include the credential and model controls for
-all providers. The supported-provider overview above is grouped by capability;
-this section is the detailed configuration reference.
+Provider 的专用设置如下，包含全部 Provider 的凭据和模型参数。上面的支持列表按
+搜索能力分组；本节是具体配置参考。
 
 #### 1. DDGS
 
-DDGS uses DuckDuckGo and requires no API key or provider-specific environment
-variables. The `ddgs` Python dependency is installed with the package.
+DDGS 使用 DuckDuckGo，不需要 API Key 或 Provider 专用环境变量。包安装时会自动安装 `ddgs` Python 依赖。
 
 #### 2. Exa
 
-Exa supports both paid and keyless modes.
+Exa 同时支持付费和免 Key 模式。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `EXA_API_KEY` | No | Uses the paid Search API when present |
-| `EXA_MCP_URL` | No | Overrides the free MCP endpoint when no API key is set |
+| `EXA_API_KEY` | 否 | 设置后使用付费 Search API |
+| `EXA_MCP_URL` | 否 | 未设置 API Key 时覆盖默认免费 MCP 地址 |
 
-Without `EXA_API_KEY`, Exa falls back to its free MCP endpoint on a best-effort
-basis. The paid API generally provides higher quota and reliability.
+未设置 `EXA_API_KEY` 时，Exa 会尽力通过免费 MCP 端点搜索。付费 API 通常具有更高的配额和可靠性。
 
 #### 3. Parallel
 
-Parallel returns information-dense excerpts ranked for LLM context. One
-`parallel` provider automatically selects its transport:
+Parallel 返回适合放入 LLM 上下文的信息密集型摘录。统一的 `parallel` Provider 会自动选择传输方式：
 
-- Without a key, it uses Parallel's free Search MCP.
-- With `PARALLEL_API_KEY`, it uses the paid Search REST API.
+- 未设置 Key 时，使用 Parallel 免费 Search MCP。
+- 设置 `PARALLEL_API_KEY` 后，使用付费 Search REST API。
 
-Both transports map `excerpts` into the common result description, so the
-calling agent does not need to distinguish `parallel-free` from `parallel`.
+两种方式都会把 `excerpts` 映射到统一结果的 description 字段，调用 Agent 无需区分 `parallel-free` 和 `parallel`。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `PARALLEL_API_KEY` | No | Enables the paid API; omit it to use the free MCP |
+| `PARALLEL_API_KEY` | 否 | 启用付费 API；省略时使用免费 MCP |
 
-Parallel is enabled by default and its key is optional.
+Parallel 默认启用，Key 为可选项。
 
-#### 4. ARK (Recommended)
+#### 4. ARK（推荐）
 
-Volcengine ARK uses model-backed search grounding through the Responses API.
-Add `ark` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+火山引擎 ARK 通过 Responses API 提供模型驱动的联网搜索。配置 Key 后，将 `ark` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `ARK_API_KEY` | Yes | One key, or multiple comma/newline-separated keys |
-| `AGENT_WEB_SEARCH_ARK_MODELS` | No | Comma/newline-separated ARK model IDs; defaults to `glm-5-2-260617,doubao-seed-2-1-turbo-260628,deepseek-v4-flash-ga-260731` |
+| `ARK_API_KEY` | 是 | 单个 Key，或用逗号/换行分隔的多个 Key |
+| `AGENT_WEB_SEARCH_ARK_MODELS` | 否 | 用逗号/换行分隔的 ARK 模型 ID；默认 `glm-5-2-260617,doubao-seed-2-1-turbo-260628,deepseek-v4-flash-ga-260731` |
 
-One model stays fixed; multiple models are selected round-robin for successive
-requests. When multiple ARK keys are configured, a key is selected per request.
+只配置一个模型时会固定使用该模型；配置多个模型时，连续请求会轮询选择模型。配置多个 ARK Key 时，每次请求会选择一个 Key。
 
 <details>
-<summary><strong>Optional Volcengine collaboration rewards information</strong></summary>
+<summary><strong>可选的火山引擎协作奖励计划信息</strong></summary>
 
-Agent Web Search does not require participation in a rewards program. ARK users
-may optionally review the official
-[Volcengine Collaboration Rewards Program](https://www.volcengine.com/docs/82379/1391869?lang=zh).
-Quota, supported models, validity periods, and data-authorization terms can
-change. Check the official terms before opting in. Participation is not
-required to use Agent Web Search.
+使用 Agent Web Search 不要求参加奖励计划。ARK 用户可以自行查看官方的[火山引擎协作奖励计划](https://www.volcengine.com/docs/82379/1391869?lang=zh)。配额、支持模型、有效期和数据授权条款可能变化，请在选择加入前查看官方最新条款。参与计划并不是使用 Agent Web Search 的前提。
 
 </details>
 
 #### 5. Brave
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `BRAVE_SEARCH_API_KEY` | Yes | Brave Web Search API credential |
+| `BRAVE_SEARCH_API_KEY` | 是 | Brave Web Search API 凭据 |
 
-Add `brave` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+配置 Key 后，将 `brave` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
 
 #### 6. Gemini
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `GEMINI_API_KEY` | Yes | Google AI API credential |
-| `AGENT_WEB_SEARCH_GEMINI_MODELS` | No | Comma/newline-separated Gemini model IDs; defaults to `gemini-3.7-flash` |
+| `GEMINI_API_KEY` | 是 | Google AI API 凭据 |
+| `AGENT_WEB_SEARCH_GEMINI_MODELS` | 否 | 用逗号/换行分隔的 Gemini 模型 ID；默认 `gemini-3.7-flash` |
 
-Gemini maps common result and time controls into best-effort prompt
-constraints. One configured model stays fixed; multiple models are selected
-round-robin for successive requests.
+Gemini 会把通用的结果数量和时间控制尽力转换为 Prompt 约束。只配置一个模型时固定使用该模型；配置多个模型时连续请求会轮询选择模型。
 
 #### 7. Grok
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `XAI_API_KEY` | Yes | xAI API credential |
-| `AGENT_WEB_SEARCH_GROK_MODELS` | No | Comma/newline-separated Grok model IDs; defaults to `grok-4.6` |
+| `XAI_API_KEY` | 是 | xAI API 凭据 |
+| `AGENT_WEB_SEARCH_GROK_MODELS` | 否 | 用逗号/换行分隔的 Grok 模型 ID；默认 `grok-4.6` |
 
-One configured model stays fixed; multiple models are selected round-robin for
-successive requests.
+只配置一个模型时固定使用该模型；配置多个模型时连续请求会轮询选择模型。
 
-When Grok is enabled, the public tool schema adds `grok_search_mode`:
+启用 Grok 后，公开工具 Schema 会增加 `grok_search_mode`：
 
-- `web_search` searches the web.
-- `x_search` searches X with native date filters when available.
-- `both` exposes both server-side tools in one request and lets Grok choose; it
-  does not issue two independent model requests.
+- `web_search` 搜索网页。
+- `x_search` 搜索 X，并在可用时采用原生日期过滤器。
+- `both` 在一次请求中同时向服务端暴露这两种工具并让 Grok 选择；它不会发起两个独立的模型请求。
 
-#### 8. Codex Alpha (experimental)
+#### 8. Codex Alpha（实验性）
 
-The `codex_alpha` provider uses only a gateway API key and a complete endpoint
-implementing `/v1/alpha/search` (the provider does not append a path); it does not handle Codex OAuth tokens. Set the
-endpoint, key, and optional model, then add `codex_alpha` to
-`AGENT_WEB_SEARCH_PROVIDERS`:
+该 Provider 只通过 API key 调用实现 `/v1/alpha/search` 的兼容网关；网关内部使用的
+OAuth 不属于本项目的认证方式。配置完整 endpoint（Provider 不会自动拼接路径）、key
+和可选模型后，将 `codex_alpha` 加入 `AGENT_WEB_SEARCH_PROVIDERS`：
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `AGENT_WEB_SEARCH_CODEX_ALPHA_ENDPOINT` | Yes | Complete Alpha Search endpoint URL |
-| `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | Yes | Gateway Bearer API key |
-| `AGENT_WEB_SEARCH_CODEX_ALPHA_MODEL` | No | Model ID, default `gpt-5.6-luna` |
+| `AGENT_WEB_SEARCH_CODEX_ALPHA_ENDPOINT` | 是 | 完整 Alpha Search endpoint URL |
+| `AGENT_WEB_SEARCH_CODEX_ALPHA_API_KEY` | 是 | 网关 Bearer API key |
+| `AGENT_WEB_SEARCH_CODEX_ALPHA_MODEL` | 否 | 模型 ID，默认 `gpt-5.6-luna` |
 
-The provider sends a normal `search_query` command and returns standard web
-search results.
+该 Provider 只发送普通的 `search_query` 命令并返回标准网页搜索结果。
 
 #### 9. DeepSeek
 
-DeepSeek uses the official Anthropic-compatible Messages API and the native
-`web_search_20250305` server tool. It preserves the final model-generated text
-and maps only explicit `web_search_result` blocks into normalized results. A
-valid response may therefore have an `answer` with an empty `results` list.
+DeepSeek 使用官方 Anthropic 兼容 Messages API 和原生
+`web_search_20250305` 服务端工具。Provider 会保留模型最终生成的文本，只把明确出现的
+`web_search_result` 结果块映射为统一结果。因此，响应可以只有 `answer`，而 `results` 为空。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `DEEPSEEK_API_KEY` | Yes | DeepSeek API credential |
-| `AGENT_WEB_SEARCH_DEEPSEEK_BASE_URL` | No | Anthropic API base URL; defaults to `https://api.deepseek.com/anthropic` |
-| `AGENT_WEB_SEARCH_DEEPSEEK_MODELS` | No | Comma/newline-separated model IDs; defaults to `deepseek-v4-flash` |
+| `DEEPSEEK_API_KEY` | 是 | DeepSeek API 凭据 |
+| `AGENT_WEB_SEARCH_DEEPSEEK_BASE_URL` | 否 | Anthropic API 基础地址，默认 `https://api.deepseek.com/anthropic` |
+| `AGENT_WEB_SEARCH_DEEPSEEK_MODELS` | 否 | 用逗号或换行分隔的模型 ID，默认 `deepseek-v4-flash` |
 
-Add `deepseek` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key. The
-provider appends `/v1/messages` to the configured base URL. Multiple models are
-selected round-robin for successive requests.
+配置 Key 后，将 `deepseek` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。Provider 会在配置的基础地址后追加 `/v1/messages`。配置多个模型时，连续请求会轮询选择模型。
 
 #### 10. Perplexity
 
-This provider uses Perplexity's native structured Search API. It returns result
-rows rather than a Sonar-generated prose answer; OpenRouter compatibility is
-intentionally outside this provider's scope.
+该 Provider 使用 Perplexity 原生的结构化 Search API，返回搜索结果行，而不是由 Sonar 生成的文本回答。该 Provider 不包含 OpenRouter 兼容逻辑。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `PERPLEXITY_API_KEY` | Yes | Perplexity Search API credential |
+| `PERPLEXITY_API_KEY` | 是 | Perplexity Search API 凭据 |
 
-Add `perplexity` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+配置 Key 后，将 `perplexity` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
 
 #### 11. Tavily
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `TAVILY_API_KEY` | Yes | Tavily Search API credential |
+| `TAVILY_API_KEY` | 是 | Tavily Search API 凭据 |
 
-Add `tavily` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+配置 Key 后，将 `tavily` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
 
 #### 12. You.com
 
-You.com returns unified web and news sections. Agent Web Search merges both,
-deduplicates URLs, and applies `max_results` to the combined result list.
+You.com 返回统一的网页和新闻结果。Agent Web Search 会合并两部分、按 URL 去重，并将 `max_results` 应用于合并后的结果列表。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `YDC_API_KEY` | Yes | You.com Search API credential |
+| `YDC_API_KEY` | 是 | You.com Search API 凭据 |
 
-Add `you` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
+配置 Key 后，将 `you` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。
 
-#### 13. Zhipu Web Search
+#### 13. 智谱 Web Search
 
-Zhipu Web Search uses the China standalone Web Search API and returns
-structured search rows. It is a separate Provider from Zhipu Chat Search; the
-implementation does not fall back between the two surfaces.
+智谱 Web Search 使用中国区独立的 Web Search API，返回结构化搜索结果。它与智谱
+Chat Search 是两个独立 Provider，二者之间不会互相 fallback。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `ZHIPU_WEB_SEARCH_API_KEY` | Yes | Zhipu Web Search API credential |
-| `AGENT_WEB_SEARCH_ZHIPU_WEB_SEARCH_BASE_URL` | No | China API base URL; defaults to `https://open.bigmodel.cn` |
+| `ZHIPU_WEB_SEARCH_API_KEY` | 是 | 智谱 Web Search API 凭据 |
+| `AGENT_WEB_SEARCH_ZHIPU_WEB_SEARCH_BASE_URL` | 否 | 中国区 API 基础地址，默认 `https://open.bigmodel.cn` |
 
-Add `zhipu_web_search` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
-The Provider appends `/api/paas/v4/web_search` to the configured base URL.
+配置 Key 后，将 `zhipu_web_search` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。Provider 会在
+基础地址后追加 `/api/paas/v4/web_search`。
 
-#### 14. Zhipu Chat Search
+#### 14. 智谱 Chat Search
 
-Zhipu Chat Search uses the China GLM Chat Completions API with native web
-search. It returns the model answer plus only explicit top-level search rows;
-URLs mentioned in answer prose are not treated as citations. It is a separate
-Provider from Zhipu Web Search and has no API/Chat fallback.
+智谱 Chat Search 使用中国区 GLM Chat Completions API 的原生联网搜索能力。它返回
+模型回答和明确的顶层搜索结果；回答正文中提到的 URL 不会被猜测成引用。它与智谱
+Web Search 是两个独立 Provider，不存在 API/Chat fallback。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `ZHIPU_CHAT_SEARCH_API_KEY` | Yes | Zhipu Chat Search API credential |
-| `AGENT_WEB_SEARCH_ZHIPU_CHAT_BASE_URL` | No | China API base URL; defaults to `https://open.bigmodel.cn` |
-| `AGENT_WEB_SEARCH_ZHIPU_CHAT_MODELS` | No | Comma/newline-separated GLM model IDs; defaults to `glm-5.3-flash` |
+| `ZHIPU_CHAT_SEARCH_API_KEY` | 是 | 智谱 Chat Search API 凭据 |
+| `AGENT_WEB_SEARCH_ZHIPU_CHAT_BASE_URL` | 否 | 中国区 API 基础地址，默认 `https://open.bigmodel.cn` |
+| `AGENT_WEB_SEARCH_ZHIPU_CHAT_MODELS` | 否 | 用逗号/换行分隔的 GLM 模型 ID，默认 `glm-5.3-flash` |
 
-Add `zhipu_chat_search` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
-The Provider appends `/api/paas/v4/chat/completions` to the configured base URL.
-Multiple configured models are selected round-robin for successive requests.
+配置 Key 后，将 `zhipu_chat_search` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。Provider 会在
+基础地址后追加 `/api/paas/v4/chat/completions`。配置多个模型时，连续请求会轮询选择模型。
 
 #### 15. Responses
 
-Responses is a generic OpenAI Responses API client for gateways that expose a
-server-side web search tool at `POST {base_url}/responses`. It traverses the
-`output` array (never assuming `output[0]` holds results), maps
-`web_search_call` action sources and `url_citation` annotations into normalized
-results, and preserves the model-generated answer. A response with only a
-message and no URLs keeps the answer, returns empty `results`, and marks
-`searched` as false.
+Responses 是通用 OpenAI Responses API 客户端，适用于在 `POST {base_url}/responses`
+暴露服务端网页搜索工具的网关。它遍历 `output` 数组（不假设 `output[0]` 即为结果），
+将 `web_search_call` 的 action sources 和 `url_citation` 引用统一为标准结果，并保留
+模型生成的回答。只有 message 而没有任何 URL 的响应会保留回答、返回空 `results`，
+并将 `searched` 标记为 false。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `AGENT_WEB_SEARCH_RESPONSES_BASE_URL` | No | Base URL; defaults to `https://api.openai.com/v1`. Appends `/responses`, or `/v1/responses` when the base has no `/v1` suffix |
-| `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | Yes | Bearer credential; falls back to `OPENAI_API_KEY` |
-| `AGENT_WEB_SEARCH_RESPONSES_MODELS` | No | Comma/newline-separated model IDs; defaults to `gpt-5-mini` |
-| `AGENT_WEB_SEARCH_RESPONSES_TOOL_TYPE` | No | Search tool type; defaults to `web_search` |
-| `AGENT_WEB_SEARCH_RESPONSES_REASONING_EFFORT` | No | Reasoning effort sent as `reasoning: {"effort": "<value>"}` (for example `low`, `medium`, `high`); omitted when unset |
-| `AGENT_WEB_SEARCH_RESPONSES_TIMEOUT` | No | Per-request timeout in seconds; overrides `AGENT_WEB_SEARCH_TIMEOUT` when set |
+| `AGENT_WEB_SEARCH_RESPONSES_BASE_URL` | 否 | 基础地址；默认 `https://api.openai.com/v1`。无 `/v1` 后缀时追加 `/v1/responses`，否则追加 `/responses` |
+| `AGENT_WEB_SEARCH_RESPONSES_API_KEY` | 是 | Bearer 凭据；可回退到 `OPENAI_API_KEY` |
+| `AGENT_WEB_SEARCH_RESPONSES_MODELS` | 否 | 用逗号/换行分隔的模型 ID，默认 `gpt-5-mini` |
+| `AGENT_WEB_SEARCH_RESPONSES_TOOL_TYPE` | 否 | 搜索工具类型，默认 `web_search` |
+| `AGENT_WEB_SEARCH_RESPONSES_REASONING_EFFORT` | 否 | 推理强度，设置后在请求体中附带 `reasoning: {"effort": "<值>"}`（如 `low`、`medium`、`high`）；未设置时不传 |
+| `AGENT_WEB_SEARCH_RESPONSES_TIMEOUT` | 否 | 单次请求超时（秒）；设置后覆盖 `AGENT_WEB_SEARCH_TIMEOUT` |
 
-Add `responses` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
-Multiple configured models are selected round-robin for successive
-requests.
+配置 Key 后，将 `responses` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。配置多个模型时，连续请求会轮询选择模型。
 
 #### 16. Messages
 
-Messages is a generic Anthropic Messages API client for gateways that expose
-a server-side web search tool at `POST {base_url}/v1/messages`. It traverses
-the `content` array (never assuming a single block holds results), maps
-`web_search_tool_result` / `web_search_result` blocks into normalized
-results, backfills missing titles from citations or the result domain, and
-preserves the model-generated answer. A response with only text and no URLs
-keeps the answer, returns empty `results`, and marks `searched` as false.
+Messages 是通用 Anthropic Messages API 客户端，适用于在 `POST {base_url}/v1/messages`
+暴露服务端网页搜索工具的网关。它遍历 `content` 数组（不假设单个结果块即为结果），
+将 `web_search_tool_result` / `web_search_result` 结果块统一为标准结果，缺失标题时
+从引用或结果域名回填，并保留模型生成的回答。只有文本而没有任何 URL 的响应会保留
+回答、返回空 `results`，并将 `searched` 标记为 false。
 
-| Variable | Required | Purpose |
+| 变量 | 必填 | 用途 |
 | --- | :---: | --- |
-| `AGENT_WEB_SEARCH_MESSAGES_BASE_URL` | No | Base URL; defaults to `https://api.anthropic.com`. Appends `/v1/messages` |
-| `AGENT_WEB_SEARCH_MESSAGES_ENDPOINT` | No | Complete endpoint override; takes priority over the base URL |
-| `AGENT_WEB_SEARCH_MESSAGES_API_KEY` | Yes | `x-api-key` credential |
-| `AGENT_WEB_SEARCH_MESSAGES_MODELS` | No | Comma/newline-separated model IDs; defaults to `claude-3-7-sonnet-20250219,claude-3-5-haiku-20241022` |
-| `AGENT_WEB_SEARCH_MESSAGES_TOOL_TYPE` | No | Search tool type; defaults to `web_search_20250305` |
-| `AGENT_WEB_SEARCH_MESSAGES_TOOL_NAME` | No | Search tool name; defaults to `web_search` |
-| `AGENT_WEB_SEARCH_MESSAGES_TIMEOUT` | No | Per-request timeout in seconds; overrides `AGENT_WEB_SEARCH_TIMEOUT` when set |
+| `AGENT_WEB_SEARCH_MESSAGES_BASE_URL` | 否 | 基础地址；默认 `https://api.anthropic.com`，会自动追加 `/v1/messages` |
+| `AGENT_WEB_SEARCH_MESSAGES_ENDPOINT` | 否 | 完整 endpoint 覆盖；优先级高于基础地址 |
+| `AGENT_WEB_SEARCH_MESSAGES_API_KEY` | 是 | `x-api-key` 凭据 |
+| `AGENT_WEB_SEARCH_MESSAGES_MODELS` | 否 | 用逗号/换行分隔的模型 ID，默认 `claude-3-7-sonnet-20250219,claude-3-5-haiku-20241022` |
+| `AGENT_WEB_SEARCH_MESSAGES_TOOL_TYPE` | 否 | 搜索工具类型，默认 `web_search_20250305` |
+| `AGENT_WEB_SEARCH_MESSAGES_TOOL_NAME` | 否 | 搜索工具名称，默认 `web_search` |
+| `AGENT_WEB_SEARCH_MESSAGES_TIMEOUT` | 否 | 单次请求超时（秒）；设置后覆盖 `AGENT_WEB_SEARCH_TIMEOUT` |
 
-Add `messages` to `AGENT_WEB_SEARCH_PROVIDERS` after providing the key.
-Multiple configured models are selected round-robin for successive
-requests.
+配置 Key 后，将 `messages` 加入 `AGENT_WEB_SEARCH_PROVIDERS`。配置多个模型时，连续请求会轮询选择模型。
 
-### Common search controls
+### 通用搜索控制
 
-Each provider maps the shared controls to its native API when possible and
-ignores unsupported controls.
+每个 Provider 会尽可能将公共控制参数映射到原生 API，不支持的参数会被忽略。
 
 | Provider | `max_results` | `time_range` |
 | --- | --- | --- |
-| DDGS | Native `max_results` | Native `timelimit` |
-| Exa | Native result count | Native publish date |
-| Parallel | REST: native `max_results`; keyless MCP: client-side truncation (`results[:max_results]`) | Ignored |
-| ARK | Native `limit` | Prompt constraint |
-| Brave | Native `count` | Native `freshness` |
-| Gemini | Prompt constraint | Prompt constraint |
-| Grok | Prompt constraint | Prompt; X Search also uses native dates |
-| Codex Alpha | Local result truncation | Ignored |
-| DeepSeek | Local search-result truncation | Prompt constraint |
-| Messages | Local deduplication and cap | Prompt constraint |
-| Perplexity | Native `max_results` | Native recency filter |
-| Tavily | Native `max_results` | Native `time_range` |
-| You.com | Native `count`, combined cap | Native `freshness` |
-| Zhipu Web Search | Native `count`, local deduplication and cap | Native recency filter |
-| Zhipu Chat Search | Native `count`, local deduplication and cap | Native recency filter |
-| Responses | Local deduplication and cap | Prompt constraint |
+| DDGS | 原生 `max_results` | 原生 `timelimit` |
+| Exa | 原生结果数量 | 原生发布日期 |
+| Parallel | REST：原生 `max_results`；keyless MCP：客户端截断（`results[:max_results]`） | 忽略 |
+| ARK | 原生 `limit` | Prompt 约束 |
+| Brave | 原生 `count` | 原生 `freshness` |
+| Gemini | Prompt 约束 | Prompt 约束 |
+| Grok | Prompt 约束 | Prompt；X Search 还会使用原生日期参数 |
+| Codex Alpha | 本地结果截断 | 忽略 |
+| DeepSeek | 本地搜索结果截断 | Prompt 约束 |
+| Messages | 本地去重并截断 | Prompt 约束 |
+| Perplexity | 原生 `max_results` | 原生时间范围过滤 |
+| Tavily | 原生 `max_results` | 原生 `time_range` |
+| You.com | 原生 `count`，合并后截断 | 原生 `freshness` |
+| 智谱 Web Search | 原生 `count`，本地去重并截断 | 原生时间范围过滤 |
+| 智谱 Chat Search | 原生 `count`，本地去重并截断 | 原生时间范围过滤 |
+| Responses | 本地去重并截断 | Prompt 约束 |
 
-Prompt-based controls are best-effort and are not strict guarantees.
+基于 Prompt 的控制属于尽力而为，不是严格保证。
 
-## Other interfaces
+## 其他接口
 
-### Native Hermes plugin
+### Hermes 原生插件
 
-Install the native plugin directly from GitHub:
+直接从 GitHub 安装原生插件：
 
 ```bash
 pip install 'ddgs>=9.0'
@@ -806,127 +721,90 @@ hermes plugins install JerryLiu369/agent-web-search --no-enable
 hermes plugins enable agent-web-search --allow-tool-override
 ```
 
-The plugin intentionally replaces Hermes' built-in `web_search` tool, so the
-explicit `--allow-tool-override` grant is required. Start a new Hermes session
-after enabling it; restart the gateway when using a messaging channel.
+该插件会有意替换 Hermes 内置的 `web_search` 工具，因此必须显式授予 `--allow-tool-override` 权限。启用后请启动新的 Hermes 会话；通过消息渠道使用时还需要重启 gateway。
 
-Hermes can also connect through its generic MCP integration instead of the
-native plugin.
+Hermes 也可以不安装原生插件，而是通过通用 MCP 集成连接本项目。
 
-### Native DeepSeek Harness plugin
+### DeepSeek Harness 原生插件
 
-Install the native plugin directly from GitHub (desktop and CLI profiles alike —
-the desktop app ships its own `dsh plugin` command, so no manual file
-placement is needed):
+直接从 GitHub 安装原生插件（桌面版和 CLI 版 profile 都一样 —— 桌面版自带 `dsh plugin` 命令，无需手动放置文件）：
 
 ```bash
 dsh plugin --profile <profile> add github:JerryLiu369/agent-web-search
 python -m pip install agent-web-search-mcp
 ```
 
-The plugin intentionally replaces the implementation behind DSH's native
-`web_search` seam — same model-facing tool name, prompt, normalized sources, and
-citation UI. It does not expose an `mcp__...__web_search` tool. Install the
-`agent-web-search-mcp` Python command in the same environment as DSH, then
-restart DSH if the new provider is not picked up immediately; the bridge
-delegates built-in provider work to that command while DSH retains its native
-settings, history, and diagnostics. Full steps and a copy-paste install prompt
-are in
-[`integrations/dsh/docs/INSTALL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/integrations/dsh/docs/INSTALL.md).
+该插件会有意替换 DSH 原生 `web_search` seam 背后的实现 —— 保持同一个模型可见工具名、提示词、规范化来源和引用卡片；不会暴露 `mcp__...__web_search` 工具。请把 `agent-web-search-mcp` Python 命令安装在 DSH 所用的同一环境中，装完重启 DSH。桥接层把内置 Provider 委托给该命令，同时保留 DSH 原生设置、历史与诊断。完整步骤和一段可直接粘贴的安装 prompt 见 [`integrations/dsh/docs/INSTALL.md`](https://github.com/JerryLiu369/agent-web-search/blob/main/integrations/dsh/docs/INSTALL.md)。
 
-DSH can also connect through its built-in MCP client instead of the native
-plugin.
+DSH 也可以不装原生插件，而是用自带的 MCP 客户端连接本项目。
 
-## Troubleshooting
+## 故障排查
 
-- **`all_providers_failed`** — every selected provider errored. MCP marks the
-  call as an error; the CLI writes diagnostics to stderr and exits 1. Check
-  keys, quotas, and network access. A single retry may help a transient limit.
-- **`agent-web-search` is not found** — install the PyPI package with `pipx` or
-  `pip`, then start a new shell so its scripts directory is on `PATH`.
-- **HTTP 401 `invalid_token`** — the `Authorization: Bearer …` header must
-  match `AGENT_WEB_SEARCH_AUTH_TOKEN`, which must be at least 32 characters.
-- **A provider is missing from a response** — failed providers are omitted
-  from successful responses. The Python API exposes the reasons in
-  `response.failed_provider_errors`.
-- **Provider changes have no effect** — provider settings are read once at
-  startup; restart the CLI, MCP server, or Hermes plugin after changing them.
-- **Providers return HTTP 403 or region errors** — some providers block
-  certain regions. Route provider traffic through a trusted proxy with
-  `HTTPS_PROXY`; see [Outbound proxy](#outbound-proxy).
-- **MCP client times out before the tool returns** —
-  `AGENT_WEB_SEARCH_TIMEOUT` bounds a single upstream HTTP call, not the
-  whole search. Keyless Parallel issues up to 3 calls and ARK may append a
-  continuation request, so the worst case is `3 × AGENT_WEB_SEARCH_TIMEOUT`;
-  configure your MCP client's tool timeout accordingly.
+- **`all_providers_failed`** —— 所有 Provider 都失败了。MCP 会标记工具错误；CLI 会把诊断写入 stderr 并退出 1。请检查 Key、配额和网络；临时限流可以有界重试一次。
+- **找不到 `agent-web-search`** —— 使用 `pipx` 或 `pip` 安装 PyPI 包，然后重新打开 Shell，确保脚本目录已经加入 `PATH`。
+- **HTTP 401 `invalid_token`** —— `Authorization: Bearer …` 请求头必须与 `AGENT_WEB_SEARCH_AUTH_TOKEN` 一致，且该 Token 至少 32 个字符。
+- **Provider 返回 HTTP 403 或地区限制错误** —— 部分服务会封锁特定地区。可以用 `HTTPS_PROXY` 让 Provider 流量经可信代理出站，见[出站代理](#出站代理)。
+- **响应里少了某个 Provider** —— 失败的 Provider 会从成功响应中剔除。Python API 可以通过 `response.failed_provider_errors` 查看原因。
+- **修改 Provider 配置不生效** —— Provider 设置只在进程启动时读取一次；修改后请重启 CLI、MCP 服务器或 Hermes 插件。
+- **MCP 客户端在工具返回前超时** —— `AGENT_WEB_SEARCH_TIMEOUT` 限定的是单次上游 HTTP 调用的超时，不是整次搜索。keyless Parallel 最多发 3 个请求，ARK 可能追加续写请求，最坏总耗时是其 3 倍；请据此设置 MCP 客户端的 tool 超时。
 
-## FAQ
+## 常见问题
 
-### What is Agent Web Search?
+### Agent Web Search 是什么？
 
-Agent Web Search is an open-source web search layer for AI agents. It exposes
-one `web_search` tool through an MCP server (stdio or Streamable HTTP), a CLI,
-and a Python API. Behind that tool it runs model-native search grounding
-providers (ARK, Gemini, Grok, DeepSeek, Zhipu Chat Search, Codex Alpha, and
-generic Responses/Messages gateways), agent search APIs (Exa, Parallel, Brave,
-Perplexity, Tavily, You.com, Zhipu Web Search), and DuckDuckGo as a
-conventional fallback, then returns one normalized JSON response.
+Agent Web Search 是面向 AI Agent 的开源联网搜索层。它通过 MCP 服务器（stdio
+或 Streamable HTTP）、CLI 和 Python API 暴露同一个 `web_search` 工具。工具背后
+并发调用模型原生搜索 grounding（ARK、Gemini、Grok、DeepSeek、智谱 Chat Search、
+Codex Alpha（实验性）以及通用 Responses/Messages 网关）、Agent 搜索 API（Exa、Parallel、Brave、
+Perplexity、Tavily、You.com、智谱 Web Search），并以 DuckDuckGo 作为传统搜索
+兜底，最终返回统一格式的 JSON。
 
-### Is there a free web search MCP server that needs no API key?
+### 有没有不需要 API Key 的免费联网搜索 MCP？
 
-Yes. The default provider set — DDGS, Exa, and Parallel — works without any API
-key. Exa and Parallel use their free MCP endpoints on a best-effort basis until
-`EXA_API_KEY` or `PARALLEL_API_KEY` is set. Paid providers are opt-in through
-`AGENT_WEB_SEARCH_PROVIDERS`.
+有。默认 Provider 组合 DDGS、Exa、Parallel 都不需要 API Key。在设置
+`EXA_API_KEY` 或 `PARALLEL_API_KEY` 之前，Exa 和 Parallel 会尽力使用各自的免费
+MCP 端点。付费 Provider 需要通过 `AGENT_WEB_SEARCH_PROVIDERS` 显式启用。
 
-### How is it different from a Google/Bing metasearch MCP?
+### 它和 Google/Bing 元搜索类 MCP 有什么区别？
 
-Metasearch servers scrape conventional result pages and merge them. Agent Web
-Search aggregates search services built for agents, including model-native
-grounding that returns a synthesized `answer` with citations. A
-[head-to-head benchmark against open-webSearch](https://github.com/JerryLiu369/agent-web-search/blob/main/docs/benchmark-vs-open-websearch-2026-09-06.md)
-documents the difference, including its caveats: SERP scraping from a
-datacenter IP was frequently bot-walled, while API-backed providers degraded to
-fewer rows instead of none.
+元搜索服务器抓取传统搜索结果页再合并。Agent Web Search 聚合的是面向 Agent 的
+搜索服务，其中模型原生 grounding 会返回带引用的综合 `answer`。
+[与 open-webSearch 的对比基准](https://github.com/JerryLiu369/agent-web-search/blob/main/docs/benchmark-vs-open-websearch-2026-09-06.md)
+记录了这种差异及其前提：从数据中心 IP 抓取 SERP 经常被反爬拦截，而基于 API 的
+Provider 只会返回更少结果，不会完全为空。
 
-### Which agents and clients does it work with?
+### 支持哪些 Agent 和客户端？
 
-Any MCP client that supports stdio or Streamable HTTP, including Codex CLI,
-Claude Code, OpenCode, Cursor, Cline, and Claude Desktop. Hermes has a native
-plugin. Shell-capable agents can use the CLI with the included Agent Skill
-instead of MCP.
+任何支持 stdio 或 Streamable HTTP 的 MCP 客户端，包括 Codex CLI、Claude Code、
+OpenCode、Cursor、Cline 和 Claude Desktop。Hermes 有原生插件。具备 Shell 能力
+的 Agent 也可以不用 MCP，而是通过 CLI 加内置 Agent Skill 使用。
 
-### Should I use the MCP server or the CLI + Skill?
+### 应该用 MCP 还是 CLI + Skill？
 
-Use MCP when the client supports tool servers and you want typed tool
-discovery, protocol-level errors, or a remote deployment. Use the CLI + Skill
-when the agent already has a shell and supports Agent Skills; it needs no MCP
-configuration. Both return the same response shape.
+客户端支持工具服务器、需要类型化工具发现、协议级错误或远程部署时，用 MCP。
+Agent 已有 Shell 且支持 Agent Skills 时，用 CLI + Skill，无需任何 MCP 配置。
+两者返回的响应格式相同。
 
-### Can I use my own OpenAI- or Anthropic-compatible gateway for search grounding?
+### 能否接入自己的 OpenAI 或 Anthropic 兼容网关做搜索 grounding？
 
-Yes. The `responses` provider calls any OpenAI Responses API gateway with a
-server-side web search tool, and the `messages` provider does the same for
-Anthropic Messages API gateways. Set the base URL, key, and models through the
-variables in [Provider settings](#provider-settings).
+可以。`responses` Provider 可调用任何带服务端联网搜索工具的 OpenAI Responses
+API 网关，`messages` Provider 对 Anthropic Messages API 网关做同样的事。Base
+URL、Key 和模型通过 [Provider 设置](#provider-设置) 中的环境变量配置。
 
-### Can I host it as a remote MCP server?
+### 能否部署为远程 MCP 服务器？
 
-Yes. `agent-web-search-mcp --transport http` serves stateless Streamable HTTP
-at `POST /mcp` with Bearer-token authentication. One-click templates are
-provided for Vercel, Railway, Render, and Zeabur, and the repository includes a
-Dockerfile.
+可以。`agent-web-search-mcp --transport http` 在 `POST /mcp` 提供无状态
+Streamable HTTP 服务，并默认启用 Bearer Token 认证。仓库提供 Vercel、Railway、
+Render、Zeabur 一键部署模板和 Dockerfile。
 
-### Does it collect telemetry or store my API keys?
+### 会收集遥测数据或保存我的 API Key 吗？
 
-No. There is no telemetry and no shared key service. Provider credentials are
-read from environment variables on the machine or server that runs the search
-and are never accepted as tool arguments.
+不会。项目没有遥测，也没有共享 Key 服务。Provider 凭据只从执行搜索的本机或
+服务器环境变量读取，不会作为工具参数传入。
 
-## Development
+## 开发
 
-Using [`uv`](https://docs.astral.sh/uv/) keeps the development environment
-isolated and reproducible:
+使用 [`uv`](https://docs.astral.sh/uv/) 可以保持开发环境隔离且可复现：
 
 ```bash
 git clone https://github.com/JerryLiu369/agent-web-search.git
@@ -938,7 +816,7 @@ uv run ruff check .
 ```
 
 <details>
-<summary><strong>Standard venv + pip alternative</strong></summary>
+<summary><strong>标准 venv + pip 方式</strong></summary>
 
 ```bash
 python -m venv .venv
@@ -951,12 +829,8 @@ ruff check .
 
 </details>
 
-[ARCHITECTURE.md](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) is the design source of truth, and
-[AGENTS.md](https://github.com/JerryLiu369/agent-web-search/blob/main/AGENTS.md) lists the non-negotiable invariants. Read both before
-changing transports, configuration, authentication, deployment, providers, or
-tool schemas, keep stdio and HTTP behavior identical, and keep `pytest` and
-`ruff` green in the same change.
+[ARCHITECTURE.md](https://github.com/JerryLiu369/agent-web-search/blob/main/ARCHITECTURE.md) 是设计事实来源，[AGENTS.md](https://github.com/JerryLiu369/agent-web-search/blob/main/AGENTS.md) 列出了不可妥协的约束。在修改 Transport、配置、鉴权、部署、Provider 或工具 Schema 之前，请先阅读这两份文档，保持 stdio 与 HTTP 行为一致，并在同一改动中保持 `pytest` 和 `ruff` 通过。
 
-## License
+## 许可证
 
 [MIT](https://github.com/JerryLiu369/agent-web-search/blob/main/LICENSE)
